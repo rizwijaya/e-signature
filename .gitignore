@@ -1,0 +1,6 @@
+.vscode
+TamaskaDashboard.zip
+.env
+.env_local
+.env_server
+/imageExtraction
