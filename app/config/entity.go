@@ -19,4 +19,10 @@ type Conf struct {
 		Username string `env:"BASIC_AUTH_USER"`
 		Password string `env:"BASIC_AUTH_PASSWORD"`
 	}
+	Blockhain struct {
+		Host       string `env:"BLOCKCHAIN_HOST"`
+		Port       string `env:"BLOCKCHAIN_PORT"`
+		Secret_key string `env:"BLOCKCHAIN_SECRET"`
+		Keystore   string `env:"BLOCKCHAIN_KEYSTORE"`
+	}
 }
