@@ -1,8 +1,8 @@
 package view
 
 import (
-	"TamaskaDashboard/modules/v1/utilities/dashboard/repository"
-	"TamaskaDashboard/modules/v1/utilities/dashboard/service"
+	"e-signature/modules/v1/utilities/dashboard/repository"
+	"e-signature/modules/v1/utilities/dashboard/service"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

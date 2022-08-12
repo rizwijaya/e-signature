@@ -45,6 +45,8 @@ func Render(templatesDir string) multitemplate.Renderer {
 
 	r.AddFromFiles("error_404.html", templatesDir+"/common/error_404.html")
 	r.AddFromFiles("error.html", templatesDir+"/common/error.html")
+	r.AddFromFiles("login.html", templatesDir+"/common/login.html")
+	r.AddFromFiles("register.html", templatesDir+"/common/register.html")
 	return r
 }
 

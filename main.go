@@ -1,11 +1,11 @@
 package main
 
 import (
-	"TamaskaDashboard/app/config"
-	database "TamaskaDashboard/app/databases"
-	routesV1 "TamaskaDashboard/modules/v1/routes"
-	"TamaskaDashboard/pkg/html"
-	error "TamaskaDashboard/pkg/http-error"
+	"e-signature/app/config"
+	database "e-signature/app/databases"
+	routesV1 "e-signature/modules/v1/routes"
+	"e-signature/pkg/html"
+	error "e-signature/pkg/http-error"
 	"log"
 
 	"github.com/gin-contrib/cors"

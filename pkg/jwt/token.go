@@ -1,7 +1,7 @@
 package token
 
 import (
-	"TamaskaDashboard/app/config"
+	"e-signature/app/config"
 	"errors"
 
 	"github.com/dgrijalva/jwt-go"

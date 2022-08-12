@@ -1,7 +1,7 @@
 package basic
 
 import (
-	"TamaskaDashboard/app/config"
+	"e-signature/app/config"
 
 	"github.com/gin-gonic/gin"
 )

@@ -1,7 +1,7 @@
 package database
 
 import (
-	"TamaskaDashboard/app/config"
+	"e-signature/app/config"
 	"log"
 
 	"gorm.io/driver/mysql"

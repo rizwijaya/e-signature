@@ -1,7 +1,7 @@
 package service
 
 import (
-	"TamaskaDashboard/modules/v1/utilities/dashboard/repository"
+	"e-signature/modules/v1/utilities/signatures/repository"
 )
 
 type Service interface {

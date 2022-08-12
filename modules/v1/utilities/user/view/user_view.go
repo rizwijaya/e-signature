@@ -1,8 +1,8 @@
 package view
 
 import (
-	"TamaskaDashboard/modules/v1/utilities/user/repository"
-	"TamaskaDashboard/modules/v1/utilities/user/service"
+	"e-signature/modules/v1/utilities/user/repository"
+	"e-signature/modules/v1/utilities/user/service"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -32,14 +32,29 @@ func (h *userView) Dashboard(c *gin.Context) {
 }
 
 func (h *userView) Register(c *gin.Context) {
-	c.HTML(http.StatusOK, "register_index.html", nil)
-}
-
-func (h *userView) Login(c *gin.Context) {
-	title := "Login - SmartSign"
-	c.HTML(http.StatusOK, "login_index.html",
+	title := "Register - SmartSign"
+	c.HTML(http.StatusOK, "register.html",
 		gin.H{
 			"title": title,
 		},
 	)
+
+	//Algoritma Register
+	//Register in record system
+	//After Success register in record user
+}
+
+func (h *userView) Login(c *gin.Context) {
+	title := "Login - SmartSign"
+	c.HTML(http.StatusOK, "login.html",
+		gin.H{
+			"title": title,
+		},
+	)
+
+	//Algoritma Login
+	//Check idsignature, pw in record system
+	//Valid, get all data
+	// set session sementara with data
+	//get data in record user with address
 }
