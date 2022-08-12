@@ -1,6 +1,7 @@
 package view
 
 import (
+	api "e-signature/app/contracts"
 	"e-signature/modules/v1/utilities/user/repository"
 	"e-signature/modules/v1/utilities/user/service"
 	"net/http"
@@ -17,9 +18,9 @@ func NewUserView(userService service.Service) *userView {
 	return &userView{userService}
 }
 
-func View(db *gorm.DB) *userView {
+func View(db *gorm.DB, blockhain *api.Api) *userView {
 	Repository := repository.NewRepository(db)
-	Service := service.NewService(Repository)
+	Service := service.NewService(Repository, blockhain)
 	return NewUserView(Service)
 }
 

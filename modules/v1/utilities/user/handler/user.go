@@ -4,6 +4,7 @@ import (
 	"e-signature/modules/v1/utilities/user/repository"
 	"e-signature/modules/v1/utilities/user/service"
 
+	api "e-signature/app/contracts"
 	ss "e-signature/modules/v1/utilities/user/service"
 
 	"github.com/gin-gonic/gin"
@@ -22,9 +23,9 @@ func NewUserHandler(userService ss.Service) *userHandler {
 	return &userHandler{userService}
 }
 
-func Handler(db *gorm.DB) *userHandler {
+func Handler(db *gorm.DB, blockhain *api.Api) *userHandler {
 	userRepository := repository.NewRepository(db)
-	userService := service.NewService(userRepository)
+	userService := service.NewService(userRepository, blockhain)
 	userHandler := NewUserHandler(userService)
 	return userHandler
 }
