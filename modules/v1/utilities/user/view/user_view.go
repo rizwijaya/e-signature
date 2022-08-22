@@ -6,6 +6,7 @@ import (
 	"e-signature/modules/v1/utilities/user/service"
 	"net/http"
 
+	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
@@ -18,9 +19,9 @@ func NewUserView(userService service.Service) *userView {
 	return &userView{userService}
 }
 
-func View(db *gorm.DB, blockhain *api.Api) *userView {
-	Repository := repository.NewRepository(db)
-	Service := service.NewService(Repository, blockhain)
+func View(db *gorm.DB, blockhain *api.Api, client *ethclient.Client) *userView {
+	Repository := repository.NewRepository(db, blockhain, client)
+	Service := service.NewService(Repository)
 	return NewUserView(Service)
 }
 

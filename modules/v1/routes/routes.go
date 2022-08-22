@@ -25,16 +25,17 @@ func ParseTmpl(router *gin.Engine) *gin.Engine { //Load HTML Template
 }
 
 func Init(db *gorm.DB, conf config.Conf, router *gin.Engine) *gin.Engine {
-	blockchain := blockhain.Init(conf)
+	blockchain, client := blockhain.Init(conf)
 	//signaturesHandlerV1 := signaturesHandlerV1.Handler(db)
 	//signaturesViewV1 := signaturesViewV1.View(db)
-	userHandlerV1 := userHandlerV1.Handler(db, blockchain)
-	userViewV1 := userViewV1.View(db, blockchain)
+	userHandlerV1 := userHandlerV1.Handler(db, blockchain, client)
+	userViewV1 := userViewV1.View(db, blockchain, client)
 	// Routing Website Service
 	user := router.Group("")
 	user.GET("/", userViewV1.Index)
 	user.GET("/dashboard", userViewV1.Dashboard)
 	user.GET("/register", userViewV1.Register)
+	user.POST("/register", userHandlerV1.Register)
 	user.GET("/login", userViewV1.Login)
 	user.POST("/login", userHandlerV1.Login)
 	//signatures := router.Group("/", basic.Auth(conf))
