@@ -18,27 +18,6 @@ contract Smartsign {
     }
 
     //------Model data------//
-    //Model User Profile
-    struct Profile {
-        address profile_address;
-        uint256 profile_id;
-        string name;
-        string email;
-        string phone;
-        string identity_card;
-        string dateregistered;
-        bool exist;
-        //uint256[] signaturelist;
-        mapping(uint256 => Signatures) signature;
-    }
-    //Model Signature Data
-    struct Signatures {
-        uint256 signature_id;
-        string signature;
-        string datecreated;
-        bool exist;
-    }
-
     //Model Document Data
     struct Document {
         //Document selama proses ttd dari awal sampai selesai
@@ -48,8 +27,8 @@ contract Smartsign {
         uint signing; //Yang telah ttd
         string namefile;
         string hash_file;
-        string metadata;
         string hash_ipfs;
+        string metadata;
         uint state; //1 Process Signed, 2 Signed
         uint totalsigned;
         uint createdtime;
@@ -112,55 +91,6 @@ contract Smartsign {
     }
 
     //------End Permission Access------//
-
-    //------Profile Function------//
-    //------Create User Profile------//
-    address[] public profile;
-    mapping(address => Profile) public Profiles;
-
-    //Second Step Register After Private Key and Save data in Key User
-    function add_profile(
-        string memory _name,
-        string memory _identity_card,
-        string memory _email,
-        string memory _phone,
-        string memory _dateregistered
-    ) public permissionUser {
-        Profiles[msg.sender].profile_address = msg.sender;
-        Profiles[msg.sender].profile_id = profileCount;
-        Profiles[msg.sender].name = _name;
-        Profiles[msg.sender].email = _email;
-        Profiles[msg.sender].phone = _phone;
-        Profiles[msg.sender].identity_card = _identity_card;
-        Profiles[msg.sender].dateregistered = _dateregistered;
-        Profiles[msg.sender].exist = true;
-        profile.push(msg.sender);
-        profileCount++;
-    }
-
-    //------Signing Profiles------//
-    function profilesign(
-        uint256 _sign_id,
-        string memory sign,
-        string memory timestamp
-    ) public {
-        Profiles[msg.sender].signature[_sign_id] = Signatures({
-            signature_id: _sign_id,
-            signature: sign,
-            exist: true,
-            datecreated: timestamp
-        });
-    }
-
-    //------End Create User Profile------//
-    //GetAllSign
-
-    //Get Total Profile
-    function get_totalprofile() public view returns (uint256) {
-        return profileCount;
-    }
-
-    //------End Profile Function------//
 
     //------Document Function------//
     // mapping(bytes32 => Document) documents;
