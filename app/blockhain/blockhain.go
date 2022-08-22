@@ -29,6 +29,7 @@ func GetAccountAuth(client *ethclient.Client, privateKeyAddress string) *bind.Tr
 	//ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	//defer cancel()
 	fromAddress := crypto.PubkeyToAddress(*publicKeyECDSA)
+	fmt.Println(fromAddress)
 	nonce, err := client.PendingNonceAt(context.Background(), fromAddress)
 	if err != nil {
 		log.Fatal(err)
@@ -49,19 +50,19 @@ func GetAccountAuth(client *ethclient.Client, privateKeyAddress string) *bind.Tr
 	auth.Value = big.NewInt(0)
 	auth.GasLimit = uint64(3000000)
 	auth.GasPrice = big.NewInt(1000000)
-
 	return auth
 }
 func Connect() *ethclient.Client {
 	conf, _ := config.Init()
-	client, err := ethclient.Dial(conf.Blockhain.Host + ":" + conf.Blockhain.Port)
+	//client, err := ethclient.Dial(conf.Blockhain.Host + ":" + conf.Blockhain.Port)
+	client, err := ethclient.Dial(conf.Blockhain.Host + conf.Blockhain.Key)
 	if err != nil {
 		log.Fatal(err)
 	}
 	return client
 }
 
-func Init(conf config.Conf) *api.Api {
+func Init(conf config.Conf) (*api.Api, *ethclient.Client) {
 	client := Connect()
 	auth := GetAccountAuth(client, conf.Blockhain.Secret_key)
 
@@ -74,10 +75,16 @@ func Init(conf config.Conf) *api.Api {
 	fmt.Println("instance : ", instance)
 	fmt.Println("tx : ", tx.Hash().Hex())
 
+	// db := database.Init(conf)
+	// err = db.Exec("INSERT INTO transactions (address, tx_hash, nonce) VALUES (" + address.Hex() + ", " + tx.Hash().Hex() + ", " + auth.Nonce.String() + ")").Error
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+
 	conn, err := api.NewApi(common.HexToAddress(address.Hex()), client)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	return conn
+	return conn, client
 }

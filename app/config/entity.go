@@ -7,6 +7,7 @@ type Conf struct {
 		Mode       string `env:"APP_MODE"`
 		Url        string `env:"APP_URL"`
 		Secret_key string `env:"APP_SECRET"`
+		Tmp        string `env:"APP_TMP"`
 	}
 	Db struct {
 		Host string `env:"DB_HOST"`
@@ -20,9 +21,13 @@ type Conf struct {
 		Password string `env:"BASIC_AUTH_PASSWORD"`
 	}
 	Blockhain struct {
-		Host       string `env:"BLOCKCHAIN_HOST"`
-		Port       string `env:"BLOCKCHAIN_PORT"`
-		Secret_key string `env:"BLOCKCHAIN_SECRET"`
-		Keystore   string `env:"BLOCKCHAIN_KEYSTORE"`
+		Host        string `env:"BLOCKCHAIN_HOST"`
+		Key         string `env:"BLOCKCHAIN_KEY"`
+		Secret_key  string `env:"BLOCKCHAIN_SECRET"`
+		Account     string `env:"BLOCKCHAIN_ACCOUNT"`
+		Public      string `env:"BLOCKCHAIN_PUB"`
+		Secret_base string `env:"BLOCKCHAIN_BASE"`
+		//Port       string `env:"BLOCKCHAIN_PORT"`
+		//Keystore   string `env:"BLOCKCHAIN_KEYSTORE"`
 	}
 }
