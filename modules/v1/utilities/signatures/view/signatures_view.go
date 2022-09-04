@@ -1,28 +1,28 @@
 package view
 
 import (
-	"e-signature/modules/v1/utilities/dashboard/repository"
-	"e-signature/modules/v1/utilities/dashboard/service"
+	"e-signature/modules/v1/utilities/signatures/repository"
+	"e-signature/modules/v1/utilities/signatures/service"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
-type dashboardView struct {
-	dashboardService service.Service
+type signaturesView struct {
+	signaturesService service.Service
 }
 
-func NewDashboardView(dashboardService service.Service) *dashboardView {
-	return &dashboardView{dashboardService}
+func NewSignaturesView(signaturesService service.Service) *signaturesView {
+	return &signaturesView{signaturesService}
 }
 
-func View(db *gorm.DB) *dashboardView {
+func View(db *gorm.DB) *signaturesView {
 	Repository := repository.NewRepository(db)
 	Service := service.NewService(Repository)
-	return NewDashboardView(Service)
+	return NewSignaturesView(Service)
 }
 
-func (h *dashboardView) Index(c *gin.Context) {
+func (h *signaturesView) Index(c *gin.Context) {
 	c.HTML(http.StatusOK, "dashboard_index.html", nil)
 }
