@@ -5,6 +5,7 @@ import (
 	"crypto/ecdsa"
 	"e-signature/app/config"
 	api "e-signature/app/contracts"
+	database "e-signature/app/databases"
 	"fmt"
 	"log"
 	"math/big"
@@ -29,13 +30,13 @@ func GetAccountAuth(client *ethclient.Client, privateKeyAddress string) *bind.Tr
 	//ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	//defer cancel()
 	fromAddress := crypto.PubkeyToAddress(*publicKeyECDSA)
-	fmt.Println(fromAddress)
+	//fmt.Println(fromAddress)
 	nonce, err := client.PendingNonceAt(context.Background(), fromAddress)
 	if err != nil {
 		log.Fatal(err)
 	}
 	//fmt.Println(fromAddress)
-	fmt.Println("nounce= ", nonce)
+	//fmt.Println("nounce= ", nonce)
 	chainID, err := client.ChainID(context.Background())
 	if err != nil {
 		log.Fatal(err)
@@ -66,20 +67,23 @@ func Init(conf config.Conf) (*api.Api, *ethclient.Client) {
 	client := Connect()
 	auth := GetAccountAuth(client, conf.Blockhain.Secret_key)
 
-	address, tx, instance, err := api.DeployApi(auth, client)
+	address, tx, _, err := api.DeployApi(auth, client)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Println(address.Hex())
-	fmt.Println("instance : ", instance)
-	fmt.Println("tx : ", tx.Hash().Hex())
+	// fmt.Println(address.Hex())
+	// fmt.Println("instance : ", instance)
+	// fmt.Println("tx : ", tx.Hash().Hex())
 
-	// db := database.Init(conf)
-	// err = db.Exec("INSERT INTO transactions (address, tx_hash, nonce) VALUES (" + address.Hex() + ", " + tx.Hash().Hex() + ", " + auth.Nonce.String() + ")").Error
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
+	tranx := fmt.Sprintf("%v", tx.Hash().Hex())
+	addressing := fmt.Sprintf("%v", address.Hex())
+
+	db := database.Init(conf)
+	err = db.Exec("INSERT INTO transactions (address, tx_hash, nonce) VALUES ('" + addressing[2:] + "', '" + tranx[2:] + "', " + auth.Nonce.String() + ")").Error
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	conn, err := api.NewApi(common.HexToAddress(address.Hex()), client)
 	if err != nil {
