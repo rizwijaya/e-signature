@@ -31,6 +31,7 @@ type Repository interface {
 	Register(user models.User) error
 	SavetoProfile(user models.User, key string) error
 	CheckUserExist(idsignature string) (models.ProfileDB, error)
+	CheckEmailExist(email string) (models.ProfileDB, error)
 	TransferBalance(user models.User) (string, error)
 }
 
@@ -175,6 +176,16 @@ func (r *repository) SavetoProfile(user models.User, key string) error {
 func (r *repository) CheckUserExist(idsignature string) (models.ProfileDB, error) {
 	var profile models.ProfileDB
 	err := r.db.Table("users").Where("idsignature = ?", idsignature).Find(&profile).Error
+	if err != nil {
+		return profile, err
+	}
+
+	return profile, nil
+}
+
+func (r *repository) CheckEmailExist(email string) (models.ProfileDB, error) {
+	var profile models.ProfileDB
+	err := r.db.Table("users").Where("email = ?", email).Find(&profile).Error
 	if err != nil {
 		return profile, err
 	}

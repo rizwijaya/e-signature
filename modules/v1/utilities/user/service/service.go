@@ -33,6 +33,7 @@ type Service interface {
 	DecryptFile(filename string, passphrase string) error
 	//SavetoSystem(user models.User) error
 	CheckUserExist(idsignature string) (string, error)
+	CheckEmailExist(email string) (string, error)
 }
 
 type service struct {
@@ -233,6 +234,18 @@ func (s *service) DecryptFile(filename string, passphrase string) error {
 
 func (s *service) CheckUserExist(idsignature string) (string, error) {
 	id, err := s.repository.CheckUserExist(idsignature)
+	if err != nil {
+		log.Println(err)
+		return "", err
+	}
+	if id.Email == "" {
+		return "no-exist", nil
+	}
+	return "exist", nil
+}
+
+func (s *service) CheckEmailExist(email string) (string, error) {
+	id, err := s.repository.CheckEmailExist(email)
 	if err != nil {
 		log.Println(err)
 		return "", err

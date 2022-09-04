@@ -67,6 +67,16 @@ func (h *userHandler) Register(c *gin.Context) {
 		})
 		return
 	}
+	//Check if email already
+	email, err := h.userService.CheckEmailExist(input.Email)
+	if err != nil || email == "exist" {
+		c.HTML(http.StatusOK, "register.html", gin.H{
+			"title": "Register - SmartSign",
+			"flash": "User already exist",
+		})
+		return
+	}
+
 	user.Idsignature = input.IdSignature
 	user.Name = input.Name
 	user.Password = input.Password
