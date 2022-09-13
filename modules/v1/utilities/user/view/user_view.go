@@ -26,11 +26,21 @@ func View(db *gorm.DB, blockhain *api.Api, client *ethclient.Client) *userView {
 }
 
 func (h *userView) Index(c *gin.Context) {
-	c.HTML(http.StatusOK, "landing_index.html", nil)
+	title := "SmartSign - Smart Digital Signatures"
+	page := "index"
+	c.HTML(http.StatusOK, "landing_index.html", gin.H{
+		"title": title,
+		"page":  page,
+	})
 }
 
 func (h *userView) Dashboard(c *gin.Context) {
-	c.HTML(http.StatusOK, "dashboard_index.html", nil)
+	title := "Dashboard - SmartSign"
+	page := "dashboard"
+	c.HTML(http.StatusOK, "dashboard_index.html", gin.H{
+		"title": title,
+		"page":  page,
+	})
 }
 
 func (h *userView) Register(c *gin.Context) {

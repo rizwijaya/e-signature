@@ -9,12 +9,12 @@ import (
 func Render(templatesDir string) multitemplate.Renderer {
 	r := multitemplate.NewRenderer()
 
-	layouts, err := filepath.Glob(templatesDir + "/dashboard/layouts/*")
+	layouts, err := filepath.Glob(templatesDir + "/users/layouts/*")
 	if err != nil {
 		panic(err.Error())
 	}
 
-	includes, err := filepath.Glob(templatesDir + "/dashboard/**/*")
+	includes, err := filepath.Glob(templatesDir + "/users/**/*")
 	if err != nil {
 		panic(err.Error())
 	}
@@ -26,22 +26,22 @@ func Render(templatesDir string) multitemplate.Renderer {
 		r.AddFromFiles(filepath.Base(include), files...)
 	}
 
-	layouts2, err := filepath.Glob(templatesDir + "/landing/layouts/*")
-	if err != nil {
-		panic(err.Error())
-	}
+	// layouts2, err := filepath.Glob(templatesDir + "/landing/layouts/*")
+	// if err != nil {
+	// 	panic(err.Error())
+	// }
 
-	includes2, err := filepath.Glob(templatesDir + "/landing/**/*")
-	if err != nil {
-		panic(err.Error())
-	}
+	// includes2, err := filepath.Glob(templatesDir + "/landing/**/*")
+	// if err != nil {
+	// 	panic(err.Error())
+	// }
 
-	for _, include2 := range includes2 {
-		layoutCopy2 := make([]string, len(layouts2))
-		copy(layoutCopy2, layouts2)
-		files2 := append(layoutCopy2, include2)
-		r.AddFromFiles(filepath.Base(include2), files2...)
-	}
+	// for _, include2 := range includes2 {
+	// 	layoutCopy2 := make([]string, len(layouts2))
+	// 	copy(layoutCopy2, layouts2)
+	// 	files2 := append(layoutCopy2, include2)
+	// 	r.AddFromFiles(filepath.Base(include2), files2...)
+	// }
 
 	r.AddFromFiles("error_404.html", templatesDir+"/common/error_404.html")
 	r.AddFromFiles("error.html", templatesDir+"/common/error.html")
