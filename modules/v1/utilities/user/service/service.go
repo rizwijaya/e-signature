@@ -8,6 +8,7 @@ import (
 	"e-signature/modules/v1/utilities/user/models"
 	"e-signature/modules/v1/utilities/user/repository"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -23,7 +24,7 @@ type Service interface {
 	ConnectIPFS() *shell.Shell
 	UploadIPFS(path string) (error, string)
 	GetFileIPFS(hash string, output string) (string, error)
-	Login(input models.LoginInput) (models.User, error)
+	Login(input models.LoginInput) (models.ProfileDB, error)
 	CreateAccount(user models.User) error
 	SaveImage(input models.RegisterUserInput, file *multipart.FileHeader) (string, error)
 	CreateKey(key string) []byte
@@ -68,7 +69,8 @@ func (s *service) UploadIPFS(path string) (error, string) {
 
 	err = os.Remove(path)
 	if err != nil {
-		log.Println("The file could not be removed")
+		//log.Println("The file could not be removed")
+		log.Println(err)
 		return err, ""
 	}
 	return err, cid
@@ -85,10 +87,28 @@ func (s *service) GetFileIPFS(hash string, output string) (string, error) {
 	return outputName, nil
 }
 
-func (s *service) Login(input models.LoginInput) (models.User, error) {
-	// idsignature := input.IdSignature
-	// password := input.Password
-	return models.User{}, nil
+func (s *service) Login(input models.LoginInput) (models.ProfileDB, error) {
+	idsignature := input.IdSignature
+	password := input.Password
+
+	user, err := s.repository.CheckUserExist(idsignature)
+	if err != nil {
+		log.Println(err)
+		return user, err
+	}
+
+	if user.User_id == 0 {
+		log.Println("User not found")
+		return user, errors.New("user not found")
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	if err != nil {
+		log.Println(err)
+		return user, errors.New("password salah")
+	}
+
+	return user, nil
 }
 
 func (s *service) CreateAccount(user models.User) error {

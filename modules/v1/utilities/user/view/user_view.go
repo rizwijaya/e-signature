@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
@@ -28,20 +29,42 @@ func View(db *gorm.DB, blockhain *api.Api, client *ethclient.Client) *userView {
 }
 
 func (h *userView) Index(c *gin.Context) {
+	session := sessions.Default(c)
 	title := "SmartSign - Smart Digital Signatures"
 	page := "index"
-	c.HTML(http.StatusOK, "landing_index.html", gin.H{
-		"title": title,
-		"page":  page,
-	})
+
+	if session.Get("id") == nil {
+		c.HTML(http.StatusOK, "landing_index.html", gin.H{
+			"title":  title,
+			"page":   page,
+			"userid": 0,
+		})
+	} else {
+		c.HTML(http.StatusOK, "landing_index.html", gin.H{
+			"title":  title,
+			"page":   page,
+			"userid": session.Get("id"),
+		})
+	}
 }
 
 func (h *userView) Dashboard(c *gin.Context) {
+	session := sessions.Default(c)
 	title := "Dashboard - SmartSign"
 	page := "dashboard"
+	//fm, _ := notif.GetMessage(c.Writer, c.Request, "success")
+	// if fm == nil {
+	// 	c.HTML(http.StatusOK, "dashboard_index.html",
+	// 		gin.H{
+	// 			"title": title,
+	// 			"page":  page,
+	// 		})
+	// }
 	c.HTML(http.StatusOK, "dashboard_index.html", gin.H{
-		"title": title,
-		"page":  page,
+		"title":  title,
+		"page":   page,
+		"userid": session.Get("id"),
+		//"success": fmt.Sprintf("%s", fm),
 	})
 }
 

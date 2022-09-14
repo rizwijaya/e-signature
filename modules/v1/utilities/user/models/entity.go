@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 type User struct {
 	Profile_id     int
 	Idsignature    string
@@ -16,6 +18,7 @@ type User struct {
 }
 
 type ProfileDB struct {
+	User_id       int
 	Idsignature   string
 	Name          string
 	Email         string
@@ -24,4 +27,5 @@ type ProfileDB struct {
 	Password      string
 	PublicKey     string `gorm:"column:publickey"`
 	Role_id       int
+	Date_created  time.Time
 }
