@@ -4,6 +4,8 @@ import (
 	api "e-signature/app/contracts"
 	"e-signature/modules/v1/utilities/user/repository"
 	"e-signature/modules/v1/utilities/user/service"
+	notif "e-signature/pkg/notification"
+	"fmt"
 	"net/http"
 
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -44,7 +46,7 @@ func (h *userView) Dashboard(c *gin.Context) {
 }
 
 func (h *userView) Register(c *gin.Context) {
-	title := "Register - SmartSign"
+	title := "Pendaftaran - SmartSign"
 	c.HTML(http.StatusOK, "register.html",
 		gin.H{
 			"title": title,
@@ -57,16 +59,19 @@ func (h *userView) Register(c *gin.Context) {
 }
 
 func (h *userView) Login(c *gin.Context) {
-	title := "Login - SmartSign"
+	title := "Masuk - SmartSign"
+	fm, _ := notif.GetMessage(c.Writer, c.Request, "registered")
+	if fm == nil {
+		c.HTML(http.StatusOK, "login.html",
+			gin.H{
+				"title": title,
+			},
+		)
+	}
 	c.HTML(http.StatusOK, "login.html",
 		gin.H{
-			"title": title,
+			"title":      title,
+			"registered": fmt.Sprintf("%s", fm),
 		},
 	)
-
-	//Algoritma Login
-	//Check idsignature, pw in record system
-	//Valid, get all data
-	// set session sementara with data
-	//get data in record user with address
 }

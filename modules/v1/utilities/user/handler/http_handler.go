@@ -2,68 +2,60 @@ package user
 
 import (
 	"e-signature/modules/v1/utilities/user/models"
+	notif "e-signature/pkg/notification"
 	"fmt"
 	"log"
 	"net/http"
 	"time"
 
-	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
 func (h *userHandler) Login(c *gin.Context) {
-	session := sessions.Default(c)
+	//session := sessions.Default(c)
 	var input models.LoginInput
 	err := c.ShouldBind(&input)
 	if err != nil {
 		log.Println(err)
-		//session.AddFlash("Invalid ID Signature Format")
 		c.HTML(http.StatusOK, "login", gin.H{
-			"title": "Login - SmartSign",
-			"flash": session.Flashes(),
+			"title":   "Login - SmartSign",
+			"message": "ID Signature/Password salah!",
 		})
 		return
 	}
 
 	user, err := h.userService.Login(input)
 	if err != nil {
-		log.Println(err)
-		//session.AddFlash("Invalid ID Signature or Password")
 		c.HTML(http.StatusOK, "login", gin.H{
-			"title": "Login - SmartSign",
-			//"flash": session.Flashes(),
+			"title":   "Login - SmartSign",
+			"message": "ID Signature/Password salah!",
 		})
 		return
 	}
-	user.Password = ""
+	//user.Password = ""
 }
 
 func (h *userHandler) Register(c *gin.Context) {
 	var input models.RegisterUserInput
 	var user models.User
-
+	//Input Validation
 	err := c.ShouldBind(&input)
 	if err != nil {
 		log.Println(err)
 		c.HTML(http.StatusOK, "register.html", gin.H{
-			"title": "Register - SmartSign",
+			"title": "pendaftaran - SmartSign",
+			//"message": err.Error(),
+			"message": "Harap masukan input dengan benar.",
 		})
 		return
 	}
-	//Check Password and Confirm Password is same
-	if input.Password != input.CPassword {
-		c.HTML(http.StatusOK, "register.html", gin.H{
-			"title": "Register - SmartSign",
-			"flash": "Password and Confirm Password not match",
-		})
-		return
-	}
+
 	//Check if user already exist
 	id, err := h.userService.CheckUserExist(input.IdSignature)
 	if err != nil || id == "exist" {
 		c.HTML(http.StatusOK, "register.html", gin.H{
-			"title": "Register - SmartSign",
-			"flash": "User already exist",
+			"title":   "Register - SmartSign",
+			"message": "ID Signature sudah terdaftar.",
 		})
 		return
 	}
@@ -71,8 +63,8 @@ func (h *userHandler) Register(c *gin.Context) {
 	email, err := h.userService.CheckEmailExist(input.Email)
 	if err != nil || email == "exist" {
 		c.HTML(http.StatusOK, "register.html", gin.H{
-			"title": "Register - SmartSign",
-			"flash": "User already exist",
+			"title":   "Register - SmartSign",
+			"message": "Email sudah terdaftar.",
 		})
 		return
 	}
@@ -90,7 +82,8 @@ func (h *userHandler) Register(c *gin.Context) {
 	if err != nil {
 		log.Println(err)
 		c.HTML(http.StatusOK, "register.html", gin.H{
-			"title": "Register - SmartSign",
+			"title":   "Register - SmartSign",
+			"message": "Terjadi kesalahan, harap hubungi administrator.",
 		})
 		return
 	}
@@ -100,7 +93,8 @@ func (h *userHandler) Register(c *gin.Context) {
 	if err != nil {
 		log.Println(err)
 		c.HTML(http.StatusOK, "register.html", gin.H{
-			"title": "Register - SmartSign",
+			"title":   "Register - SmartSign",
+			"message": "Terjadi kesalahan, harap hubungi administrator.",
 		})
 		return
 	}
@@ -108,7 +102,8 @@ func (h *userHandler) Register(c *gin.Context) {
 	user.ImageIPFS, err = h.userService.SaveImage(input, file)
 	if err != nil {
 		c.HTML(http.StatusOK, "register.html", gin.H{
-			"title": "Register - SmartSign",
+			"title":   "Register - SmartSign",
+			"message": "Terjadi kesalahan, harap hubungi administrator.",
 		})
 		return
 	}
@@ -116,10 +111,14 @@ func (h *userHandler) Register(c *gin.Context) {
 	err = h.userService.CreateAccount(user)
 	if err != nil {
 		c.HTML(http.StatusOK, "register.html", gin.H{
-			"title": "Register - SmartSign",
+			"title":   "Register - SmartSign",
+			"message": "Terjadi kesalahan, harap hubungi administrator.",
 		})
 		return
 	}
+
+	fm := []byte("Berhasil melakukan pendaftaran, silahkan login untuk melanjutkan.")
+	notif.SetMessage(c.Writer, "registered", fm)
 
 	http.Redirect(c.Writer, c.Request, "/login", http.StatusFound)
 }
