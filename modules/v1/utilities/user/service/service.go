@@ -35,6 +35,8 @@ type Service interface {
 	//SavetoSystem(user models.User) error
 	CheckUserExist(idsignature string) (string, error)
 	CheckEmailExist(email string) (string, error)
+	GetBalance(user models.ProfileDB, pw string) (string, error)
+	TransferBalance(user models.ProfileDB) error
 }
 
 type service struct {
@@ -274,6 +276,23 @@ func (s *service) CheckEmailExist(email string) (string, error) {
 		return "no-exist", nil
 	}
 	return "exist", nil
+}
+
+func (s *service) GetBalance(user models.ProfileDB, pw string) (string, error) {
+	balance, err := s.repository.GetBalance(user, pw)
+	if err != nil {
+		log.Println(err)
+		return "", err
+	}
+	return balance, err
+}
+
+func (s *service) TransferBalance(user models.ProfileDB) error {
+	err := s.repository.TransferBalance(user)
+	if err != nil {
+		log.Println(err)
+	}
+	return err
 }
 
 // func (s *service) SavetoSystem(user models.User) error {

@@ -32,7 +32,8 @@ type Repository interface {
 	SavetoProfile(user models.User, key string) error
 	CheckUserExist(idsignature string) (models.ProfileDB, error)
 	CheckEmailExist(email string) (models.ProfileDB, error)
-	TransferBalance(user models.User) (string, error)
+	TransferBalance(user models.ProfileDB) error
+	GetBalance(user models.ProfileDB, pw string) (string, error)
 }
 
 type repository struct {
@@ -193,67 +194,78 @@ func (r *repository) CheckEmailExist(email string) (models.ProfileDB, error) {
 	return profile, nil
 }
 
-func (r *repository) TransferBalance(user models.User) (string, error) {
+func (r *repository) TransferBalance(user models.ProfileDB) error {
 	conf, _ := config.Init()
-	var data []byte
-	err := filepath.Walk("./app/account", r.SearchFile)
+	client, err := ethclient.Dial(conf.Blockhain.Host + conf.Blockhain.Key)
 	if err != nil {
-		log.Fatal(err)
-		return "", err
+		return err
 	}
-	var filePrivate string
-	for _, file := range filesPrivate {
-		filePrivate = file
-	}
-	if len(filePrivate) == 0 {
-		return "", errors.New("file not found")
-	}
-	//Dapatkan Private Key dari File Keystorenya
-	keyjson, e := ioutil.ReadFile(filePrivate)
-	if e != nil {
-		log.Fatal(e)
-		return "", e
-	}
-	key, e := keystore.DecryptKey(keyjson, user.Password)
-	if e != nil {
-		log.Fatal(e)
-		return "", e
-	}
-	//Transfer Balance
-	from := common.HexToAddress(conf.Blockhain.Secret_key)
-	to := common.HexToAddress(user.Publickey)
+	defer client.Close()
 
-	value := big.NewInt(1000)
+	system_address := common.HexToAddress(conf.Blockhain.Public)
+	user_address := common.HexToAddress(user.PublicKey)
+
+	value := big.NewInt(10000)
 	gasLimit := uint64(21000)
-	gasPrice, err := r.client.SuggestGasPrice(context.Background())
+	gasPrice, err := client.SuggestGasPrice(context.Background())
 	if err != nil {
-		log.Fatal(err)
-		return "", err
+		return err
 	}
 
-	nonce, err := r.client.PendingNonceAt(context.Background(), from)
+	nonce, err := client.PendingNonceAt(context.Background(), system_address)
 	if err != nil {
-		log.Fatal(err)
-		return "", err
+		return err
 	}
 
-	txs := types.NewTransaction(nonce, to, value, gasLimit, gasPrice, data)
-	chainID, err := r.client.NetworkID(context.Background())
+	var data []byte
+	txs := types.NewTransaction(nonce, user_address, value, gasLimit, gasPrice, data)
+	chainID, err := client.NetworkID(context.Background())
 	if err != nil {
-		log.Fatal(err)
-		return "", err
+		return err
 	}
 
+	b, err := ioutil.ReadFile(conf.Blockhain.Secret_base)
+	if err != nil {
+		return err
+	}
+
+	key, err := keystore.DecryptKey(b, "rizwijaya58")
+	if err != nil {
+		return err
+	}
 	txs, err = types.SignTx(txs, types.NewEIP155Signer(chainID), key.PrivateKey)
+
 	if err != nil {
-		log.Fatal(err)
-		return "", err
+		return err
 	}
 
-	err = r.client.SendTransaction(context.Background(), txs)
+	err = client.SendTransaction(context.Background(), txs)
+
+	if err != nil {
+		return err
+	}
+	tranx := fmt.Sprintf("%v", txs.Hash().Hex())
+	addressing := fmt.Sprintf("%v", user_address.Hex())
+
+	err = r.db.Exec("INSERT INTO transactions (address, tx_hash, nonce, description) VALUES ('" + addressing[2:] + "', '" + tranx[2:] + "', " + big.NewInt(int64(nonce)).String() + ", 'Transfer Ether')").Error
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	//fmt.Printf("tx has sent to: %s", txs.Hash().Hex())
+	return nil
+}
+
+func (r *repository) GetBalance(user models.ProfileDB, pw string) (string, error) {
+	conf, _ := config.Init()
+	client, err := ethclient.Dial(conf.Blockhain.Host + conf.Blockhain.Key)
+	if err != nil {
 		return "", err
 	}
-	return txs.Hash().Hex(), err
+	defer client.Close()
+	balance, err := client.BalanceAt(context.Background(), common.HexToAddress(user.PublicKey), nil)
+	if err != nil {
+		return "", err
+	}
+	return balance.String(), nil
 }

@@ -80,7 +80,7 @@ func Init(conf config.Conf) (*api.Api, *ethclient.Client) {
 	addressing := fmt.Sprintf("%v", address.Hex())
 
 	db := database.Init(conf)
-	err = db.Exec("INSERT INTO transactions (address, tx_hash, nonce) VALUES ('" + addressing[2:] + "', '" + tranx[2:] + "', " + auth.Nonce.String() + ")").Error
+	err = db.Exec("INSERT INTO transactions (address, tx_hash, nonce, description) VALUES ('" + addressing[2:] + "', '" + tranx[2:] + "', " + auth.Nonce.String() + ", 'Membuat Kontrak')").Error
 	if err != nil {
 		log.Fatal(err)
 	}

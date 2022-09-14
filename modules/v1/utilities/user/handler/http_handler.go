@@ -33,17 +33,21 @@ func (h *userHandler) Login(c *gin.Context) {
 		})
 		return
 	}
-
-	// token, err := token.GenerateToken(user, input.Password)
-	// if err != nil {
-	// 	c.HTML(http.StatusOK, "login.html", gin.H{
-	// 		"title":   "Login - SmartSign",
-	// 		"message": "Kesalahan! Harap hubungi administrator.",
-	// 	})
-	// 	return
-	// }
-
-	// session.Set("session", token)
+	PublicKey := h.userService.Decrypt([]byte(user.PublicKey), input.Password)
+	user.PublicKey = string(PublicKey)
+	//Check Balance Accounts
+	mybalance, _ := h.userService.GetBalance(user, input.Password)
+	//fmt.Println(mybalance)
+	if mybalance == "0" { //transfer balance if balance is 0
+		err := h.userService.TransferBalance(user)
+		if err != nil {
+			c.HTML(http.StatusOK, "login.html", gin.H{
+				"title":   "Login - SmartSign",
+				"message": "Terjadi kesalahan, harap hubungi administrator.",
+			})
+			return
+		}
+	}
 	session.Set("id", user.User_id)
 	session.Set("public_key", user.PublicKey)
 	session.Set("role", user.Role_id)
