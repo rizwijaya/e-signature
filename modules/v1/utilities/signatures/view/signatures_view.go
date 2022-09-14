@@ -26,3 +26,18 @@ func View(db *gorm.DB) *signaturesView {
 func (h *signaturesView) Index(c *gin.Context) {
 	c.HTML(http.StatusOK, "dashboard_index.html", nil)
 }
+
+// func (h *signaturesView) AddSignature(c *gin.Context) {
+// 	c.HTML(http.StatusOK, "add_signature.html", nil)
+// }
+
+// func (h *signaturesView) ListSignature(c *gin.Context) {
+// 	c.HTML(http.StatusOK, "list_signature.html", nil)
+// }
+
+func (h *signaturesView) MySignatures(c *gin.Context) {
+	title := "My Signature - SmartSign"
+	c.HTML(http.StatusOK, "my_signatures.html", gin.H{
+		"title": title,
+	})
+}

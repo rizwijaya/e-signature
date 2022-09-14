@@ -7,7 +7,7 @@ import (
 	//basic "e-signature/pkg/basic_auth"
 
 	//signaturesHandlerV1 "e-signature/modules/v1/utilities/signatures/handler"
-
+	signaturesViewV1 "e-signature/modules/v1/utilities/signatures/view"
 	userHandlerV1 "e-signature/modules/v1/utilities/user/handler"
 	userViewV1 "e-signature/modules/v1/utilities/user/view"
 
@@ -33,7 +33,7 @@ func ParseTmpl(router *gin.Engine) *gin.Engine { //Load HTML Template
 func Init(db *gorm.DB, conf config.Conf, router *gin.Engine) *gin.Engine {
 	blockchain, client := blockhain.Init(conf)
 	//signaturesHandlerV1 := signaturesHandlerV1.Handler(db)
-	//signaturesViewV1 := signaturesViewV1.View(db)
+	signaturesViewV1 := signaturesViewV1.View(db)
 	userHandlerV1 := userHandlerV1.Handler(db, blockchain, client)
 	userViewV1 := userViewV1.View(db, blockchain, client)
 	// Routing Website Service
@@ -44,6 +44,10 @@ func Init(db *gorm.DB, conf config.Conf, router *gin.Engine) *gin.Engine {
 	user.POST("/register", userHandlerV1.Register)
 	user.GET("/login", userViewV1.Login)
 	user.POST("/login", userHandlerV1.Login)
+	user.GET("/logout", userHandlerV1.Logout)
+
+	signature := router.Group("")
+	signature.GET("/my-signatures", signaturesViewV1.MySignatures)
 	//user.GET("/add-signature", signaturesViewV1.AddSignature)
 	//user.GET("/list-signature", signaturesViewV1.ListSignature)
 	//signatures := router.Group("/", basic.Auth(conf))
