@@ -24,12 +24,30 @@
     <link rel="stylesheet" href="/form/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
     <!-- Page CSS -->
     <link rel="stylesheet" href="/form/vendor/css/pages/page-auth.css" />
-
+    <!-- Custom CSS Form -->
+    <link rel="stylesheet" href="/form/css/custom.css" />
     <script src="/form/vendor/js/helpers.js"></script>
     <script src="/form/js/config.js"></script>
 </head>
 
-<body>
+<body>    
+    <!-- Content -->
+    {{ if .message }}
+    <div class="toastDanger">
+        <div class="toastDanger-content menu align-items-center">
+            <i class="menu-icon tf-icons bx bx-x menu align-items-center justify-content-center"
+                style="height: 24px; width: 24px;"></i>
+            <div class="message menu flex-column">
+                <span class="text text-title">Pendaftaran Gagal!</span>
+                <span class="text text-desc">{{ .message }}</span>
+            </div>
+            <button type="button" class="btn-close" aria-label="Close" style="color: #666;"></button>
+            <div class="progress"></div>
+        </div>
+    </div>
+    {{ else }}
+
+    {{ end }}
     <!-- Content -->
     <div class="container-xxl">
         <div class="authentication-wrapper authentication-basic container-p-y">
@@ -99,6 +117,7 @@
     <!-- endbuild -->
     <!-- Main JS -->
     <script src="/form/js/main.js"></script>
+    <script src="/form/js/custom.js"></script>
 </body>
 
 </html>
