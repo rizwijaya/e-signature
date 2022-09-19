@@ -5,6 +5,7 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"crypto/sha256"
+	"e-signature/app/config"
 	"e-signature/modules/v1/utilities/user/models"
 	"e-signature/modules/v1/utilities/user/repository"
 	"encoding/base64"
@@ -49,7 +50,8 @@ func NewService(repository repository.Repository) *service {
 
 func (s *service) ConnectIPFS() *shell.Shell {
 	var sh *shell.Shell
-	sh = shell.NewShell("localhost:5001")
+	conf, _ := config.Init()
+	sh = shell.NewShell(conf.IPFS.Host + ":" + conf.IPFS.Port)
 	return sh
 }
 
@@ -75,7 +77,7 @@ func (s *service) UploadIPFS(path string) (error, string) {
 		log.Println(err)
 		return err, ""
 	}
-	return err, cid
+	return nil, cid
 }
 
 func (s *service) GetFileIPFS(hash string, output string) (string, error) {
@@ -227,14 +229,12 @@ func (s *service) EncryptFile(filename string, passphrase string) error {
 	b, err := ioutil.ReadFile(filename) //Read the target file
 	if err != nil {
 		fmt.Printf("Unable to open the input file!\n")
-		os.Exit(0)
 		return err
 	}
 	ciphertext := s.Encrypt(b, passphrase)
 	err = ioutil.WriteFile(filename, ciphertext, 0644)
 	if err != nil {
 		fmt.Printf("Unable to create encrypted file!\n")
-		os.Exit(0)
 		return err
 	}
 	//fmt.Println(ciphertext)
@@ -243,12 +243,15 @@ func (s *service) EncryptFile(filename string, passphrase string) error {
 
 func (s *service) DecryptFile(filename string, passphrase string) error {
 	z, err := ioutil.ReadFile(filename)
+	if err != nil {
+		fmt.Printf("Unable to open the input file!\n")
+		return err
+	}
 	result := s.Decrypt(z, passphrase)
 	//fmt.Printf("Decrypted file was created with file permissions 0777\n")
 	err = ioutil.WriteFile(filename, result, 0777)
 	if err != nil {
 		fmt.Printf("Unable to create decrypted file!\n")
-		os.Exit(0)
 		return err
 	}
 	return nil

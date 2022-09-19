@@ -90,6 +90,7 @@ func (h *userView) Login(c *gin.Context) {
 				"title": title,
 			},
 		)
+		return
 	}
 	c.HTML(http.StatusOK, "login.html",
 		gin.H{

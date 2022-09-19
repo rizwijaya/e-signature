@@ -4,3 +4,9 @@ TamaskaDashboard.zip
 .env_local
 .env_server
 /imageExtraction
+/app/contracts/backup
+e-signature.zip
+/app/account
+/app/databases/Based-UTC--2022-08-21T09-30-06.294168500Z--8101c772c3af62bb3096b5dd9dfd9b53cd50652e
+/public/templates/common/login copy.html
+/public/templates/common/register copy.html
