@@ -9,12 +9,23 @@ import (
 	"fmt"
 	"log"
 	"math/big"
+	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
+
+type Transac struct {
+	Id           primitive.ObjectID `bson:"_id"`
+	Address      string             `bson:"address"`
+	Tx_hash      string             `bson:"tx_hash"`
+	Nonce        string             `bson:"nonce"`
+	Description  string             `bson:"description"`
+	Date_created time.Time          `bson:"date_created"`
+}
 
 func GetAccountAuth(client *ethclient.Client, privateKeyAddress string) *bind.TransactOpts {
 	privateKey, err := crypto.HexToECDSA(privateKeyAddress)
@@ -74,13 +85,20 @@ func Init(conf config.Conf) (*api.Api, *ethclient.Client) {
 
 	// fmt.Println(address.Hex())
 	// fmt.Println("instance : ", instance)
-	// fmt.Println("tx : ", tx.Hash().Hex())
-
-	tranx := fmt.Sprintf("%v", tx.Hash().Hex())
-	addressing := fmt.Sprintf("%v", address.Hex())
+	fmt.Println("tx : ", tx.Hash().Hex())
 
 	db := database.Init(conf)
-	err = db.Exec("INSERT INTO transactions (address, tx_hash, nonce, description) VALUES ('" + addressing[2:] + "', '" + tranx[2:] + "', " + auth.Nonce.String() + ", 'Membuat Kontrak')").Error
+	ctx := context.TODO()
+	trans := Transac{
+		Id:           primitive.NewObjectID(),
+		Address:      fmt.Sprintf("%v", address.Hex()),
+		Tx_hash:      fmt.Sprintf("%v", tx.Hash().Hex()),
+		Nonce:        auth.Nonce.String(),
+		Description:  "Membuat Kontrak",
+		Date_created: time.Now(),
+	}
+	c := db.Collection("transactions")
+	_, err = c.InsertOne(ctx, &trans)
 	if err != nil {
 		log.Fatal(err)
 	}
