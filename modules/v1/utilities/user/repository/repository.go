@@ -14,13 +14,16 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type Repository interface {
@@ -144,20 +147,25 @@ func (r *repository) GeneratePublicKey(user models.User) (models.User, error) {
 // 	return nil
 // }
 func (r *repository) Register(user models.User) error {
-	var profile models.ProfileDB
-	profile.Idsignature = user.Idsignature
-	profile.Password = user.PasswordHash
-	profile.Name = user.Name
-	profile.Email = user.Email
-	profile.Phone = user.Phone
-	profile.Identity_card = user.Identity_card
-	profile.PublicKey = user.Publickey
-	profile.Role_id = user.Role
-	// err := r.db.Table("users").Create(&profile).Error
-	// if err != nil {
-	// 	log.Fatal(err)
-	// 	return err
-	// }
+	profile := models.ProfileDB{
+		Id:            primitive.NewObjectID(),
+		Idsignature:   user.Idsignature,
+		Name:          user.Name,
+		Email:         user.Email,
+		Phone:         user.Phone,
+		Identity_card: user.Identity_card,
+		Password:      user.PasswordHash,
+		PublicKey:     user.Publickey,
+		Role_id:       user.Role,
+		Date_created:  time.Now(),
+	}
+
+	c := r.db.Collection("users")
+	_, err := c.InsertOne(context.Background(), &profile)
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
 	return nil
 }
 
@@ -176,20 +184,22 @@ func (r *repository) SavetoProfile(user models.User, key string) error {
 
 func (r *repository) CheckUserExist(idsignature string) (models.ProfileDB, error) {
 	var profile models.ProfileDB
-	// err := r.db.Table("users").Where("idsignature = ?", idsignature).Find(&profile).Error
-	// if err != nil {
-	// 	return profile, err
-	// }
+	c := r.db.Collection("users")
+	err := c.FindOne(context.Background(), bson.M{"idsignature": idsignature}).Decode(&profile)
+	if err != nil {
+		return profile, err
+	}
 
 	return profile, nil
 }
 
 func (r *repository) CheckEmailExist(email string) (models.ProfileDB, error) {
 	var profile models.ProfileDB
-	// err := r.db.Table("users").Where("email = ?", email).Find(&profile).Error
-	// if err != nil {
-	// 	return profile, err
-	// }
+	c := r.db.Collection("users")
+	err := c.FindOne(context.Background(), bson.M{"email": email}).Decode(&profile)
+	if err != nil {
+		return profile, err
+	}
 
 	return profile, nil
 }
@@ -244,14 +254,22 @@ func (r *repository) TransferBalance(user models.ProfileDB) error {
 	if err != nil {
 		return err
 	}
-	// tranx := fmt.Sprintf("%v", txs.Hash().Hex())
-	// addressing := fmt.Sprintf("%v", user_address.Hex())
 
-	// err = r.db.Exec("INSERT INTO transactions (address, tx_hash, nonce, description) VALUES ('" + addressing[2:] + "', '" + tranx[2:] + "', " + big.NewInt(int64(nonce)).String() + ", 'Transfer Ether')").Error
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
+	ctx := context.TODO()
+	trans := models.Transac{
+		Id:           primitive.NewObjectID(),
+		Address:      fmt.Sprintf("%v", user_address.Hex()),
+		Tx_hash:      fmt.Sprintf("%v", txs.Hash().Hex()),
+		Nonce:        big.NewInt(int64(nonce)).String(),
+		Description:  "Kirim Ether kepada user +",
+		Date_created: time.Now(),
+	}
+	c := r.db.Collection("transactions")
+	_, err = c.InsertOne(ctx, &trans)
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
 	//fmt.Printf("tx has sent to: %s", txs.Hash().Hex())
 	return nil
 }

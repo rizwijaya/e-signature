@@ -96,14 +96,14 @@ func (s *service) Login(input models.LoginInput) (models.ProfileDB, error) {
 	password := input.Password
 
 	user, err := s.repository.CheckUserExist(idsignature)
+
+	if user.Idsignature == "" {
+		log.Println("User not found")
+		return user, errors.New("user not found")
+	}
 	if err != nil {
 		log.Println(err)
 		return user, err
-	}
-
-	if user.User_id == 0 {
-		log.Println("User not found")
-		return user, errors.New("user not found")
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
@@ -261,7 +261,7 @@ func (s *service) CheckUserExist(idsignature string) (string, error) {
 	id, err := s.repository.CheckUserExist(idsignature)
 	if err != nil {
 		log.Println(err)
-		return "", err
+		return "no-exist", err
 	}
 	if id.Email == "" {
 		return "no-exist", nil
@@ -273,7 +273,7 @@ func (s *service) CheckEmailExist(email string) (string, error) {
 	id, err := s.repository.CheckEmailExist(email)
 	if err != nil {
 		log.Println(err)
-		return "", err
+		return "no-exist", err
 	}
 	if id.Email == "" {
 		return "no-exist", nil

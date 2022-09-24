@@ -48,7 +48,7 @@ func (h *userHandler) Login(c *gin.Context) {
 			return
 		}
 	}
-	session.Set("id", user.User_id)
+	session.Set("id", user.Id)
 	session.Set("public_key", user.PublicKey)
 	session.Set("role", user.Role_id)
 	session.Set("passph", input.Password)
@@ -89,8 +89,8 @@ func (h *userHandler) Register(c *gin.Context) {
 	}
 
 	//Check if user already exist
-	id, err := h.userService.CheckUserExist(input.IdSignature)
-	if err != nil || id == "exist" {
+	id, _ := h.userService.CheckUserExist(input.IdSignature)
+	if id == "exist" {
 		c.HTML(http.StatusOK, "register.html", gin.H{
 			"title":   "Register - SmartSign",
 			"message": "ID Signature sudah terdaftar.",
@@ -98,8 +98,8 @@ func (h *userHandler) Register(c *gin.Context) {
 		return
 	}
 	//Check if email already
-	email, err := h.userService.CheckEmailExist(input.Email)
-	if err != nil || email == "exist" {
+	email, _ := h.userService.CheckEmailExist(input.Email)
+	if email == "exist" {
 		c.HTML(http.StatusOK, "register.html", gin.H{
 			"title":   "Register - SmartSign",
 			"message": "Email sudah terdaftar.",
