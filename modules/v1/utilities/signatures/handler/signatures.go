@@ -4,7 +4,7 @@ import (
 	"e-signature/modules/v1/utilities/signatures/repository"
 	"e-signature/modules/v1/utilities/signatures/service"
 
-	"gorm.io/gorm"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type SignaturesHandler interface {
@@ -18,7 +18,7 @@ func NewSignaturesHandler(signaturesService service.Service) *signaturesHandler 
 	return &signaturesHandler{signaturesService}
 }
 
-func Handler(db *gorm.DB) *signaturesHandler {
+func Handler(db *mongo.Database) *signaturesHandler {
 	Repository := repository.NewRepository(db)
 	Service := service.NewService(Repository)
 	return NewSignaturesHandler(Service)

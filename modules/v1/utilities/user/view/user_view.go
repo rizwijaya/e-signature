@@ -11,7 +11,7 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type userView struct {
@@ -22,7 +22,7 @@ func NewUserView(userService service.Service) *userView {
 	return &userView{userService}
 }
 
-func View(db *gorm.DB, blockhain *api.Api, client *ethclient.Client) *userView {
+func View(db *mongo.Database, blockhain *api.Api, client *ethclient.Client) *userView {
 	Repository := repository.NewRepository(db, blockhain, client)
 	Service := service.NewService(Repository)
 	return NewUserView(Service)

@@ -20,7 +20,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
-	"gorm.io/gorm"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type Repository interface {
@@ -37,12 +37,12 @@ type Repository interface {
 }
 
 type repository struct {
-	db         *gorm.DB
+	db         *mongo.Database
 	blockchain *api.Api
 	client     *ethclient.Client
 }
 
-func NewRepository(db *gorm.DB, blockchain *api.Api, client *ethclient.Client) *repository {
+func NewRepository(db *mongo.Database, blockchain *api.Api, client *ethclient.Client) *repository {
 	return &repository{db, blockchain, client}
 }
 
@@ -153,11 +153,11 @@ func (r *repository) Register(user models.User) error {
 	profile.Identity_card = user.Identity_card
 	profile.PublicKey = user.Publickey
 	profile.Role_id = user.Role
-	err := r.db.Table("users").Create(&profile).Error
-	if err != nil {
-		log.Fatal(err)
-		return err
-	}
+	// err := r.db.Table("users").Create(&profile).Error
+	// if err != nil {
+	// 	log.Fatal(err)
+	// 	return err
+	// }
 	return nil
 }
 
@@ -176,20 +176,20 @@ func (r *repository) SavetoProfile(user models.User, key string) error {
 
 func (r *repository) CheckUserExist(idsignature string) (models.ProfileDB, error) {
 	var profile models.ProfileDB
-	err := r.db.Table("users").Where("idsignature = ?", idsignature).Find(&profile).Error
-	if err != nil {
-		return profile, err
-	}
+	// err := r.db.Table("users").Where("idsignature = ?", idsignature).Find(&profile).Error
+	// if err != nil {
+	// 	return profile, err
+	// }
 
 	return profile, nil
 }
 
 func (r *repository) CheckEmailExist(email string) (models.ProfileDB, error) {
 	var profile models.ProfileDB
-	err := r.db.Table("users").Where("email = ?", email).Find(&profile).Error
-	if err != nil {
-		return profile, err
-	}
+	// err := r.db.Table("users").Where("email = ?", email).Find(&profile).Error
+	// if err != nil {
+	// 	return profile, err
+	// }
 
 	return profile, nil
 }
@@ -244,13 +244,13 @@ func (r *repository) TransferBalance(user models.ProfileDB) error {
 	if err != nil {
 		return err
 	}
-	tranx := fmt.Sprintf("%v", txs.Hash().Hex())
-	addressing := fmt.Sprintf("%v", user_address.Hex())
+	// tranx := fmt.Sprintf("%v", txs.Hash().Hex())
+	// addressing := fmt.Sprintf("%v", user_address.Hex())
 
-	err = r.db.Exec("INSERT INTO transactions (address, tx_hash, nonce, description) VALUES ('" + addressing[2:] + "', '" + tranx[2:] + "', " + big.NewInt(int64(nonce)).String() + ", 'Transfer Ether')").Error
-	if err != nil {
-		log.Fatal(err)
-	}
+	// err = r.db.Exec("INSERT INTO transactions (address, tx_hash, nonce, description) VALUES ('" + addressing[2:] + "', '" + tranx[2:] + "', " + big.NewInt(int64(nonce)).String() + ", 'Transfer Ether')").Error
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
 	//fmt.Printf("tx has sent to: %s", txs.Hash().Hex())
 	return nil

@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type signaturesView struct {
@@ -17,7 +17,7 @@ func NewSignaturesView(signaturesService service.Service) *signaturesView {
 	return &signaturesView{signaturesService}
 }
 
-func View(db *gorm.DB) *signaturesView {
+func View(db *mongo.Database) *signaturesView {
 	Repository := repository.NewRepository(db)
 	Service := service.NewService(Repository)
 	return NewSignaturesView(Service)

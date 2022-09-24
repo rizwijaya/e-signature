@@ -9,7 +9,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type UserHandler interface {
@@ -24,7 +24,7 @@ func NewUserHandler(userService ss.Service) *userHandler {
 	return &userHandler{userService}
 }
 
-func Handler(db *gorm.DB, blockhain *api.Api, client *ethclient.Client) *userHandler {
+func Handler(db *mongo.Database, blockhain *api.Api, client *ethclient.Client) *userHandler {
 	userRepository := repository.NewRepository(db, blockhain, client)
 	userService := service.NewService(userRepository)
 	userHandler := NewUserHandler(userService)

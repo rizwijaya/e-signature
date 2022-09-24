@@ -6,21 +6,23 @@ import (
 	routesV1 "e-signature/modules/v1/routes"
 	"e-signature/pkg/html"
 	error "e-signature/pkg/http-error"
+	"fmt"
 	"log"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func setup() (*gorm.DB, config.Conf, *gin.Engine) {
+func setup() (*mongo.Database, config.Conf, *gin.Engine) {
 	conf, err := config.Init()
 	gin.SetMode(conf.App.Mode)
 	if err != nil {
 		log.Fatal(err)
 	}
+	fmt.Println("Starter Database Monggo")
 	db := database.Init(conf)
 
 	router := gin.Default()

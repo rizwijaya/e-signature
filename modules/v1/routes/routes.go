@@ -12,7 +12,7 @@ import (
 	userViewV1 "e-signature/modules/v1/utilities/user/view"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func ParseTmpl(router *gin.Engine) *gin.Engine { //Load HTML Template
@@ -30,7 +30,7 @@ func ParseTmpl(router *gin.Engine) *gin.Engine { //Load HTML Template
 	return router
 }
 
-func Init(db *gorm.DB, conf config.Conf, router *gin.Engine) *gin.Engine {
+func Init(db *mongo.Database, conf config.Conf, router *gin.Engine) *gin.Engine {
 	blockchain, client := blockhain.Init(conf)
 	//signaturesHandlerV1 := signaturesHandlerV1.Handler(db)
 	signaturesViewV1 := signaturesViewV1.View(db)
