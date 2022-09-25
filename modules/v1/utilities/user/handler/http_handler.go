@@ -157,7 +157,12 @@ func (h *userHandler) Register(c *gin.Context) {
 	}
 
 	//Create Default Latin Signatures
-	latin = h.userService.CreateLatinSignatures(user)
+	latin := h.signatureService.CreateLatinSignatures(user)
+	latin_data := h.signatureService.CreateLatinSignaturesData(user, latin)
+	_ = latin_data
+	//Save to IPFS
+
+	//Save to Blockchain
 
 	fm := []byte("Berhasil melakukan pendaftaran, silahkan login untuk melanjutkan.")
 	notif.SetMessage(c.Writer, "registered", fm)
