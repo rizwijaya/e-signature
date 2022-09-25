@@ -48,15 +48,16 @@ func (h *userHandler) Login(c *gin.Context) {
 			return
 		}
 	}
-	session.Set("id", user.Id)
+
+	session.Set("id", user.Id.Hex())
 	session.Set("public_key", user.PublicKey)
 	session.Set("role", user.Role_id)
-	session.Set("passph", input.Password)
+	session.Set("passph", string(h.userService.Encrypt([]byte(input.Password), user.PublicKey)))
 	session.Save()
 
 	// fm := []byte("Berhasil Masuk, Selamat Datang " + user.Name)
 	// notif.SetMessage(c.Writer, "success", fm)
-
+	//fmt.Println(session.Get("id"))
 	c.Redirect(http.StatusFound, "/dashboard")
 }
 
@@ -154,6 +155,9 @@ func (h *userHandler) Register(c *gin.Context) {
 		})
 		return
 	}
+
+	//Create Default Latin Signatures
+	latin = h.userService.CreateLatinSignatures(user)
 
 	fm := []byte("Berhasil melakukan pendaftaran, silahkan login untuk melanjutkan.")
 	notif.SetMessage(c.Writer, "registered", fm)
