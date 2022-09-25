@@ -15,7 +15,9 @@
   <link href="/landing/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+    rel="stylesheet">
 
   <!-- Vendor CSS Files -->
   <link href="/landing/vendor/aos/aos.css" rel="stylesheet">
@@ -29,38 +31,38 @@
   <link rel="stylesheet" href="/landing/assets/css/custom.css" />
   <!-- Template Main CSS File -->
   <link href="/landing/assets/css/style.css" rel="stylesheet">
-  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 </head>
 
 <body>
-    <!-- Content -->
-    {{ if .message }}
-    <div class="toastDanger">
-        <div class="toastDanger-content menu align-items-center">
-            <i class="menu-icon tf-icons bx bx-x menu align-items-center justify-content-center"
-                style="height: 24px; width: 24px;"></i>
-            <div class="message menu flex-column">
-                <span class="text text-title">Gagal Masuk!</span>
-                <span class="text text-desc">{{ .message }}</span>
-            </div>
-            <button type="button" class="btn-close" aria-label="Close" style="color: #666;"></button>
-            <div class="progress"></div>
-        </div>
+  <!-- Content -->
+  {{ if .message }}
+  <div class="toastDanger">
+    <div class="toastDanger-content menu align-items-center">
+      <i class="menu-icon tf-icons bx bx-x menu align-items-center justify-content-center"
+        style="height: 24px; width: 24px;"></i>
+      <div class="message menu flex-column">
+        <span class="text text-title">Gagal Masuk!</span>
+        <span class="text text-desc">{{ .message }}</span>
+      </div>
+      <button type="button" class="btn-close" aria-label="Close" style="color: #666;"></button>
+      <div class="progress"></div>
     </div>
-    {{ end }}
-    {{ if .success }}
-    <div class="toastSuccess">
-        <div class="toastSuccess-content menu align-items-center">
-            <i class="menu-icon tf-icons bx bx-check menu align-items-center justify-content-center" style="height: 24px; width: 24px;"></i>
-            <div class="message menu flex-column">
-                <span class="text text-title">Sukses</span>
-                <span class="text text-desc">{{ .success }}</span>
-            </div>
-            <button type="button" class="btn-close" aria-label="Close" style="color: #666;"></button>
-            <div class="progress"></div>
-        </div>
+  </div>
+  {{ end }}
+  {{ if .success }}
+  <div class="toastSuccess">
+    <div class="toastSuccess-content menu align-items-center">
+      <i class="menu-icon tf-icons bx bx-check menu align-items-center justify-content-center"
+        style="height: 24px; width: 24px;"></i>
+      <div class="message menu flex-column">
+        <span class="text text-title">Sukses</span>
+        <span class="text text-desc">{{ .success }}</span>
+      </div>
+      <button type="button" class="btn-close" aria-label="Close" style="color: #666;"></button>
+      <div class="progress"></div>
     </div>
-    {{ end }}
+  </div>
+  {{ end }}
   <!-- ======= Header ======= -->
   <header id="header" class="header fixed-top">
     <div class="container-fluid container-xl d-flex align-items-center justify-content-between">
@@ -79,7 +81,7 @@
           <li><a class="nav-link scrollto" href="#team">Team</a></li>
           <li><a href="blog.html">Blog</a></li>
           -->
-          {{ if (ne .userid 0) }}
+          {{ if (ne .userid "nil") }}
           <li class="dropdown"><a href="#"><span>Tanda Tangan</span> <i class="bi bi-chevron-down"></i></a>
             <ul>
               <li><a href="/dashboard">Dashboard Saya</a></li>
@@ -95,7 +97,7 @@
           </li>
           {{ end }}
           <!-- <li><a class="nav-link scrollto" href="/login">Masuk</a></li> -->
-          {{ if (ne .userid 0) }}
+          {{ if (ne .userid "nil") }}
           <li><a class="getstarted scrollto" href="/logout">Keluar</a></li>
           {{ else }}
           <li><a class="getstarted scrollto" href="/login">Masuk</a></li>
@@ -106,9 +108,9 @@
 
     </div>
   </header><!-- End Header -->
-    {{ template "content" .}}
- <!-- ======= Footer ======= -->
- <footer id="footer" class="footer">
+  {{ template "content" .}}
+  <!-- ======= Footer ======= -->
+  <footer id="footer" class="footer">
 
     <!-- <div class="footer-newsletter">
       <div class="container">
@@ -134,7 +136,8 @@
               <img src="/landing/assets/img/logo.png" alt="">
               <span>SmartSign</span>
             </a>
-            <p>Smart Sign merupakan sistem tanda tangan digital menggunakan teknologi blockchain dan menjamin integritas tanda tangan anda. Dokumen selama tanda tangan dikelola oleh sistem terdistribusi</p>
+            <p>Smart Sign merupakan sistem tanda tangan digital menggunakan teknologi blockchain dan menjamin integritas
+              tanda tangan anda. Dokumen selama tanda tangan dikelola oleh sistem terdistribusi</p>
             <div class="social-links mt-3">
               <a href="#" class="twitter"><i class="bi bi-twitter"></i></a>
               <a href="#" class="facebook"><i class="bi bi-facebook"></i></a>
@@ -192,7 +195,8 @@
   </footer>
   <!-- End Footer -->
 
-  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
+      class="bi bi-arrow-up-short"></i></a>
 
   <!-- Vendor JS Files -->
   <script src="/landing/purecounter/purecounter_vanilla.js"></script>
@@ -205,6 +209,12 @@
 
   <!-- Template Main JS File -->
   <script src="/landing/assets/js/main.js"></script>
+
+  <!-- Ajax and Signatures Pad -->
+  <script src="https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"
+    integrity="sha256-W+ivNvVjmQX6FTlF0S+SCDMjAuTVNKzH16+kQvRWcTg=" crossorigin="anonymous"></script>
+
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
   <!-- <script src="/form/js/custom.js"></script> -->
   <script src="/landing/js/custom.js"></script>
 </body>

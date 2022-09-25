@@ -32,12 +32,13 @@ func (h *userView) Index(c *gin.Context) {
 	session := sessions.Default(c)
 	title := "SmartSign - Smart Digital Signatures"
 	page := "index"
-
-	if session.Get("id") == nil {
+	id := fmt.Sprintf("%v", session.Get("id"))
+	fmt.Println(id)
+	if id == "<nil>" {
 		c.HTML(http.StatusOK, "landing_index.html", gin.H{
 			"title":  title,
 			"page":   page,
-			"userid": 0,
+			"userid": "nil",
 		})
 	} else {
 		c.HTML(http.StatusOK, "landing_index.html", gin.H{
