@@ -1,134 +1,148 @@
 {{ define "content" }}
-  <main id="main">
-    <section class="breadcrumbs">
-      <div class="container">
+<main id="main">
+  <section class="breadcrumbs">
+    <div class="container">
 
-        <ol>
-          <li><a href="/">Home</a></li>
-          <li>Dashboard</li>
-        </ol>
-        <h2>Dashboard</h2>
+      <ol>
+        <li><a href="/">Home</a></li>
+        <li>Dashboard</li>
+      </ol>
+      <h2>Dashboard</h2>
 
-      </div>
-    </section>
-    <!-- ======= Values Section ======= -->
-    <section id="values" class="values mt-3">
-      
-      <div class="container">
-        
-        <!-- <header class="section-header">
+    </div>
+  </section>
+  <!-- ======= Values Section ======= -->
+  <section id="values" class="values mt-3">
+    <div class="container">
+      <!-- <header class="section-header">
           <p>Dashboard</p>
           <h4 class="text-justify"><br/>Hai, selamat datang Rizqi !</h4>
         </header> -->
-        <div class="row">
-          <div class="col-lg-4" data-aos="fade-up" data-aos-delay="200">
-            <a href="/my-signatures">
-                <div class="box">
-                  <img src="/landing/assets/img/values-1.png" class="img-fluid" alt="">
-                  <h3>Tanda Tangan Saya</h3>
-                  <p class="text-dark">Tambahkan dan lihat daftar tanda tangan apa saja yang saya miliki dan dapat digunakan.</p>
-                </div>
-            </a>
+      <div class="row">
+        <div class="col-lg-4" data-aos="fade-up" data-aos-delay="200">
+          <a href="/my-signatures">
+            <div class="box">
+              <img src="/landing/assets/img/values-1.png" class="img-fluid" alt="">
+              <h3>Tanda Tangan Saya</h3>
+              <p class="text-dark">Tambahkan dan lihat daftar tanda tangan apa saja yang saya miliki dan dapat
+                digunakan.</p>
+            </div>
+          </a>
+        </div>
+        <div class="col-lg-4 mt-4 mt-lg-0" data-aos="fade-up" data-aos-delay="400">
+          <!-- <a> -->
+          <div id="myBtn" class="box btn" id="btn-modal">
+            <img src="/landing/assets/img/values-2.png" class="img-fluid" alt="">
+            <h3>Tanda Tangan Dokumen</h3>
+            <p class="text-dark">Tanda tangan dokumen saya dan undang seseorang untuk menandatangani dokumen saya.</p>
           </div>
-
-          <div class="col-lg-4 mt-4 mt-lg-0" data-aos="fade-up" data-aos-delay="400">
-            <!-- <a data-toggle="modal" data-target="#exampleModalCenter" > -->
-              <div class="box">
-                <img src="/landing/assets/img/values-2.png" class="img-fluid" alt="">
-                <h3>Tanda Tangan Dokumen</h3>
-                <p class="text-dark">Tanda tangan dokumen saya dan undang seseorang untuk menandatangani dokumen saya.</p>
-              </div>
-            <!-- </a> -->
-          </div>
-
-          <div class="col-lg-4 mt-4 mt-lg-0" data-aos="fade-up" data-aos-delay="600">  
-            <a href="/request-signatures">
-              <div class="box">
-                <img src="/landing/assets/img/values-3.png" class="img-fluid" alt="">
-                <h3>Permintaan Tanda Tangan</h3>
-                <p class="text-dark">Permintaan tanda tangan dari orang lain kepada saya.</p>
-              </div>
-            </a>
-          </div>
-
+          <!-- </a> -->
+        </div>
+        <div class="col-lg-4 mt-4 mt-lg-0" data-aos="fade-up" data-aos-delay="600">
+          <a href="/request-signatures">
+            <div class="box">
+              <img src="/landing/assets/img/values-3.png" class="img-fluid" alt="">
+              <h3>Permintaan Tanda Tangan</h3>
+              <p class="text-dark">Permintaan tanda tangan dari orang lain kepada saya.</p>
+            </div>
+          </a>
         </div>
 
       </div>
 
-    </section>
-    <!-- End Values Section -->
+    </div>
 
-    <!-- ======= Counts Section ======= -->
-    <section id="counts" class="counts">
-      <div class="container" data-aos="fade-up">
+  </section>
+  <!-- End Values Section -->
 
-        <div class="row gy-4">
+  <!-- ======= Counts Section ======= -->
+  <section id="counts" class="counts">
+    <div class="container" data-aos="fade-up">
 
-          <div class="col-lg-3 col-md-6">
-            <div class="count-box">
-              <i class="bi bi-emoji-smile"></i>
-              <div>
-                <span data-purecounter-start="0" data-purecounter-end="232" data-purecounter-duration="1" class="purecounter"></span>
-                <p>Total Pengguna</p>
-              </div>
+      <div class="row gy-4">
+
+        <div class="col-lg-3 col-md-6">
+          <div class="count-box">
+            <i class="bi bi-emoji-smile"></i>
+            <div>
+              <span data-purecounter-start="0" data-purecounter-end="232" data-purecounter-duration="1"
+                class="purecounter"></span>
+              <p>Total Pengguna</p>
             </div>
           </div>
-
-          <div class="col-lg-3 col-md-6">
-            <div class="count-box">
-              <i class="bi bi-journal-richtext" style="color: #ee6c20;"></i>
-              <div>
-                <span data-purecounter-start="0" data-purecounter-end="521" data-purecounter-duration="1" class="purecounter"></span>
-                <p>Dokumen terverifikasi</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-3 col-md-6">
-            <div class="count-box">
-              <i class="bi bi-pen" style="color: #bb0852;"></i>
-              <div>
-                <span data-purecounter-start="0" data-purecounter-end="15" data-purecounter-duration="1" class="purecounter"></span>
-                <p>Dokumen Saya</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-3 col-md-6">
-            <div class="count-box">
-              <i class="bi bi-pen" style="color: #15be56;"></i>
-              <div>
-                <span data-purecounter-start="0" data-purecounter-end="1463" data-purecounter-duration="1" class="purecounter"></span>
-                <p>Total Permintaan</p>
-              </div>
-            </div>
-          </div>
-
         </div>
+
+        <div class="col-lg-3 col-md-6">
+          <div class="count-box">
+            <i class="bi bi-journal-richtext" style="color: #ee6c20;"></i>
+            <div>
+              <span data-purecounter-start="0" data-purecounter-end="521" data-purecounter-duration="1"
+                class="purecounter"></span>
+              <p>Dokumen terverifikasi</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6">
+          <div class="count-box">
+            <i class="bi bi-pen" style="color: #bb0852;"></i>
+            <div>
+              <span data-purecounter-start="0" data-purecounter-end="15" data-purecounter-duration="1"
+                class="purecounter"></span>
+              <p>Dokumen Saya</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6">
+          <div class="count-box">
+            <i class="bi bi-pen" style="color: #15be56;"></i>
+            <div>
+              <span data-purecounter-start="0" data-purecounter-end="1463" data-purecounter-duration="1"
+                class="purecounter"></span>
+              <p>Total Permintaan</p>
+            </div>
+          </div>
+        </div>
+
       </div>
-    </section>
-    <!-- End Counts Section -->
-  </main>
-  <!-- End #main -->
+    </div>
+  </section>
+  <!-- End Counts Section -->
   <!-- Modal -->
-<!-- <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        ...
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
+  <div id="myModal" class="modal modal-lg" tabindex="-1" role="dialog" style="display: block;">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h5 id="myModalHeader" class="modal-title">Tanda Tangan Dokumen</h5>
+          <span aria-hidden="true" class="close">×</span>
+        </div>
+        <div class="modal-body">
+          <!-- <h3>Tanda Tangan Dokumen</h3> -->
+          <div class="row gy-4 services justify-content-md-center">
+            <div class="col-lg-5 mb-4 mt-4">
+              <div class="service-box blue">
+                <i class="ri-draft-fill icon"></i>
+                <h4>Tanda Tangan Sekarang</h4>
+                <p>Tanda tangan dan minta pengguna lain untuk menandatangani dokumen. </p>
+                <a href="#" class="read-more"><span>Tanda Tangan</span> <i class="bi bi-arrow-right"></i></a>
+              </div>
+            </div>
+            <div class="col-lg-5 mb-4 mt-4">
+              <div class="service-box green">
+                <i class="ri-mail-send-fill icon"></i>
+                <h4>Permintaan Tanda Tangan</h4>
+                <p>Permintaan tanda tangan dari pengguna lain untuk anda tanda tangani. </p>
+                <a href="#" class="read-more"><span>Tanda Tangan</span> <i class="bi bi-arrow-right"></i></a>
+              </div>
+            </div>
+          </div>
+
+        </div>
       </div>
     </div>
   </div>
-</div> -->
-<!-- End Modal -->
+  <!-- End Modal -->
+</main>
+<!-- End #main -->
 {{ end }}
