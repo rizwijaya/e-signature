@@ -1,134 +1,237 @@
 {{ define "content" }}
-  <main id="main">
-    <section class="breadcrumbs">
-      <div class="container">
+<style>
+  #signature-pad {
+    display: block;
+    min-height: 200px;
+  }
 
-        <ol>
-          <li><a href="/">Home</a></li>
-          <li>My Signatures</li>
-        </ol>
-        <h2>My Signatures</h2>
+  #signature-pad canvas {
+    position: absolute;
+    border: 1px dashed black;
+    /* left: 20px;
+    top: 20px;
+    width: 100%; */
+    /* height: 80%; */
+    touch-action: none;
+    z-index: 1;
+  }
+</style>
+<main id="main">
+  <section class="breadcrumbs">
+    <div class="container">
 
-      </div>
-    </section>
-    <!-- ======= Values Section ======= -->
-    <section id="values" class="values mt-3">
-      
-      <div class="container">
-        
-        <!-- <header class="section-header">
-          <p>Dashboard</p>
-          <h4 class="text-justify"><br/>Hai, selamat datang Rizqi !</h4>
-        </header> -->
-        <div class="row">
-          <div class="col-lg-4" data-aos="fade-up" data-aos-delay="200">
-            <a href="/my-signatures">
-                <div class="box">
-                  <img src="/landing/assets/img/values-1.png" class="img-fluid" alt="">
-                  <h3>Tanda Tangan Saya</h3>
-                  <p class="text-dark">Tambahkan dan lihat daftar tanda tangan apa saja yang saya miliki dan dapat digunakan.</p>
+      <ol>
+        <li><a href="/">Home</a></li>
+        <li>Tanda Tangan Saya</li>
+      </ol>
+      <h2>Tanda Tangan Saya</h2>
+
+    </div>
+  </section>
+  <!-- ======= Values Section ======= -->
+  <section id="values" class="values mt-1">
+
+    <div class="container">
+      <div class="row">
+        <!-- Content -->
+        <div class="col-md-7">
+          <div class="container">
+            <div class="card box" style="padding: 36px !important;">
+              <div class="row g-0">
+                <div class="col-md-5">
+                  <img src="/landing/img/signatures/documents.png" class="img-fluid rounded-start" alt="square">
                 </div>
-            </a>
-          </div>
-
-          <div class="col-lg-4 mt-4 mt-lg-0" data-aos="fade-up" data-aos-delay="400">
-            <!-- <a data-toggle="modal" data-target="#exampleModalCenter" > -->
-              <div class="box">
-                <img src="/landing/assets/img/values-2.png" class="img-fluid" alt="">
-                <h3>Tanda Tangan Dokumen</h3>
-                <p class="text-dark">Tanda tangan dokumen saya dan undang seseorang untuk menandatangani dokumen saya.</p>
+                <div class="col-md-5">
+                  <div class="card-body">
+                    <h5 class="card-title" style="text-align: left;"><b>ID Signature</b></h5>
+                    <p class="card-text" style="margin-bottom: 4rem; text-align: left;">Serial Tanda
+                      tangan<br>Penandatangan<br>Total
+                      Digunakan</p>
+                    <p style="text-align: left;">
+                      <small style="color: #4154F1;">Terakhir Diakses<br>2 September 2022 | 19.30 WIB</small><br>
+                      <small style="color: #ADB4F3;">Dibuat 19 Agustus 2022 | 19.30 WIB</small>
+                    </p>
+                  </div>
+                </div>
               </div>
-            <!-- </a> -->
+            </div>
           </div>
-
-          <div class="col-lg-4 mt-4 mt-lg-0" data-aos="fade-up" data-aos-delay="600">  
-            <a href="/request-signatures">
-              <div class="box">
-                <img src="/landing/assets/img/values-3.png" class="img-fluid" alt="">
-                <h3>Permintaan Tanda Tangan</h3>
-                <p class="text-dark">Permintaan tanda tangan dari orang lain kepada saya.</p>
+        </div>
+        <div class="col-md-5">
+          <!-- <h1 style="text-align: center;color: #4154F1;"><b>List Tanda Tangan</b></h1> -->
+          <div class="container">
+            <div class="box" style="padding: 12px !important;">
+              <div class="card-body">
+                <img src="/landing/img/signatures/documents.png" alt="square" style="height: 100px;">
+                <h5 class="card-title" style="margin-top: 0.05rem;"><b>Serial Tanda Tangan</b></h5>
+                <small style="color: #ADB4F3;">Dibuat 19 Agustus 2022 | 19.30 WIB</small>
               </div>
-            </a>
+            </div>
+            <div class="box mt-3" style="padding: 12px !important;">
+              <div class="card-body">
+                <img src="/landing/img/signatures/documents.png" alt="square" style="height: 100px;">
+                <h5 class="card-title" style="margin-top: 0.05rem;"><b>Serial Tanda Tangan</b></h5>
+                <small style="color: #ADB4F3;">Dibuat 19 Agustus 2022 | 19.30 WIB</small>
+              </div>
+            </div>
           </div>
+        </div>
+        <!-- <div class="container" style="margin-top: 5rem;margin-bottom: 5rem;">
+          <hr style="border: solid 1px;">
+        </div> -->
 
+        <div class="container text-center" style="margin-top: 2rem;margin-bottom: 1rem;">
+          <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#signmodal"
+            style="border-radius: 24px;background-color: #4154F1;padding-left: 2rem;padding-right: 2rem;box-shadow: 0 5px 5px rgb(0, 0, 0, 0.3);">
+            Tambahkan Tanda Tangan
+            <img src="../icon/note-plus.png" alt="note-plus">
+          </button>
         </div>
 
       </div>
 
-    </section>
-    <!-- End Values Section -->
+    </div>
 
-    <!-- ======= Counts Section ======= -->
-    <section id="counts" class="counts">
-      <div class="container" data-aos="fade-up">
+  </section>
 
-        <div class="row gy-4">
-
-          <div class="col-lg-3 col-md-6">
-            <div class="count-box">
-              <i class="bi bi-emoji-smile"></i>
-              <div>
-                <span data-purecounter-start="0" data-purecounter-end="232" data-purecounter-duration="1" class="purecounter"></span>
-                <p>Total Pengguna</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-3 col-md-6">
-            <div class="count-box">
-              <i class="bi bi-journal-richtext" style="color: #ee6c20;"></i>
-              <div>
-                <span data-purecounter-start="0" data-purecounter-end="521" data-purecounter-duration="1" class="purecounter"></span>
-                <p>Dokumen terverifikasi</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-3 col-md-6">
-            <div class="count-box">
-              <i class="bi bi-pen" style="color: #bb0852;"></i>
-              <div>
-                <span data-purecounter-start="0" data-purecounter-end="15" data-purecounter-duration="1" class="purecounter"></span>
-                <p>Dokumen Saya</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-3 col-md-6">
-            <div class="count-box">
-              <i class="bi bi-pen" style="color: #15be56;"></i>
-              <div>
-                <span data-purecounter-start="0" data-purecounter-end="1463" data-purecounter-duration="1" class="purecounter"></span>
-                <p>Total Permintaan</p>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </section>
-    <!-- End Counts Section -->
-  </main>
-  <!-- End #main -->
   <!-- Modal -->
-<!-- <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        ...
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
+  <div class="modal fade" id="signmodal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <h5 style="text-align: center;"><b>Silahkan Masukkan Tanda Tangan!</b></h5>
+          <div id="signature-pad">
+            <canvas id="signbox" width="460" height="180" class="canvas rounded">
+            </canvas>
+          </div>
+          <div class="container text-center">
+            <!-- <button class="btn blue" onclick="addSign()">Sign</button> -->
+            <button class="btn blue" onclick="signBox.clear()">Clear</button>
+            <button type="button" onclick="addSign()" class="btn btn-primary btn-lg"
+              style="border-radius: 24px;background-color: #4154F1;padding-left: 2rem;padding-right: 2rem;">
+              Tambahkan
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-</div> -->
-<!-- End Modal -->
+  </div>
+  <!-- End Values Section -->
+
+  <!-- ======= Counts Section ======= -->
+  <!-- <section id="counts" class="counts">
+    <div class="container" data-aos="fade-up">
+
+      <div class="row gy-4">
+
+        <div class="col-lg-3 col-md-6">
+          <div class="count-box">
+            <i class="bi bi-emoji-smile"></i>
+            <div>
+              <span data-purecounter-start="0" data-purecounter-end="232" data-purecounter-duration="1"
+                class="purecounter"></span>
+              <p>Total Pengguna</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6">
+          <div class="count-box">
+            <i class="bi bi-journal-richtext" style="color: #ee6c20;"></i>
+            <div>
+              <span data-purecounter-start="0" data-purecounter-end="521" data-purecounter-duration="1"
+                class="purecounter"></span>
+              <p>Dokumen terverifikasi</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6">
+          <div class="count-box">
+            <i class="bi bi-pen" style="color: #bb0852;"></i>
+            <div>
+              <span data-purecounter-start="0" data-purecounter-end="15" data-purecounter-duration="1"
+                class="purecounter"></span>
+              <p>Dokumen Saya</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6">
+          <div class="count-box">
+            <i class="bi bi-pen" style="color: #15be56;"></i>
+            <div>
+              <span data-purecounter-start="0" data-purecounter-end="1463" data-purecounter-duration="1"
+                class="purecounter"></span>
+              <p>Total Permintaan</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section> -->
+  <!-- End Counts Section -->
+</main>
+<!-- End #main -->
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"
+  integrity="sha256-W+ivNvVjmQX6FTlF0S+SCDMjAuTVNKzH16+kQvRWcTg=" crossorigin="anonymous"></script>
+<script>
+  var signBox = new SignaturePad(document.getElementById('signbox'), {
+    backgroundColor: 'rgba(255, 255, 255, 0)',
+    penColor: 'rgb(0, 0, 0)'
+  });
+
+  function addSign() {
+    var data = signBox.toDataURL('image/png');
+    var img = data.replace(/^data:image\/(png|jpg);base64,/, "");
+    console.log(img);
+    var settings = {
+      "url": "/add-signatures",
+      "method": "POST",
+      "timeout": 0,
+      "headers": {
+        "Content-Type": "text/plain"
+      },
+      "data": "{\r\n    \"signature\": \"" + img + "\"\r\n}",
+    };
+
+    $.ajax(settings).done(function (response) {
+      console.log(response);
+      location.reload();
+    });
+  }
+
+  // var wrapper = document.getElementById("signature-pad");
+  // var canvas = wrapper.querySelector("canvas");
+  // canvas.width = "400px";
+  // canvas.height= "200px";
+//   var ratio = Math.max(window.devicePixelRatio || 1, 1);
+//  // canvas.getContext("2d").scale(1, 1);
+//   function resizeCanvas() {
+//    // var ratio = Math.max(window.devicePixelRatio || 1, 1);
+//     // if (canvas.offsetWidth == 0 || canvas.offsetHeight == 0) {
+//     //   canvas.width = window.innerWidth * ratio;
+//     //   canvas.height = window.innerHeight * ratio;
+//     //   canvas.getContext("2d").scale(ratio, ratio);
+//     // } else {
+//       canvas.width = canvas.offsetWidth * ratio;
+//       canvas.height = canvas.offsetHeight * ratio;
+//       canvas.getContext("2d").scale(ratio, ratio);
+//     //}
+//     console.log(canvas.offsetHeight);
+//     console.log(canvas.offsetWidth);
+
+//     console.log(ratio);
+//     console.log(canvas.width);
+//     console.log(canvas.height);
+//   }
+//   window.default
+//   window.onresize = resizeCanvas;
+//   resizeCanvas();
+</script>
 {{ end }}
