@@ -7,8 +7,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type SignaturesHandler interface {
-}
+// type SignaturesHandler interface {
+// }
 
 type signaturesHandler struct {
 	signaturesService service.Service
