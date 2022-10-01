@@ -11,6 +11,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/fogleman/gg"
 )
@@ -22,6 +23,7 @@ type Service interface {
 	CreateLatinSignaturesData(user modelsUser.User, latin string, idn string) string
 	DefaultSignatures(user modelsUser.User, id string) error
 	UpdateMySignatures(signature string, signaturedata string, sign string) error
+	GetMySignature(sign string, id string, name string) (models.MySignatures, error)
 }
 
 type service struct {
@@ -30,6 +32,21 @@ type service struct {
 
 func NewService(repository repository.Repository) *service {
 	return &service{repository}
+}
+
+var bulan = [...]string{
+	"Januari", "Februari", "Maret", "April", "Mei", "Juni",
+	"Juli", "Agustus", "September", "Oktober", "Nopember", "Desember",
+}
+
+func Tanggal(t time.Time) string {
+	return fmt.Sprintf("%02d %s %d",
+		t.Day(), bulan[t.Month()-1], t.Year())
+}
+
+func Clock(t time.Time) string {
+	return fmt.Sprintf("%02d:%02d",
+		t.Hour(), t.Minute())
 }
 
 func (s *service) CreateImgSignature(input models.AddSignature) string {
@@ -80,21 +97,25 @@ func (s *service) CreateImgSignatureData(input models.AddSignature, name string)
 
 	//dc.DrawRoundedRectangle(0, 0, 460/4, 180/2, 0)
 	dc.DrawImage(im, 0, 0)
-	id := input.Id
-	if len(input.Id) > 12 {
-		id = input.Id[0:12]
-	}
+	// id := input.Id
+	// if len(input.Id) > 12 {
+	// 	id = input.Id[0:12]
+	// }
 	nam := name
 	if len(name) > 12 {
 		nam = name[0:12]
 	}
-	dc.DrawStringAnchored(id, 145, 242, 0, 0.5)
-	dc.DrawStringAnchored(nam, 145, 254, 0, 0.5)
+	//dc.DrawStringAnchored(id, 145, 242, 0, 0.5)
+	dc.DrawStringAnchored("Sign-"+nam, 145, 254, 0, 0.5)
 	dc.DrawStringAnchored("rizwijaya.smartsign.com", 145, 266, 0, 0.5)
 	dc.DrawStringAnchored("Integrate in Blockchain", 145, 278, 0, 0.5)
 	dc.Clip()
 	//dc.SavePNG("out.png")
 	filename := fmt.Sprintf("public/images/signatures/signatures_data/signaturesdata-%s.png", input.Id)
+	if _, err := os.Stat(filename); err == nil {
+		os.Remove(filename)
+	}
+
 	dc.SavePNG(filename)
 	return filename
 }
@@ -138,12 +159,12 @@ func (s *service) CreateLatinSignaturesData(user modelsUser.User, latin string, 
 	if len(user.Idsignature) > 12 {
 		id = user.Idsignature[0:12]
 	}
-	nam := user.Name
-	if len(user.Name) > 12 {
-		nam = user.Name[0:12]
-	}
-	dc.DrawStringAnchored(id, 145, 242, 0, 0.5)
-	dc.DrawStringAnchored(nam, 145, 254, 0, 0.5)
+	// nam := user.Name
+	// if len(user.Name) > 12 {
+	// 	nam = user.Name[0:12]
+	// }
+	//dc.DrawStringAnchored(id, 145, 242, 0, 0.5)
+	dc.DrawStringAnchored("Sign-"+id, 145, 254, 0, 0.5)
 	dc.DrawStringAnchored("rizwijaya.smartsign.com", 145, 266, 0, 0.5)
 	dc.DrawStringAnchored("Integrate in Blockchain", 145, 278, 0, 0.5)
 	//dc.DrawStringAnchored("Integrate in Blockchain", 145, 290, 0, 0.5)
@@ -161,4 +182,25 @@ func (s *service) DefaultSignatures(user modelsUser.User, id string) error {
 func (s *service) UpdateMySignatures(signature string, signaturedata string, sign string) error {
 	err := s.repository.UpdateMySignatures(signature, signaturedata, sign)
 	return err
+}
+
+func (s *service) GetMySignature(sign string, id string, name string) (models.MySignatures, error) {
+	signature, err := s.repository.GetMySignature(sign)
+	mysign := models.MySignatures{
+		Id:                 signature.Id.Hex(),
+		Name:               name,
+		User_id:            id,
+		Signature:          fmt.Sprintf("signatures/%s", signature.Signature),
+		Signature_id:       fmt.Sprintf("sign-%s", signature.Id.Hex()),
+		Signature_data:     fmt.Sprintf("signatures_data/%s", signature.Signature_data),
+		Signature_data_id:  fmt.Sprintf("sign_data-%s", signature.Id.Hex()),
+		Latin:              fmt.Sprintf("latin/%s", signature.Latin),
+		Latin_id:           fmt.Sprintf("latin-%s", signature.Id.Hex()),
+		Latin_data:         fmt.Sprintf("latin_data/%s", signature.Latin_data),
+		Latin_data_id:      fmt.Sprintf("latin_data-%s", signature.Id.Hex()),
+		Signature_selected: signature.Signature_selected,
+		Date_update:        fmt.Sprintf("%s | %s WIB", Tanggal(signature.Date_update), Clock(signature.Date_update)),
+		Date_created:       fmt.Sprintf("%s | %s WIB", Tanggal(signature.Date_created), Clock(signature.Date_created)),
+	}
+	return mysign, err
 }

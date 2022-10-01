@@ -15,6 +15,7 @@ import (
 type Repository interface {
 	DefaultSignatures(user modelsUser.User, id string) error
 	UpdateMySignatures(signature string, signaturedata string, sign string) error
+	GetMySignature(sign string) (models.Signatures, error)
 }
 
 type repository struct {
@@ -27,14 +28,15 @@ func NewRepository(db *mongo.Database) *repository {
 
 func (r *repository) DefaultSignatures(user modelsUser.User, id string) error {
 	signatures := models.Signatures{
-		Id:             primitive.NewObjectID(),
-		User:           user.Idsignature,
-		Signature:      "default.png",
-		Signature_data: "default.png",
-		Latin:          fmt.Sprintf("latin-%s.png", id),
-		Latin_data:     fmt.Sprintf("latindata-%s.png", id),
-		Date_update:    time.Now(),
-		Date_created:   time.Now(),
+		Id:                 primitive.NewObjectID(),
+		User:               user.Idsignature,
+		Signature:          "default.png",
+		Signature_data:     "default.png",
+		Latin:              fmt.Sprintf("latin-%s.png", id),
+		Latin_data:         fmt.Sprintf("latindata-%s.png", id),
+		Signature_selected: "latin",
+		Date_update:        time.Now(),
+		Date_created:       time.Now(),
 	}
 
 	c := r.db.Collection("signatures")
@@ -50,9 +52,10 @@ func (r *repository) UpdateMySignatures(signature string, signaturedata string, 
 	filter := map[string]interface{}{"user": sign}
 	update := map[string]interface{}{
 		"$set": map[string]interface{}{
-			"signature":      signature,
-			"signature_data": signaturedata,
-			"date_update":    time.Now(),
+			"signature":          signature,
+			"signature_data":     signaturedata,
+			"signature_selected": "signature",
+			"date_update":        time.Now(),
 		},
 	}
 
@@ -63,4 +66,16 @@ func (r *repository) UpdateMySignatures(signature string, signaturedata string, 
 		return err
 	}
 	return nil
+}
+
+func (r *repository) GetMySignature(sign string) (models.Signatures, error) {
+	var signatures models.Signatures
+	filter := map[string]interface{}{"user": sign}
+	c := r.db.Collection("signatures")
+	err := c.FindOne(context.Background(), filter).Decode(&signatures)
+	if err != nil {
+		log.Fatal(err)
+		return signatures, err
+	}
+	return signatures, nil
 }

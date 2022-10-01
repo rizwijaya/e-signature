@@ -151,7 +151,7 @@ func (h *userHandler) Register(c *gin.Context) {
 		})
 		return
 	}
-	fmt.Println(idn)
+	//fmt.Println(idn)
 	//Create Default Latin Signatures
 	latin := h.signatureService.CreateLatinSignatures(user, idn)
 	h.signatureService.CreateLatinSignaturesData(user, latin, idn)

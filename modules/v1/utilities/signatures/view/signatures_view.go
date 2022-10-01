@@ -3,6 +3,7 @@ package view
 import (
 	"e-signature/modules/v1/utilities/signatures/repository"
 	"e-signature/modules/v1/utilities/signatures/service"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-contrib/sessions"
@@ -28,20 +29,17 @@ func (h *signaturesView) Index(c *gin.Context) {
 	c.HTML(http.StatusOK, "dashboard_index.html", nil)
 }
 
-// func (h *signaturesView) AddSignature(c *gin.Context) {
-// 	c.HTML(http.StatusOK, "add_signature.html", nil)
-// }
-
-// func (h *signaturesView) ListSignature(c *gin.Context) {
-// 	c.HTML(http.StatusOK, "list_signature.html", nil)
-// }
-
 func (h *signaturesView) MySignatures(c *gin.Context) {
 	session := sessions.Default(c)
 	title := "My Signature - SmartSign"
+	signatures, _ := h.signaturesService.GetMySignature(fmt.Sprintf("%v", session.Get("sign")), fmt.Sprintf("%v", session.Get("id")), fmt.Sprintf("%v", session.Get("name")))
+	// sign := []models.Signatures{
+	// 	signatures,
+	// }
 
 	c.HTML(http.StatusOK, "my_signatures.html", gin.H{
-		"title": title,
-		"user":  session.Get("id"),
+		"title":      title,
+		"user":       session.Get("id"),
+		"signatures": signatures,
 	})
 }
