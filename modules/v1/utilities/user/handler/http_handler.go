@@ -50,6 +50,7 @@ func (h *userHandler) Login(c *gin.Context) {
 	}
 
 	session.Set("id", user.Id.Hex())
+	session.Set("name", user.Name)
 	session.Set("public_key", user.PublicKey)
 	session.Set("role", user.Role_id)
 	session.Set("passph", string(h.userService.Encrypt([]byte(input.Password), user.PublicKey)))
@@ -159,10 +160,28 @@ func (h *userHandler) Register(c *gin.Context) {
 	//Create Default Latin Signatures
 	latin := h.signatureService.CreateLatinSignatures(user)
 	latin_data := h.signatureService.CreateLatinSignaturesData(user, latin)
-	_ = latin_data
 	//Save to IPFS
+	err, cidr := h.userService.UploadIPFS(latin)
+	if err != nil {
+		c.HTML(http.StatusOK, "register.html", gin.H{
+			"title":   "Register - SmartSign",
+			"message": "Terjadi kesalahan, harap hubungi administrator.",
+		})
+		return
+	}
+	err, cidr_data := h.userService.UploadIPFS(latin_data)
+	if err != nil {
+		c.HTML(http.StatusOK, "register.html", gin.H{
+			"title":   "Register - SmartSign",
+			"message": "Terjadi kesalahan, harap hubungi administrator.",
+		})
+		return
+	}
+	fmt.Println(cidr)
+	fmt.Println(cidr_data)
 
 	//Save to Blockchain
+	//block, err = h.userService.SaveLatinSignatures(user, cidr, cidr_data)
 
 	fm := []byte("Berhasil melakukan pendaftaran, silahkan login untuk melanjutkan.")
 	notif.SetMessage(c.Writer, "registered", fm)
