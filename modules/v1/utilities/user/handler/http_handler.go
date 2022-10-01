@@ -35,21 +35,23 @@ func (h *userHandler) Login(c *gin.Context) {
 	}
 	PublicKey := h.userService.Decrypt([]byte(user.PublicKey), input.Password)
 	user.PublicKey = string(PublicKey)
-	//Check Balance Accounts
-	mybalance, _ := h.userService.GetBalance(user, input.Password)
-	//fmt.Println(mybalance)
-	if mybalance == "0" { //transfer balance if balance is 0
-		err := h.userService.TransferBalance(user)
-		if err != nil {
-			c.HTML(http.StatusOK, "login.html", gin.H{
-				"title":   "Login - SmartSign",
-				"message": "Terjadi kesalahan, harap hubungi administrator.",
-			})
-			return
-		}
-	}
-
+	//------ Enabled in Production karena melakukan transfer balance ----------------
+	// //Check Balance Accounts
+	// mybalance, _ := h.userService.GetBalance(user, input.Password)
+	// //fmt.Println(mybalance)
+	// if mybalance == "0" { //transfer balance if balance is 0
+	// 	err := h.userService.TransferBalance(user)
+	// 	if err != nil {
+	// 		c.HTML(http.StatusOK, "login.html", gin.H{
+	// 			"title":   "Login - SmartSign",
+	// 			"message": "Terjadi kesalahan, harap hubungi administrator.",
+	// 		})
+	// 		return
+	// 	}
+	// }
+	//------ End Enabled in Production karena melakukan transfer balance ----------------
 	session.Set("id", user.Id.Hex())
+	session.Set("sign", user.Idsignature)
 	session.Set("name", user.Name)
 	session.Set("public_key", user.PublicKey)
 	session.Set("role", user.Role_id)
@@ -116,7 +118,6 @@ func (h *userHandler) Register(c *gin.Context) {
 	user.Email = input.Email
 	user.Phone = input.Phone
 	user.Dateregistered = time.Now().String()
-
 	//Binding File
 	file, err := c.FormFile("file")
 	if err != nil {
@@ -128,7 +129,7 @@ func (h *userHandler) Register(c *gin.Context) {
 		return
 	}
 	//Saving Image to Directory
-	path := fmt.Sprintf("./public/images/%s-%s", input.IdSignature, file.Filename)
+	path := fmt.Sprintf("./public/images/identity_card/card-%s.%s", input.IdSignature, file.Filename[len(file.Filename)-3:])
 	err = c.SaveUploadedFile(file, path)
 	if err != nil {
 		log.Println(err)
@@ -138,17 +139,11 @@ func (h *userHandler) Register(c *gin.Context) {
 		})
 		return
 	}
-	//Save File to to IPFS
-	user.ImageIPFS, err = h.userService.SaveImage(input, file)
-	if err != nil {
-		c.HTML(http.StatusOK, "register.html", gin.H{
-			"title":   "Register - SmartSign",
-			"message": "Terjadi kesalahan, harap hubungi administrator.",
-		})
-		return
-	}
+	user.Identity_card = fmt.Sprintf("card-%s.%s", input.IdSignature, file.Filename[len(file.Filename)-3:])
+	h.userService.EncryptFile(path, input.Password)
+
 	//Create Account
-	err = h.userService.CreateAccount(user)
+	idn, err := h.userService.CreateAccount(user)
 	if err != nil {
 		c.HTML(http.StatusOK, "register.html", gin.H{
 			"title":   "Register - SmartSign",
@@ -156,12 +151,12 @@ func (h *userHandler) Register(c *gin.Context) {
 		})
 		return
 	}
-
+	fmt.Println(idn)
 	//Create Default Latin Signatures
-	latin := h.signatureService.CreateLatinSignatures(user)
-	latin_data := h.signatureService.CreateLatinSignaturesData(user, latin)
-	//Save to IPFS
-	err, cidr := h.userService.UploadIPFS(latin)
+	latin := h.signatureService.CreateLatinSignatures(user, idn)
+	h.signatureService.CreateLatinSignaturesData(user, latin, idn)
+	//Save Signatures
+	err = h.signatureService.DefaultSignatures(user, idn)
 	if err != nil {
 		c.HTML(http.StatusOK, "register.html", gin.H{
 			"title":   "Register - SmartSign",
@@ -169,19 +164,6 @@ func (h *userHandler) Register(c *gin.Context) {
 		})
 		return
 	}
-	err, cidr_data := h.userService.UploadIPFS(latin_data)
-	if err != nil {
-		c.HTML(http.StatusOK, "register.html", gin.H{
-			"title":   "Register - SmartSign",
-			"message": "Terjadi kesalahan, harap hubungi administrator.",
-		})
-		return
-	}
-	fmt.Println(cidr)
-	fmt.Println(cidr_data)
-
-	//Save to Blockchain
-	//block, err = h.userService.SaveLatinSignatures(user, cidr, cidr_data)
 
 	fm := []byte("Berhasil melakukan pendaftaran, silahkan login untuk melanjutkan.")
 	notif.SetMessage(c.Writer, "registered", fm)

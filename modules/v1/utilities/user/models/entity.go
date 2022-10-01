@@ -7,12 +7,12 @@ import (
 )
 
 type User struct {
-	Profile_id     int
-	Idsignature    string
-	Name           string
-	Password       string
-	PasswordHash   string
-	ImageIPFS      string
+	Id           primitive.ObjectID
+	Idsignature  string
+	Name         string
+	Password     string
+	PasswordHash string
+	//ImageIPFS      string
 	Role           int
 	Publickey      string
 	Identity_card  string
@@ -22,7 +22,7 @@ type User struct {
 }
 
 type ProfileDB struct {
-	Id            primitive.ObjectID `bson:"_user_id"`
+	Id            primitive.ObjectID `bson:"_id"`
 	Idsignature   string             `bson:"idsignature"`
 	Name          string             `bson:"name"`
 	Email         string             `bson:"email"`

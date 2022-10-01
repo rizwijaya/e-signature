@@ -14,10 +14,10 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
-	"mime/multipart"
 	"os"
 
 	shell "github.com/ipfs/go-ipfs-api"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -26,8 +26,8 @@ type Service interface {
 	UploadIPFS(path string) (error, string)
 	GetFileIPFS(hash string, output string) (string, error)
 	Login(input models.LoginInput) (models.ProfileDB, error)
-	CreateAccount(user models.User) error
-	SaveImage(input models.RegisterUserInput, file *multipart.FileHeader) (string, error)
+	CreateAccount(user models.User) (string, error)
+	//SaveImage(input models.RegisterUserInput, file *multipart.FileHeader) (string, error)
 	CreateKey(key string) []byte
 	Encrypt(data []byte, passphrase string) []byte
 	Decrypt(data []byte, passphrase string) []byte
@@ -115,29 +115,30 @@ func (s *service) Login(input models.LoginInput) (models.ProfileDB, error) {
 	return user, nil
 }
 
-func (s *service) CreateAccount(user models.User) error {
+func (s *service) CreateAccount(user models.User) (string, error) {
 	//Input Hash Password
 	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.MinCost)
 	if err != nil {
 		log.Println(err)
-		return err
+		return "", err
 	}
 	user.PasswordHash = string(hash)
 	//Generate account public key with passphrase user password
 	user, err = s.repository.GeneratePublicKey(user)
 	if err != nil {
 		log.Println(err)
-		return err
+		return "", err
 	}
 	user.Publickey = string(s.Encrypt([]byte(user.Publickey), user.Password))
-	user.Identity_card = string(s.Encrypt([]byte(user.Identity_card), user.Password))
+	//user.Identity_card = string(s.Encrypt([]byte(user.Identity_card), user.Password))
 	//fmt.Println(string(s.Decrypt([]byte(user.Publickey), user.Password)))
 	//Save to Database
-	err = s.repository.Register(user)
+	id, err := s.repository.Register(user)
 	if err != nil {
 		log.Println(err)
-		return err
+		return "", err
 	}
+	idn := id.(primitive.ObjectID).Hex()
 	//Get Private Key user
 	// key, err := s.repository.GetPrivateKey(user)
 	// if err != nil {
@@ -157,23 +158,23 @@ func (s *service) CreateAccount(user models.User) error {
 	// 	return err
 	// }
 	//fmt.Println(user)
-	return nil
+	return idn, nil
 }
 
-func (s *service) SaveImage(input models.RegisterUserInput, file *multipart.FileHeader) (string, error) {
-	path := fmt.Sprintf("./public/images/%s-%s", input.IdSignature, file.Filename)
-	//Encrypt file Image with AES and Passphrase password
-	err := s.EncryptFile(path, input.Password)
-	if err != nil {
-		return "", err
-	}
-	//Upload to Network IPFS
-	err, cidr := s.UploadIPFS(path)
-	if err != nil {
-		return "", err
-	}
-	return cidr, nil
-}
+// func (s *service) SaveImage(input models.RegisterUserInput, file *multipart.FileHeader) (string, error) {
+// 	path := fmt.Sprintf("./public/images/%s-%s", input.IdSignature, file.Filename)
+// 	//Encrypt file Image with AES and Passphrase password
+// 	err := s.EncryptFile(path, input.Password)
+// 	if err != nil {
+// 		return "", err
+// 	}
+// 	//Upload to Network IPFS
+// 	err, cidr := s.UploadIPFS(path)
+// 	if err != nil {
+// 		return "", err
+// 	}
+// 	return cidr, nil
+// }
 
 func (s *service) CreateKey(key string) []byte {
 	hash := sha256.Sum256([]byte(key))

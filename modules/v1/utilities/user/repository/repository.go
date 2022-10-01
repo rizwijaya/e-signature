@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"e-signature/app/blockhain"
 	"e-signature/app/config"
 	api "e-signature/app/contracts"
 	"e-signature/modules/v1/utilities/user/models"
@@ -31,8 +30,8 @@ type Repository interface {
 	GetPrivateKey(user models.User) (string, error)
 	GeneratePublicKey(user models.User) (models.User, error)
 	//SavetoSystem(auth *bind.TransactOpts, user models.User) error
-	Register(user models.User) error
-	SavetoProfile(user models.User, key string) error
+	Register(user models.User) (interface{}, error)
+	//ssSavetoProfile(user models.User, key string) error
 	CheckUserExist(idsignature string) (models.ProfileDB, error)
 	CheckEmailExist(email string) (models.ProfileDB, error)
 	TransferBalance(user models.ProfileDB) error
@@ -146,9 +145,10 @@ func (r *repository) GeneratePublicKey(user models.User) (models.User, error) {
 // 	}
 // 	return nil
 // }
-func (r *repository) Register(user models.User) error {
+func (r *repository) Register(user models.User) (interface{}, error) {
+	user.Id = primitive.NewObjectID()
 	profile := models.ProfileDB{
-		Id:            primitive.NewObjectID(),
+		Id:            user.Id,
 		Idsignature:   user.Idsignature,
 		Name:          user.Name,
 		Email:         user.Email,
@@ -159,28 +159,27 @@ func (r *repository) Register(user models.User) error {
 		Role_id:       user.Role,
 		Date_created:  time.Now(),
 	}
-
 	c := r.db.Collection("users")
-	_, err := c.InsertOne(context.Background(), &profile)
+	id, err := c.InsertOne(context.Background(), &profile)
 	if err != nil {
 		log.Fatal(err)
-		return err
+		return nil, err
 	}
-	return nil
+	return id.InsertedID, err
 }
 
-func (r *repository) SavetoProfile(user models.User, key string) error {
-	//auth := blockhain.GetAccountAuth(blockhain.Connect(), key)
-	auth := blockhain.GetAccountAuth(blockhain.Connect(), key)
-	rs, err := r.blockchain.AddProfile(auth, user.Name, user.ImageIPFS, user.Email, user.Phone, user.Dateregistered)
-	if err != nil {
-		log.Fatal(err)
-		return err
-	}
+// func (r *repository) SavetoProfile(user models.User, key string) error {
+// 	//auth := blockhain.GetAccountAuth(blockhain.Connect(), key)
+// 	auth := blockhain.GetAccountAuth(blockhain.Connect(), key)
+// 	rs, err := r.blockchain.AddProfile(auth, user.Name, user.ImageIPFS, user.Email, user.Phone, user.Dateregistered)
+// 	if err != nil {
+// 		log.Fatal(err)
+// 		return err
+// 	}
 
-	fmt.Println(rs)
-	return nil
-}
+// 	fmt.Println(rs)
+// 	return nil
+// }
 
 func (r *repository) CheckUserExist(idsignature string) (models.ProfileDB, error) {
 	var profile models.ProfileDB

@@ -18,8 +18,10 @@ import (
 type Service interface {
 	CreateImgSignature(input models.AddSignature) string
 	CreateImgSignatureData(input models.AddSignature, name string) string
-	CreateLatinSignatures(user modelsUser.User) string
-	CreateLatinSignaturesData(user modelsUser.User, latin string) string
+	CreateLatinSignatures(user modelsUser.User, id string) string
+	CreateLatinSignaturesData(user modelsUser.User, latin string, idn string) string
+	DefaultSignatures(user modelsUser.User, id string) error
+	UpdateMySignatures(signature string, signaturedata string, sign string) error
 }
 
 type service struct {
@@ -40,7 +42,7 @@ func (s *service) CreateImgSignature(input models.AddSignature) string {
 	fmt.Println(bounds, formatString)
 
 	//Encode from image format to writer
-	pngFilename := "public/images/signatures/signatures-" + input.Id + ".png"
+	pngFilename := "public/images/signatures/signatures/signatures-" + input.Id + ".png"
 	f, err := os.OpenFile(pngFilename, os.O_WRONLY|os.O_CREATE, 0777)
 	if err != nil {
 		log.Fatal(err)
@@ -61,7 +63,7 @@ func (s *service) CreateImgSignatureData(input models.AddSignature, name string)
 	//const S = 200
 	//im, err := gg.LoadImage("signature-632fbcd7ea74d38e23360148.png")
 	//img := fmt.Sprintf("app/tmp/signature-%s.png", user.Idsignature)
-	img := fmt.Sprintf("public/images/signatures/signatures-%s.png", input.Id)
+	img := fmt.Sprintf("public/images/signatures/signatures/signatures-%s.png", input.Id)
 	im, err := gg.LoadImage(img)
 	if err != nil {
 		log.Fatal(err)
@@ -92,12 +94,12 @@ func (s *service) CreateImgSignatureData(input models.AddSignature, name string)
 	dc.DrawStringAnchored("Integrate in Blockchain", 145, 278, 0, 0.5)
 	dc.Clip()
 	//dc.SavePNG("out.png")
-	filename := fmt.Sprintf("public/images/signatures/signaturesdata-%s.png", input.Id)
+	filename := fmt.Sprintf("public/images/signatures/signatures_data/signaturesdata-%s.png", input.Id)
 	dc.SavePNG(filename)
 	return filename
 }
 
-func (s *service) CreateLatinSignatures(user modelsUser.User) string {
+func (s *service) CreateLatinSignatures(user modelsUser.User, id string) string {
 	dc := gg.NewContext(300, 300)
 	//dc.SetRGB(1, 1, 1) // white background
 	dc.Clear()
@@ -105,14 +107,19 @@ func (s *service) CreateLatinSignatures(user modelsUser.User) string {
 	if err := dc.LoadFontFace("modules/v1/utilities/signatures/font/latin.ttf", 75); err != nil {
 		panic(err)
 	}
-	dc.DrawStringAnchored(user.Name[0:12], 300/2, 130, 0.5, 0.5)
+	name := user.Name
+	if len(user.Name) > 12 {
+		name = user.Name[0:12]
+	}
+
+	dc.DrawStringAnchored(name, 300/2, 130, 0.5, 0.5)
 	dc.Clip()
-	filename := fmt.Sprintf("app/tmp/latin-%s.png", user.Idsignature)
+	filename := fmt.Sprintf("public/images/signatures/latin/latin-%s.png", id)
 	dc.SavePNG(filename)
 	return filename
 }
 
-func (s *service) CreateLatinSignaturesData(user modelsUser.User, latin string) string {
+func (s *service) CreateLatinSignaturesData(user modelsUser.User, latin string, idn string) string {
 	im, err := gg.LoadImage(latin)
 	if err != nil {
 		log.Fatal(err)
@@ -127,13 +134,31 @@ func (s *service) CreateLatinSignaturesData(user modelsUser.User, latin string) 
 	}
 
 	dc.DrawImage(im, 0, 0)
-	dc.DrawStringAnchored(user.Idsignature[0:12], 145, 242, 0, 0.5)
-	dc.DrawStringAnchored(user.Name[0:12], 145, 254, 0, 0.5)
+	id := user.Idsignature
+	if len(user.Idsignature) > 12 {
+		id = user.Idsignature[0:12]
+	}
+	nam := user.Name
+	if len(user.Name) > 12 {
+		nam = user.Name[0:12]
+	}
+	dc.DrawStringAnchored(id, 145, 242, 0, 0.5)
+	dc.DrawStringAnchored(nam, 145, 254, 0, 0.5)
 	dc.DrawStringAnchored("rizwijaya.smartsign.com", 145, 266, 0, 0.5)
 	dc.DrawStringAnchored("Integrate in Blockchain", 145, 278, 0, 0.5)
 	//dc.DrawStringAnchored("Integrate in Blockchain", 145, 290, 0, 0.5)
 	dc.Clip()
-	filename := fmt.Sprintf("app/tmp/latindata-%s.png", user.Idsignature)
+	filename := fmt.Sprintf("public/images/signatures/latin_data/latindata-%s.png", idn)
 	dc.SavePNG(filename)
 	return filename
+}
+
+func (s *service) DefaultSignatures(user modelsUser.User, id string) error {
+	err := s.repository.DefaultSignatures(user, id)
+	return err
+}
+
+func (s *service) UpdateMySignatures(signature string, signaturedata string, sign string) error {
+	err := s.repository.UpdateMySignatures(signature, signaturedata, sign)
+	return err
 }
