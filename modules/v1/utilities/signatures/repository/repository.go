@@ -16,6 +16,7 @@ type Repository interface {
 	DefaultSignatures(user modelsUser.User, id string) error
 	UpdateMySignatures(signature string, signaturedata string, sign string) error
 	GetMySignature(sign string) (models.Signatures, error)
+	ChangeSignature(sign_type string, sign string) error
 }
 
 type repository struct {
@@ -78,4 +79,22 @@ func (r *repository) GetMySignature(sign string) (models.Signatures, error) {
 		return signatures, err
 	}
 	return signatures, nil
+}
+
+func (r *repository) ChangeSignature(sign_type string, sign string) error {
+	filter := map[string]interface{}{"user": sign}
+	update := map[string]interface{}{
+		"$set": map[string]interface{}{
+			"signature_selected": sign_type,
+			"date_update":        time.Now(),
+		},
+	}
+
+	c := r.db.Collection("signatures")
+	_, err := c.UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
+	return nil
 }

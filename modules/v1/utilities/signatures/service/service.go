@@ -24,6 +24,7 @@ type Service interface {
 	DefaultSignatures(user modelsUser.User, id string) error
 	UpdateMySignatures(signature string, signaturedata string, sign string) error
 	GetMySignature(sign string, id string, name string) (models.MySignatures, error)
+	ChangeSignatures(sign_type string, idsignature string) error
 }
 
 type service struct {
@@ -203,4 +204,9 @@ func (s *service) GetMySignature(sign string, id string, name string) (models.My
 		Date_created:       fmt.Sprintf("%s | %s WIB", Tanggal(signature.Date_created), Clock(signature.Date_created)),
 	}
 	return mysign, err
+}
+
+func (s *service) ChangeSignatures(sign_type string, idsignature string) error {
+	err := s.repository.ChangeSignature(sign_type, idsignature)
+	return err
 }

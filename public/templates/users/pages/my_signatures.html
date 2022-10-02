@@ -33,23 +33,95 @@
 
     <div class="container">
       <div class="row">
-      
+
         <!-- Content -->
         <div class="col-md-7">
           <div class="container">
             <div class="card box" style="padding: 36px !important;">
+              <div class="d-flex" style="position: absolute; top: 20px; right:30px;">
+                <!-- Signature data change left -->
+                {{ if or (eq .signatures.Signature_selected "signature") (eq .signatures.Signature_selected
+                "signature_data") }}
+                {{ if eq .signatures.Signature_selected "signature_data" }}
+                <a href="/change-signatures/signature" style="color: black !important;">
+                  <div class="btn-accent px-2"
+                    style="height: 20px; width: 30px !important; border-radius: 20px 0 0 20px; box-shadow: 2px 7px 4px rgba(0, 0, 0, 0.25);">
+                    <img src="/landing/assets/img/signatures/unlock-black.svg" alt=""
+                      style="padding: 0px 0px !important;">
+                  </div>
+                </a>
+                <!-- Signature data change right  -->
+                <div class="btn-accent px-2"
+                  style="height: 20px; width: 30px !important; border-radius: 0 20px 20px 0; background-color: #8491FF; box-shadow: 2px 7px 4px rgba(0, 0, 0, 0.25);">
+                  <img src="/landing/assets/img/signatures/lock-white.svg" alt="" style="padding: 0px 0px !important;">
+                </div>
+                {{ else }}
+                <div class="btn-accent px-2"
+                  style="height: 20px; width: 30px !important; border-radius: 20px 0 0 20px; background-color: #8491FF; box-shadow: 2px 7px 4px rgba(0, 0, 0, 0.25);">
+                  <img src="/landing/assets/img/signatures/unlock-white.svg" alt=""
+                    style="padding: 0px 0px !important;">
+                </div>
+                <!-- Signature data change right  -->
+                <a href="/change-signatures/signature_data" style="color: black !important;">
+                  <div class="btn-accent px-2"
+                    style="height: 20px; width: 30px !important; border-radius: 0 20px 20px 0; box-shadow: 2px 7px 4px rgba(0, 0, 0, 0.25);">
+                    <img src="/landing/assets/img/signatures/lock-black.svg" alt="" style="padding: 0px 0px !important;">
+                  </div>
+                </a>
+                {{ end }}
+                {{ end }}
+                <!-- End Signature data change -->
+                
+                  <!-- Latin data change left -->
+                  {{ if or (eq .signatures.Signature_selected "latin") (eq .signatures.Signature_selected
+                  "latin_data") }}
+                  {{ if eq .signatures.Signature_selected "latin_data" }}
+                  <a href="/change-signatures/latin" style="color: black !important;">
+                    <div class="btn-accent px-2"
+                      style="height: 20px; width: 30px !important; border-radius: 20px 0 0 20px; box-shadow: 2px 7px 4px rgba(0, 0, 0, 0.25);">
+                      <img src="/landing/assets/img/signatures/unlock-black.svg" alt=""
+                        style="padding: 0px 0px !important;">
+                    </div>
+                  </a>
+                  <!-- Latin data change right  -->
+                  <div class="btn-accent px-2"
+                    style="height: 20px; width: 30px !important; border-radius: 0 20px 20px 0; background-color: #8491FF; box-shadow: 2px 7px 4px rgba(0, 0, 0, 0.25);">
+                    <img src="/landing/assets/img/signatures/lock-white.svg" alt="" style="padding: 0px 0px !important;">
+                  </div>
+                  {{ else }}
+                  <div class="btn-accent px-2"
+                    style="height: 20px; width: 30px !important; border-radius: 20px 0 0 20px; background-color: #8491FF; box-shadow: 2px 7px 4px rgba(0, 0, 0, 0.25);">
+                    <img src="/landing/assets/img/signatures/unlock-white.svg" alt=""
+                      style="padding: 0px 0px !important;">
+                  </div>
+                  <!-- Latin data change right  -->
+                  <a href="/change-signatures/latin_data" style="color: black !important;">
+                    <div class="btn-accent px-2"
+                      style="height: 20px; width: 30px !important; border-radius: 0 20px 20px 0; box-shadow: 2px 7px 4px rgba(0, 0, 0, 0.25);">
+                      <img src="/landing/assets/img/signatures/lock-black.svg" alt="" style="padding: 0px 0px !important;">
+                    </div>
+                  </a>
+                  {{ end }}
+                  {{ end }}
+                  <!-- End Latin data change -->
+              </div>
               <div class="row g-0">
                 <div class="col-md-5">
                   {{ if eq .signatures.Signature_selected "signature" }}
-                  <img src="/signatures/{{ .signatures.Signature }}" class="img-fluid rounded-start" alt="square" style="padding: 0.5px 0.5px !important;">
+                  <img src="/signatures/{{ .signatures.Signature }}" class="img-fluid rounded-start" alt="square"
+                    style="padding: 0.5px 0.5px !important;">
                   {{ else if eq .signatures.Signature_selected "signature_data" }}
-                  <img src="/signatures/{{ .signatures.Signature_data }}" class="img-fluid rounded-start" alt="square" style="padding: 0.5px 0.5px !important;">
+                  <img src="/signatures/{{ .signatures.Signature_data }}" class="img-fluid rounded-start" alt="square"
+                    style="padding: 0.5px 0.5px !important;">
                   {{ else if eq .signatures.Signature_selected "latin" }}
-                  <img src="/signatures/{{ .signatures.Latin }}" class="img-fluid rounded-start" alt="square" style="padding: 0.5px 0.5px !important;">
+                  <img src="/signatures/{{ .signatures.Latin }}" class="img-fluid rounded-start" alt="square"
+                    style="padding: 0.5px 0.5px !important;">
                   {{ else if eq .signatures.Signature_selected "latin_data" }}
-                  <img src="/signatures/{{ .signatures.Latin_data }}" class="img-fluid rounded-start" alt="square" style="padding: 0.5px 0.5px !important;">
-                  {{ else }} 
-                    <img src="/signatures/signatures/default.png" class="img-fluid rounded-start" alt="square" style="padding: 0.5px 0.5px !important;">
+                  <img src="/signatures/{{ .signatures.Latin_data }}" class="img-fluid rounded-start" alt="square"
+                    style="padding: 0.5px 0.5px !important;">
+                  {{ else }}
+                  <img src="/signatures/signatures/default.png" class="img-fluid rounded-start" alt="square"
+                    style="padding: 0.5px 0.5px !important;">
                   {{ end }}
                 </div>
                 <div class="col-md-5">
@@ -57,15 +129,15 @@
                     <h5 class="card-title" style="text-align: left; font-size: 1rem !important;"><b>{{ .user }}</b></h5>
                     <p class="card-text" style="margin-bottom: 4rem; text-align: left; font-size: 0.9rem !important;">
                       {{ if eq .signatures.Signature_selected "signature" }}
-                        {{ .signatures.Signature_id }}
+                      {{ .signatures.Signature_id }}
                       {{ else if eq .signatures.Signature_selected "signature_data" }}
-                        {{ .signatures.Signature_data_id }}
+                      {{ .signatures.Signature_data_id }}
                       {{ else if eq .signatures.Signature_selected "latin" }}
-                        {{ .signatures.Latin_id }}
+                      {{ .signatures.Latin_id }}
                       {{ else if eq .signatures.Signature_selected "latin_data" }}
-                        {{ .signatures.Latin_data_id }}
+                      {{ .signatures.Latin_data_id }}
                       {{ else }}
-                        Tidak ada Tanda Tangan
+                      Tidak ada Tanda Tangan
                       {{ end }}
                       <br>{{ .signatures.Name }}
                       <br>Total Ditanda Tangan
@@ -83,45 +155,60 @@
         <div class="col-md-5">
           <!-- <h1 style="text-align: center;color: #4154F1;"><b>List Tanda Tangan</b></h1> -->
           <div class="container">
-            {{ if or (eq .signatures.Signature_selected "signature") (eq .signatures.Signature_selected "signature_data") }}
+            {{ if or (eq .signatures.Signature_selected "signature") (eq .signatures.Signature_selected
+            "signature_data") }}
             <div class="box border border-primary" style="padding: 12px !important;">
-            {{ else }}
-            <div class="box" style="padding: 12px !important;">
-            {{ end }}
-              <div class="card-body">
-                <img src="/signatures/{{ .signatures.Signature }}" alt="square" style="height: 100px; padding: 0.5px 0.5px !important;">
-                <h5 class="card-title" style="margin-top: 0.05rem; font-size: 1rem !important;"><b>{{ .signatures.Signature_id }}</b></h5>
-                <small style="color: #ADB4F3;">Dibuat {{ .signatures.Date_created }}</small>
+              {{ else }}
+              <div class="box" style="padding: 12px !important;">
+                <a href="/change-signatures/signature" style="color: black !important;">
+                  {{ end }}
+                  <div class="card-body">
+                    <img src="/signatures/{{ .signatures.Signature }}" alt="square"
+                      style="height: 100px; padding: 0.5px 0.5px !important;">
+                    <h5 class="card-title" style="margin-top: 0.05rem; font-size: 1rem !important;"><b>{{
+                        .signatures.Signature_id }}</b></h5>
+                    <small style="color: #ADB4F3;">Dibuat {{ .signatures.Date_created }}</small>
+                  </div>
+                  {{ if or (ne .signatures.Signature_selected "latin") (ne .signatures.Signature_selected "latin_data")
+                  }}
+                </a>
+                {{ end }}
+              </div>
+              {{ if or (eq .signatures.Signature_selected "latin") (eq .signatures.Signature_selected "latin_data") }}
+              <div class="box mt-3 border border-primary" style="padding: 12px !important;">
+                {{ else }}
+                <div class="box mt-3" style="padding: 12px !important;">
+                  <a href="/change-signatures/latin" style="color: black !important;">
+                    {{ end }}
+                    <div class="card-body">
+                      <img src="/signatures/{{ .signatures.Latin }}" alt="square"
+                        style="height: 100px; padding: 0.5px 0.5px !important;">
+                      <h5 class="card-title" style="margin-top: 0.05rem; font-size: 1rem !important;"><b>{{
+                          .signatures.Latin_id }}</b></h5>
+                      <small style="color: #ADB4F3;">Dibuat {{ .signatures.Date_created }}</small>
+                    </div>
+                    {{ if or (ne .signatures.Signature_selected "latin") (ne .signatures.Signature_selected
+                    "latin_data") }}
+                  </a>
+                  {{ end }}
+                </div>
               </div>
             </div>
-            {{ if or (eq .signatures.Signature_selected "latin") (eq .signatures.Signature_selected "latin_data") }}
-            <div class="box mt-3 border border-primary" style="padding: 12px !important;">
-            {{ else }}
-            <div class="box mt-3" style="padding: 12px !important;">
-            {{ end }}
-              <div class="card-body">
-                <img src="/signatures/{{ .signatures.Latin }}" alt="square" style="height: 100px; padding: 0.5px 0.5px !important;">
-                <h5 class="card-title" style="margin-top: 0.05rem; font-size: 1rem !important;"><b>{{ .signatures.Latin_id }}</b></h5>
-                <small style="color: #ADB4F3;">Dibuat {{ .signatures.Date_created }}</small>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- <div class="container" style="margin-top: 5rem;margin-bottom: 5rem;">
+            <!-- <div class="container" style="margin-top: 5rem;margin-bottom: 5rem;">
           <hr style="border: solid 1px;">
         </div> -->
 
-        <div class="container text-center" style="margin-top: 2rem;margin-bottom: 1rem;">
-          <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#signmodal"
-            style="border-radius: 24px;background-color: #4154F1;padding-left: 2rem;padding-right: 2rem;box-shadow: 0 5px 5px rgb(0, 0, 0, 0.3);">
-            Tambahkan Tanda Tangan
-            <!-- <img src="../icon/note-plus.png" alt="note-plus"> -->
-          </button>
-        </div>
-      
-      </div>
+            <div class="container text-center" style="margin-top: 2rem;margin-bottom: 1rem;">
+              <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#signmodal"
+                style="border-radius: 24px;background-color: #4154F1;padding-left: 2rem;padding-right: 2rem;box-shadow: 0 5px 5px rgb(0, 0, 0, 0.3);">
+                Tambahkan Tanda Tangan
+                <!-- <img src="../icon/note-plus.png" alt="note-plus"> -->
+              </button>
+            </div>
 
-    </div>
+          </div>
+
+        </div>
 
   </section>
 
