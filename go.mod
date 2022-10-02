@@ -5,6 +5,7 @@ go 1.16
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/ethereum/go-ethereum v1.10.21
+	github.com/fogleman/gg v1.3.0 // indirect
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-contrib/multitemplate v0.0.0-20220323084503-710510e67c20
 	github.com/gin-contrib/sessions v0.0.5

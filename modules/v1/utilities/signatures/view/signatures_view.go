@@ -43,3 +43,13 @@ func (h *signaturesView) MySignatures(c *gin.Context) {
 		"signatures": signatures,
 	})
 }
+
+func (h *signaturesView) SignDocuments(c *gin.Context) {
+	session := sessions.Default(c)
+	title := "Sign Documents - SmartSign"
+
+	c.HTML(http.StatusOK, "sign_documents.html", gin.H{
+		"title": title,
+		"user":  session.Get("id"),
+	})
+}

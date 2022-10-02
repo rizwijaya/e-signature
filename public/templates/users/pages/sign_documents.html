@@ -1,0 +1,287 @@
+{{ define "content" }}
+
+<style>
+  .hidden {
+    display: none;
+  }
+
+  li {
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .pagination-button:not(.disabled):hover {
+    background: #fff;
+  }
+</style>
+<!-- main -->
+<main id="main">
+  <section class="breadcrumbs">
+    <div class="container">
+      <ol>
+        <li><a href="/">Home</a></li>
+        <li>My Signatures</li>
+      </ol>
+      <h2>My Signatures</h2>
+    </div>
+  </section>
+  <!-- ======= Values Section ======= -->
+  <section id="values" class="values" style="padding: 30px 0 !important;">
+    <div class="container">
+      <div class="row ">
+        <!-- Section Changes -->
+        <ul id="paginated-list" data-current-page="1" aria-live="polite">
+          <!-- Upload Documents -->
+          <li>
+            <div class="container text-center" style="width: 85% !important;">
+              <div class="card"
+                style="border-radius: 15px;border: solid 1px blue;padding: 0.5rem;background-color: #F8F9FF;">
+                <div class="card-body">
+                  <img src="/landing/img/signatures/documents.png" alt="doc" class="img-fluid" style="size: 80%;">
+                  <h5 class="card-title" style="margin-top: 2rem;"><b>Silahkan upload dokumen terlebih dahulu<br>untuk
+                      melakukan tanda tangan terhadap dokumen yang dipilih </b></h5>
+                </div>
+              </div>
+            </div>
+          </li>
+          <!-- End Upload Documents -->
+          <!-- Lihat Documents -->
+          <li>
+            <div class="container text-center" style="width: 85% !important;">
+              <div class="card"
+                style="border-radius: 15px;border: solid 1px blue;padding: 0.5rem;background-color: #F8F9FF;">
+                <div class="card-body">
+                  <img src="/landing/img/signatures/documents.png" alt="doc" class="img-fluid" style="size: 80%;">
+                  <h5 class="card-title" style="margin-top: 2rem;"><b>STEP 2 </b></h5>
+                </div>
+              </div>
+            </div>
+          </li>
+          <!-- End Lihat Documents -->
+          <!-- Tanda Tangan Documents -->
+          <li>
+            <div class="container text-center" style="width: 85% !important;">
+              <div class="card"
+                style="border-radius: 15px;border: solid 1px blue;padding: 0.5rem;background-color: #F8F9FF;">
+                <div class="card-body">
+                  <img src="/landing/img/signatures/documents.png" alt="doc" class="img-fluid" style="size: 80%;">
+                  <h5 class="card-title" style="margin-top: 2rem;"><b>STEP 3 </b></h5>
+                </div>
+              </div>
+            </div>
+          </li>
+          <!-- End Tanda Tangan Documents -->
+          <!-- Undang Orang Lain -->
+          <li>
+            <div class="container text-center" style="width: 85% !important;">
+              <div class="card"
+                style="border-radius: 15px;border: solid 1px blue;padding: 0.5rem;background-color: #F8F9FF;">
+                <div class="card-body">
+                  <img src="/landing/img/signatures/documents.png" alt="doc" class="img-fluid" style="size: 80%;">
+                  <h5 class="card-title" style="margin-top: 2rem;"><b>STEP 4 </b></h5>
+                </div>
+              </div>
+            </div>
+          </li>
+          <!-- Undang Orang Lain -->
+        </ul>
+        <!-- End Section Changes -->
+
+        <!-- Progress Bar -->
+        <div class="my-5 container position-relative" style="width: 50%;">
+          <div class="progress position-relative">
+            <div class="progress-bar" role="progressbar" id="progress-page" style="width: 0%;" aria-valuenow="25" aria-valuemin="0"
+              aria-valuemax="100"></div>
+          </div>
+          <button class="position-absolute rounded-circle top-50 translate-middle" id="progress-button-1"
+            style="width: 35px; height: 35px; border: none; left: 0%;">1</button>
+          <button class="position-absolute rounded-circle top-50 translate-middle" id="progress-button-2"
+            style="width: 35px; height: 35px; border: none; left: 33.3%;">2</button>
+          <button class="position-absolute rounded-circle top-50 translate-middle" id="progress-button-3"
+            style="width: 35px; height: 35px; border: none; left: 66.6%;">3</button>
+          <button class="position-absolute rounded-circle top-50 translate-middle" id="progress-button-4"
+            style="width: 35px; height: 35px; border: none; left: 99.9%;">4</button>
+        </div>
+        <!-- End Progress Bar -->
+
+        <!-- Button back - next -->
+        <div class="container mt-2 mb-4">
+          <div class="row">
+            <div class="col text-end">
+              <button type="button" class="btn btn-primary btn-sm button-back pagination-button" id="prev-button"
+                style="border-radius: 24px;background-color: #4154F1;padding-left: 2rem;padding-right: 2rem;">
+                Back
+              </button>
+            </div>
+            <div id="pagination-numbers" class="hidden"></div>
+            <div class="col text-start">
+              <button type="button" class="btn btn-primary btn-sm button-next pagination-button" id="next-button"
+                style="border-radius: 24px;background-color: #4154F1;padding-left: 2rem;padding-right: 2rem;">
+                Next
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- End Button back next -->
+
+      </div>
+    </div>
+  </section>
+  <!-- End Values Section -->
+
+</main>
+<script>
+  const paginationNumbers = document.getElementById("pagination-numbers");
+  const paginatedList = document.getElementById("paginated-list");
+  const listItems = paginatedList.querySelectorAll("li");
+  const nextButton = document.getElementById("next-button");
+  const prevButton = document.getElementById("prev-button");
+  const progressbar = document.getElementById("progress-page")
+  const progressbutton = document.getElementById("progress-button-1")
+  const progressbutton2 = document.getElementById("progress-button-2")
+  const progressbutton3 = document.getElementById("progress-button-3")
+  const progressbutton4 = document.getElementById("progress-button-4")
+
+  const paginationLimit = 1;
+  const pageCount = Math.ceil(listItems.length / paginationLimit);
+  let currentPage = 1;
+
+  const disableButton = (button) => {
+    button.classList.add("disabled");
+    button.setAttribute("disabled", true);
+  };
+
+  const enableButton = (button) => {
+    button.classList.remove("disabled");
+    button.removeAttribute("disabled");
+  };
+
+  const handlePageButtonsStatus = () => {
+    if (currentPage === 1) {
+      disableButton(prevButton);
+    } else {
+      enableButton(prevButton);
+    }
+
+    if (pageCount === currentPage) {
+      disableButton(nextButton);
+    } else {
+      enableButton(nextButton);
+    }
+  };
+
+  const handleActivePageNumber = () => {
+    document.querySelectorAll(".pagination-number").forEach((button) => {
+      button.classList.remove("active");
+      const pageIndex = Number(button.getAttribute("page-index"));
+      if (pageIndex == currentPage) {
+        button.classList.add("active");
+      }
+    });
+  };
+
+  const appendPageNumber = (index) => {
+    const pageNumber = document.createElement("button");
+    pageNumber.className = "pagination-number";
+    pageNumber.innerHTML = index;
+    pageNumber.setAttribute("page-index", index);
+    pageNumber.setAttribute("aria-label", "Page " + index);
+
+    paginationNumbers.appendChild(pageNumber);
+  };
+
+  const getPaginationNumbers = () => {
+    for (let i = 1; i <= pageCount; i++) {
+      appendPageNumber(i);
+    }
+  };
+
+  const setCurrentPage = (pageNum) => {
+    currentPage = pageNum;
+    
+    progressPage(pageNum)
+    handleActivePageNumber();
+    handlePageButtonsStatus();
+
+    const prevRange = (pageNum - 1) * paginationLimit;
+    const currRange = pageNum * paginationLimit;
+
+    listItems.forEach((item, index) => {
+      item.classList.add("hidden");
+      if (index >= prevRange && index < currRange) {
+        item.classList.remove("hidden");
+      }
+    });
+  };
+  
+  const progressPage = (page) => {
+    //Math.round(progressbar.style.width = (page / pageCount) * 100 + "%")
+    if (page == 1) {
+      progressbar.style.width = "0%"
+      progressbutton.style.backgroundColor = "rgba(65, 84, 241, 1)"
+      progressbutton.style.color = "white"
+      progressbutton2.style.backgroundColor = "#E9ECEF"
+      progressbutton2.style.color = "#444444"
+      progressbutton3.style.backgroundColor = "#E9ECEF"
+      progressbutton3.style.color = "#444444"
+      progressbutton4.style.backgroundColor = "#E9ECEF"
+      progressbutton4.style.color = "#444444"
+    } else if (page == 2) {
+      progressbar.style.width = "33.3%"
+      progressbutton.style.backgroundColor = "rgba(65, 84, 241, 1)"
+      progressbutton.style.color = "white"
+      progressbutton2.style.backgroundColor = "rgba(65, 84, 241, 1)"
+      progressbutton2.style.color = "white"
+      progressbutton3.style.backgroundColor = "#E9ECEF"
+      progressbutton3.style.color = "#444444"
+      progressbutton4.style.backgroundColor = "#E9ECEF"
+      progressbutton4.style.color = "#444444"
+    } else if (page == 3) {
+      progressbar.style.width = "66.6%"
+      progressbutton.style.backgroundColor = "rgba(65, 84, 241, 1)"
+      progressbutton.style.color = "white"
+      progressbutton2.style.backgroundColor = "rgba(65, 84, 241, 1)"
+      progressbutton2.style.color = "white"
+      progressbutton3.style.backgroundColor = "rgba(65, 84, 241, 1)"
+      progressbutton3.style.color = "white"
+      progressbutton4.style.backgroundColor = "#E9ECEF"
+      progressbutton4.style.color = "#444444"
+    } else if (page == 4) {
+      progressbar.style.width = "100%"
+      progressbutton.style.backgroundColor = "rgba(65, 84, 241, 1)"
+      progressbutton.style.color = "white"
+      progressbutton2.style.backgroundColor = "rgba(65, 84, 241, 1)"
+      progressbutton2.style.color = "white"
+      progressbutton3.style.backgroundColor = "rgba(65, 84, 241, 1)"
+      progressbutton3.style.color = "white"
+      progressbutton4.style.backgroundColor = "rgba(65, 84, 241, 1)"
+      progressbutton4.style.color = "white"
+    }
+  }
+
+  window.addEventListener("load", () => {
+    getPaginationNumbers();
+    setCurrentPage(1);
+
+    prevButton.addEventListener("click", () => {
+      setCurrentPage(currentPage - 1);
+    });
+
+    nextButton.addEventListener("click", () => {
+      setCurrentPage(currentPage + 1);
+    });
+
+    document.querySelectorAll(".pagination-number").forEach((button) => {
+      const pageIndex = Number(button.getAttribute("page-index"));
+
+      if (pageIndex) {
+        button.addEventListener("click", () => {
+          setCurrentPage(pageIndex);
+        });
+      }
+    });
+  });
+
+</script>
+<!-- End main -->
+{{ end }}
