@@ -20,6 +20,7 @@ import (
 )
 
 func TestInit(t *testing.T) {
+	gin.SetMode(gin.TestMode)
 	os.Chdir("../../../../../")
 }
 
@@ -46,7 +47,6 @@ func NewRouter() *gin.Engine {
 }
 
 func Test_signaturesHandler_AddSignatures(t *testing.T) {
-	gin.SetMode(gin.TestMode)
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	service := m_service.NewMockService(ctrl)
@@ -101,6 +101,102 @@ func Test_signaturesHandler_AddSignatures(t *testing.T) {
 
 			assert.Equal(t, tt.statusCode, response.Code)
 			assert.Equal(t, string(responseData), tt.response)
+		})
+	}
+}
+
+func Test_signaturesHandler_ChangeSignatures(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	service := m_service.NewMockService(ctrl)
+	serviceUser := m_serviceUser.NewMockService(ctrl)
+
+	mock := &signaturesHandler{
+		signaturesService: service,
+		serviceUser:       serviceUser,
+	}
+	router := NewRouter()
+	router.GET("/change-signatures/:sign_type", mock.ChangeSignatures)
+
+	tests := []struct {
+		name        string
+		statusCode  int
+		sign_type   string
+		sign_now    string
+		pages       string
+		serviceTest func(signatureService *m_service.MockService, signatureUser *m_serviceUser.MockService)
+	}{
+		{
+			name:       "Success Change Signatures in signature",
+			statusCode: 302,
+			sign_type:  "signature",
+			sign_now:   "<a href=\"/my-signatures\">Found</a>.\n\n",
+			pages:      "/my-signatures",
+			serviceTest: func(signatureService *m_service.MockService, signatureUser *m_serviceUser.MockService) {
+				service.EXPECT().ChangeSignatures("signature", gomock.Any()).Return(nil)
+			},
+		},
+		{
+			name:       "Success Change Signatures in signature with data",
+			statusCode: 302,
+			sign_type:  "signature_data",
+			sign_now:   "<a href=\"/my-signatures\">Found</a>.\n\n",
+			pages:      "/my-signatures",
+			serviceTest: func(signatureService *m_service.MockService, signatureUser *m_serviceUser.MockService) {
+				service.EXPECT().ChangeSignatures("signature_data", gomock.Any()).Return(nil)
+			},
+		},
+		{
+			name:       "Success Change Signatures in signature latin",
+			statusCode: 302,
+			sign_type:  "latin",
+			sign_now:   "<a href=\"/my-signatures\">Found</a>.\n\n",
+			pages:      "/my-signatures",
+			serviceTest: func(signatureService *m_service.MockService, signatureUser *m_serviceUser.MockService) {
+				service.EXPECT().ChangeSignatures("latin", gomock.Any()).Return(nil)
+			},
+		},
+		{
+			name:       "Success Change Signatures in signature latin with data",
+			statusCode: 302,
+			sign_type:  "latin_data",
+			sign_now:   "<a href=\"/my-signatures\">Found</a>.\n\n",
+			pages:      "/my-signatures",
+			serviceTest: func(signatureService *m_service.MockService, signatureUser *m_serviceUser.MockService) {
+				service.EXPECT().ChangeSignatures("latin_data", gomock.Any()).Return(nil)
+			},
+		},
+		{
+			name:       "Invalit input Signatures Type",
+			statusCode: 302,
+			sign_type:  "signature-nothing",
+			sign_now:   "<a href=\"/my-signatures\">Found</a>.\n\n",
+			pages:      "/my-signatures",
+			serviceTest: func(signatureService *m_service.MockService, signatureUser *m_serviceUser.MockService) {
+				service.EXPECT().ChangeSignatures("latin", gomock.Any()).Return(nil)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			//Testing Services Functions
+			if tt.serviceTest != nil {
+				tt.serviceTest(service, serviceUser)
+			}
+			//Testing Handler Functions
+			req, err := http.NewRequest("GET", "/change-signatures/"+tt.sign_type, nil)
+			assert.NoError(t, err)
+			response := httptest.NewRecorder()
+			router.ServeHTTP(response, req)
+			responseData, err := ioutil.ReadAll(response.Body)
+			assert.NoError(t, err)
+
+			assert.Equal(t, tt.statusCode, response.Code)
+			assert.Equal(t, string(responseData), tt.sign_now)
+
+			location, err := response.Result().Location()
+			assert.NoError(t, err)
+			assert.Equal(t, location.Path, tt.pages)
 		})
 	}
 }
