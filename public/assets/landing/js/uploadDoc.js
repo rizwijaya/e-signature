@@ -1,5 +1,6 @@
 var pdfjsLib = window["pdfjs-dist/build/pdf"];
 pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.worker.min.js";
+var curPage = 1;
 
 document.querySelectorAll(".drop-zone-pdf__input").forEach((inputElement) => {
     const dropZoneElement = inputElement.closest(".drop-zone-pdf");
@@ -18,6 +19,7 @@ document.querySelectorAll(".drop-zone-pdf__input").forEach((inputElement) => {
                     console.log("Sorry, the file type is not supported. Try something else.");
                     return;
                 } else {
+                    //Update Thumbnail Step 1
                     updateThumbnail(dropZoneElement, inputElement.files[0]);
                 }
             }
@@ -116,6 +118,7 @@ function updateThumbnail(dropZoneElement, file) {
             }
         );
 
-        initPDFViewer(pdfData);
+        //initPDFViewer(pdfData);
+        renderPage(file, 1);
     };
 }

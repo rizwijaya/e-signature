@@ -74,9 +74,9 @@ const setCurrentPage = (pageNum) => {
   const currRange = pageNum * paginationLimit;
 
   listItems.forEach((item, index) => {
-    item.classList.add("hidden");
+    item.classList.add("hide_page");
     if (index >= prevRange && index < currRange) {
-      item.classList.remove("hidden");
+      item.classList.remove("hide_page");
     }
   });
 };
