@@ -1,14 +1,14 @@
 {{ define "content" }}
 
 <style>
-  .hidden {
+  .hide_page {
     display: none;
   }
 
-  li {
+  /* li {
     white-space: nowrap;
     overflow: hidden;
-  }
+  } */
 
   .pagination-button:not(.disabled):hover {
     background: #fff;
@@ -65,7 +65,7 @@
   }
 </style>
 
-<style>
+<!-- <style>
   body {
     margin: 0;
     font-family: sans-serif;
@@ -132,7 +132,7 @@
     width: 100%;
     box-shadow: 0 2px 5px gray;
   }
-</style>
+</style> -->
 <!-- main -->
 <main id="main">
   <section class="breadcrumbs">
@@ -149,7 +149,7 @@
     <div class="container">
       <div class="row ">
         <!-- Section Changes -->
-        <ul id="paginated-list" data-current-page="1" aria-live="polite">
+        <ul style="list-style: none;" id="paginated-list" data-current-page="1" aria-live="polite">
           <!-- STEP 1 - Upload Documents -->
           <li>
             <div class="container text-center" style="width: 85% !important;">
@@ -173,23 +173,22 @@
 
           <!-- STEP 2 - Lihat Documents -->
           <li>
-            <div class="container text-center" style="width: 85% !important;">
+            <div class="container text-center" style="width: 55% !important;">
               <div class="card"
                 style="border-radius: 15px;border: solid 1px blue;padding: 0.5rem;background-color: #F8F9FF;">
                 <div class="card-body">
-                  <div id="app">
-                    <div role="toolbar" id="toolbar">
-                      <div id="pager">
-                        <button data-pager="prev">prev</button>
-                        <button data-pager="next">next</button>
-                      </div>
-                      <div id="page-mode">
-                        <label>Page Mode <input type="number" value="1" min="1" /></label>
-                      </div>
-                    </div>
-                    <div id="viewport-container">
-                      <div role="main" id="viewport"></div>
-                    </div>
+                  <div class="row">
+                    <!-- <div class="signatures" style="position: absolute"></div> -->
+                    <canvas id="PDFSign"></canvas>
+                  </div>
+                  <div class="mx-auto mt-3">
+                    <ul class="pagination bottom justify-content-center" style="list-style: none; display: flex;">
+                      <li style="margin-right: 5px;" class="btn btn-primary disabled"><a onclick="prevPage()"><i
+                            class="material-icons">left</i></a></li>
+                      <li style="margin-right: 5px;" class="btn btn-primary active"><a onclick="renderingPage(doc, 1)">1</a></li>
+                      <li style="margin-right: 5px;" class="btn btn-primary disabled"><a onclick="nextPage()"><i
+                            class="material-icons">right</i></a></li>
+                    </ul>
                   </div>
                 </div>
               </div>
@@ -253,25 +252,9 @@
                 Back
               </button>
             </div>
-            <div id="pagination-numbers" class="hidden"></div>
-            <div class="col text-start">
-              <button type="button" class="btn btn-primary btn-sm button-next pagination-button" id="next-button"
-                style="border-radius: 24px;background-color: #4154F1;padding-left: 2rem;padding-right: 2rem;">
-                Next
-              </button>
-            </div>
-          </div>
-        </div>
-        <!-- End Button back next -->
-
-      </div>
-    </div>
-  </section>
-  <!-- End Values Section -->
-
-</main>
-<!-- End main -->
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+            <div id="pagination-numbers" class="hide_page"></div>
+>
+http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script type="text/javascript" src="https://mozilla.github.io/pdf.js/build/pdf.js"></script>
 <script type="text/javascript" src="https://mozilla.github.io/pdf.js/build/pdf.worker.js"></script>
 <!-- Import new PDFJS & Worker -->
