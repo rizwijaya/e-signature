@@ -8,6 +8,7 @@ contract Smartsign {
     uint256 profileCount;
     uint256 signatureCount;
     uint256 documentCount;
+    uint256 mySignatureCount;
 
     constructor() {
         sistem = msg.sender;
@@ -15,9 +16,20 @@ contract Smartsign {
         profileCount = 1;
         signatureCount = 1;
         documentCount = 1;
+        mySignatureCount = 1;
     }
 
     //------Model data------//
+    //Modal Signature Saya
+    struct MySignature {
+        address signers;
+        string signature_data;
+        string signature_nodata;
+        string latin_data;
+        string latin_nodata;
+        string date_updated;
+    }
+
     //Model Document Data
     struct Document {
         //Document selama proses ttd dari awal sampai selesai
@@ -91,6 +103,26 @@ contract Smartsign {
     }
 
     //------End Permission Access------//
+
+    //------MySignatures Function------//
+    address[] public mySignature;
+    mapping(address => MySignature) public mySign;
+    //Add My-Signatures
+    function addmysignatures(string memory _signature_data, string memory _signature_nodata, string memory _latin_data, string memory _latin_nodata, string memory _date_updated) public {
+        MySignature memory newMySignature = 
+            MySignature({
+                signers: msg.sender,
+                signature_data: _signature_data,
+                signature_nodata: _signature_nodata,
+                latin_data: _latin_data,
+                latin_nodata: _latin_nodata,
+                date_updated: _date_updated
+            });
+            mySign[msg.sender] = newMySignature;
+            mySignature.push(msg.sender);
+            mySignatureCount += 1;
+    }
+    //------End MySignatures Function------//
 
     //------Document Function------//
     // mapping(bytes32 => Document) documents;

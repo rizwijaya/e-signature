@@ -80,6 +80,7 @@ func Init(conf config.Conf) (*api.Api, *ethclient.Client) {
 
 	address, tx, _, err := api.DeployApi(auth, client)
 	if err != nil {
+		//log.Fatal("Error Deploy API")
 		log.Fatal(err)
 	}
 
@@ -105,6 +106,7 @@ func Init(conf config.Conf) (*api.Api, *ethclient.Client) {
 
 	conn, err := api.NewApi(common.HexToAddress(address.Hex()), client)
 	if err != nil {
+		log.Fatal("Error Create New API")
 		log.Fatal(err)
 	}
 
