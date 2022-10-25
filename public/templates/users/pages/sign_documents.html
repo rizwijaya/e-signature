@@ -5,10 +5,10 @@
     display: none;
   }
 
-  /* li {
+  .step {
     white-space: nowrap;
     overflow: hidden;
-  } */
+  }
 
   .pagination-button:not(.disabled):hover {
     background: #fff;
@@ -151,7 +151,7 @@
         <!-- Section Changes -->
         <ul style="list-style: none;" id="paginated-list" data-current-page="1" aria-live="polite">
           <!-- STEP 1 - Upload Documents -->
-          <li>
+          <li class="step">
             <div class="container text-center" style="width: 85% !important;">
               <div class="card"
                 style="border-radius: 15px;border: solid 1px blue;padding: 0.5rem;background-color: #F8F9FF;">
@@ -172,7 +172,7 @@
           <!-- End Upload Documents -->
 
           <!-- STEP 2 - Lihat Documents -->
-          <li>
+          <li class="step">
             <div class="container text-center" style="width: 55% !important;">
               <div class="card"
                 style="border-radius: 15px;border: solid 1px blue;padding: 0.5rem;background-color: #F8F9FF;">
@@ -185,7 +185,8 @@
                     <ul class="pagination bottom justify-content-center" style="list-style: none; display: flex;">
                       <li style="margin-right: 5px;" class="btn btn-primary disabled"><a onclick="prevPage()"><i
                             class="material-icons">left</i></a></li>
-                      <li style="margin-right: 5px;" class="btn btn-primary active"><a onclick="renderingPage(doc, 1)">1</a></li>
+                      <li style="margin-right: 5px;" class="btn btn-primary active"><a
+                          onclick="renderingPage(doc, 1)">1</a></li>
                       <li style="margin-right: 5px;" class="btn btn-primary disabled"><a onclick="nextPage()"><i
                             class="material-icons">right</i></a></li>
                     </ul>
@@ -197,7 +198,7 @@
           <!-- End Lihat Documents -->
 
           <!-- STEP 3 - Tanda Tangan Documents -->
-          <li>
+          <li class="step">
             <div class="container text-center" style="width: 85% !important;">
               <div class="card"
                 style="border-radius: 15px;border: solid 1px blue;padding: 0.5rem;background-color: #F8F9FF;">
@@ -211,7 +212,7 @@
           <!-- End Tanda Tangan Documents -->
 
           <!-- STEP 4 - Undang Orang Lain -->
-          <li>
+          <li class="step">
             <div class="container text-center" style="width: 85% !important;">
               <div class="card"
                 style="border-radius: 15px;border: solid 1px blue;padding: 0.5rem;background-color: #F8F9FF;">
@@ -253,8 +254,24 @@
               </button>
             </div>
             <div id="pagination-numbers" class="hide_page"></div>
->
-http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+            <div class="col text-start">
+              <button type="button" class="btn btn-primary btn-sm button-next pagination-button" id="next-button"
+                style="border-radius: 24px;background-color: #4154F1;padding-left: 2rem;padding-right: 2rem;">
+                Next
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- End Button back next -->
+
+      </div>
+    </div>
+  </section>
+  <!-- End Values Section -->
+
+</main>
+<!-- End main -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script type="text/javascript" src="https://mozilla.github.io/pdf.js/build/pdf.js"></script>
 <script type="text/javascript" src="https://mozilla.github.io/pdf.js/build/pdf.worker.js"></script>
 <!-- Import new PDFJS & Worker -->
