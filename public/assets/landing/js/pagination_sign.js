@@ -7,7 +7,6 @@ const progressbar = document.getElementById("progress-page");
 const progressbutton = document.getElementById("progress-button-1");
 const progressbutton2 = document.getElementById("progress-button-2");
 const progressbutton3 = document.getElementById("progress-button-3");
-const progressbutton4 = document.getElementById("progress-button-4");
 var signPage = document.getElementById("signPage");
 var signX = document.getElementById("signX");
 var signY = document.getElementById("signY");
@@ -102,32 +101,15 @@ const progressPage = (page) => {
     progressbutton2.style.color = "#444444";
     progressbutton3.style.backgroundColor = "#E9ECEF";
     progressbutton3.style.color = "#444444";
-    progressbutton4.style.backgroundColor = "#E9ECEF";
-    progressbutton4.style.color = "#444444";
   } else if (page == 2) {
-    progressbar.style.width = "33.3%";
+    progressbar.style.width = "50%";
     progressbutton.style.backgroundColor = "rgba(65, 84, 241, 1)";
     progressbutton.style.color = "white";
     progressbutton2.style.backgroundColor = "rgba(65, 84, 241, 1)";
     progressbutton2.style.color = "white";
     progressbutton3.style.backgroundColor = "#E9ECEF";
     progressbutton3.style.color = "#444444";
-    progressbutton4.style.backgroundColor = "#E9ECEF";
-    progressbutton4.style.color = "#444444";
   } else if (page == 3) {
-   // $(".step-3").removeClass("hide_page");
-    progressbar.style.width = "66.6%";
-    progressbutton.style.backgroundColor = "rgba(65, 84, 241, 1)";
-    progressbutton.style.color = "white";
-    progressbutton2.style.backgroundColor = "rgba(65, 84, 241, 1)";
-    progressbutton2.style.color = "white";
-    progressbutton3.style.backgroundColor = "rgba(65, 84, 241, 1)";
-    progressbutton3.style.color = "white";
-    progressbutton4.style.backgroundColor = "#E9ECEF";
-    progressbutton4.style.color = "#444444";
-  } else if (page == 4) {
-    // $(".step-3").addClass("hide_page");
-    // $("#SignImg").removeClass("hide_page");
     progressbar.style.width = "100%";
     progressbutton.style.backgroundColor = "rgba(65, 84, 241, 1)";
     progressbutton.style.color = "white";
@@ -135,8 +117,6 @@ const progressPage = (page) => {
     progressbutton2.style.color = "white";
     progressbutton3.style.backgroundColor = "rgba(65, 84, 241, 1)";
     progressbutton3.style.color = "white";
-    progressbutton4.style.backgroundColor = "rgba(65, 84, 241, 1)";
-    progressbutton4.style.color = "white";
   }
 };
 
@@ -155,7 +135,8 @@ window.addEventListener("load", () => {
 
   nextButton.addEventListener("click", () => {
     if(!sign_status && currentPage + 1 == 3) {
-      console.log("please signing first!");
+      //console.log("please signing first!");
+      alert("Harap tambahkan tanda tangan sebelum melanjutkan!");
       setCurrentPage(currentPage);
     } else {
       setCurrentPage(currentPage + 1);

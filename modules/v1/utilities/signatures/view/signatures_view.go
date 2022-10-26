@@ -4,6 +4,7 @@ import (
 	"e-signature/modules/v1/utilities/signatures/repository"
 	"e-signature/modules/v1/utilities/signatures/service"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gin-contrib/sessions"
@@ -47,9 +48,13 @@ func (h *signaturesView) MySignatures(c *gin.Context) {
 func (h *signaturesView) SignDocuments(c *gin.Context) {
 	session := sessions.Default(c)
 	title := "Sign Documents - SmartSign"
-
+	getSignature, err := h.signaturesService.GetMySignature(fmt.Sprintf("%v", session.Get("sign")), fmt.Sprintf("%v", session.Get("id")), fmt.Sprintf("%v", session.Get("name")))
+	if err != nil {
+		log.Println(err)
+	}
 	c.HTML(http.StatusOK, "sign_documents.html", gin.H{
-		"title": title,
-		"user":  session.Get("id"),
+		"title":      title,
+		"user":       session.Get("id"),
+		"signatures": getSignature,
 	})
 }
