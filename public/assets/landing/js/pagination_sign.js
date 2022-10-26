@@ -8,6 +8,7 @@ const progressbutton = document.getElementById("progress-button-1");
 const progressbutton2 = document.getElementById("progress-button-2");
 const progressbutton3 = document.getElementById("progress-button-3");
 const invitesign = document.getElementById("invitesign");
+const prevconf = document.getElementById("prevconf");
 var signPage = document.getElementById("signPage");
 var signX = document.getElementById("signX");
 var signY = document.getElementById("signY");
@@ -147,24 +148,32 @@ const progressPage = (page) => {
     progressbutton3.style.color = "white";
   }
 };
+function yesPrev() {
+  prevconf.style.display = "none";
+  if(!sign_status && currentPage - 1 == 3) {
+    alert("Harap tambahkan tanda tangan sebelum melanjutkan!");
+    setCurrentPage(currentPage);
+  } else if (currentPage == 4) {
+    setCurrentPage(currentPage - 2);
+  } else if(currentPage == 3) {
+    $("#submit").addClass("hide_page");
+    $("#next-button").removeClass("hide_page");
+    setCurrentPage(currentPage - 1);
+  } else {
+    setCurrentPage(currentPage - 1);
+  }
+}
+
+function exitPrev() {
+  prevconf.style.display = "none";
+}
 
 window.addEventListener("load", () => {
   getPaginationNumbers();
   setCurrentPage(1);
 
   prevButton.addEventListener("click", () => {
-    if(!sign_status && currentPage - 1 == 3) {
-      alert("Harap tambahkan tanda tangan sebelum melanjutkan!");
-      setCurrentPage(currentPage);
-    } else if (currentPage == 4) {
-      setCurrentPage(currentPage - 2);
-    } else if(currentPage == 3) {
-      $("#submit").addClass("hide_page");
-      $("#next-button").removeClass("hide_page");
-      setCurrentPage(currentPage - 1);
-    } else {
-      setCurrentPage(currentPage - 1);
-    }
+    prevconf.style.display = "block";
   });
 
   nextButton.addEventListener("click", () => {

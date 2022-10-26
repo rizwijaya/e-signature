@@ -268,7 +268,7 @@
     </div>
   </section>
   <!-- End Values Section -->
-  <!-- Modal -->
+  <!-- Modal Konfirmasi undang orang lain -->
   <div class="modal" tabindex="-1" role="dialog" id="invitesign" style="display: none;">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
@@ -289,7 +289,29 @@
       </div>
     </div>
   </div>
-  <!-- End Modal -->
+  <!-- End Modal Konfirmasi undang orang lain -->
+    <!-- Modal Kembali -->
+    <div class="modal" tabindex="-1" role="dialog" id="prevconf" style="display: none;">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Konfirmasi Kembali</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+              style="border: none; background-color: white;" onclick="exitPrev()">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p>Apakah anda ingin kembali ketahap sebelumnya, jika anda kembali data yang ada saat ini tidak akan disimpan?</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger" onclick="exitPrev()">Tidak</button>
+            <button type="button" class="btn btn-primary" onclick="yesPrev()">Ya</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- End Modal Kembali -->
 </main>
 <!-- End main -->
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
