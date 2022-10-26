@@ -69,8 +69,6 @@ const getPaginationNumbers = () => {
 
 const setCurrentPage = (pageNum) => {
   currentPage = pageNum;
-
-  progressPage(pageNum);
   if (pageNum == 3) {
     signPage.value = sign_page;
     signX.value = sign_x;
@@ -80,6 +78,7 @@ const setCurrentPage = (pageNum) => {
     // console.log(sign_page);
     // console.log("X: " + sign_x + " Y: " + sign_y + " H: " + sign_h + "px W: " + sign_w + "px");
   }
+  progressPage(pageNum);
   handleActivePageNumber();
   handlePageButtonsStatus();
 
@@ -146,11 +145,21 @@ window.addEventListener("load", () => {
   setCurrentPage(1);
 
   prevButton.addEventListener("click", () => {
-    setCurrentPage(currentPage - 1);
+    if(!sign_status && currentPage - 1 == 3) {
+      console.log("please signing first!");
+      setCurrentPage(currentPage);
+    } else {
+      setCurrentPage(currentPage - 1);
+    }
   });
 
   nextButton.addEventListener("click", () => {
-    setCurrentPage(currentPage + 1);
+    if(!sign_status && currentPage + 1 == 3) {
+      console.log("please signing first!");
+      setCurrentPage(currentPage);
+    } else {
+      setCurrentPage(currentPage + 1);
+    }
   });
 
   document.querySelectorAll(".pagination-number").forEach((button) => {
