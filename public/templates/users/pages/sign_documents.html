@@ -101,7 +101,7 @@
   <!-- ======= Values Section ======= -->
   <section id="values" class="values" style="padding: 30px 0 !important;">
     <div class="container">
-      <form action="">
+      <form action="/sign-documents" method="POST" enctype="multipart/form-data">
         <div class="row ">
           <!-- Section Changes -->
           <ul style="list-style: none;" id="paginated-list" data-current-page="1" aria-live="polite">
@@ -137,19 +137,31 @@
                       <!-- <div class="signatures" style="position: absolute"></div> -->
                       <canvas id="PDFSign"></canvas>
                       <div class="col-6 signing">
-                        <i id="signBtn" class="btn btn-sm btn-primary" style="position:absolute; top:2%; left:87%"><a onclick="sign(1)">sign</a></i>
+                        <i id="signBtn" class="btn btn-sm btn-primary" style="position:absolute; top:2%; left:87%"><a
+                            onclick="sign(1)">sign</a></i>
                       </div>
                       <!-- Signature -->
                       {{ if eq .signatures.Signature_selected "signature" }}
-                      <img src="/signatures/{{ .signatures.Signature }}" id="SignImg" class="hide_page Sign-Img-drag" style="transform: translate(237.6px, 83.4552px); border: 2px dashed rgb(221, 221, 221); width: 245.175px; height: 165.512px;" data-x="237.60023264735764" data-y="83.45521311610798">
+                      <img src="/signatures/{{ .signatures.Signature }}" id="SignImg" class="hide_page Sign-Img-drag"
+                        style="transform: translate(237.6px, 83.4552px); border: 2px dashed rgb(221, 221, 221); width: 245.175px; height: 165.512px;"
+                        data-x="237.60023264735764" data-y="83.45521311610798">
                       {{ else if eq .signatures.Signature_selected "signature_data" }}
-                      <img src="/signatures/{{ .signatures.Signature_data }}" id="SignImg" class="hide_page Sign-Img-drag" style="transform: translate(237.6px, 83.4552px); border: 2px dashed rgb(221, 221, 221); width: 245.175px; height: 165.512px;" data-x="237.60023264735764" data-y="83.45521311610798">
+                      <img src="/signatures/{{ .signatures.Signature_data }}" id="SignImg"
+                        class="hide_page Sign-Img-drag"
+                        style="transform: translate(237.6px, 83.4552px); border: 2px dashed rgb(221, 221, 221); width: 245.175px; height: 165.512px;"
+                        data-x="237.60023264735764" data-y="83.45521311610798">
                       {{ else if eq .signatures.Signature_selected "latin" }}
-                      <img src="/signatures/{{ .signatures.Latin }}" id="SignImg" class="hide_page Sign-Img-drag" style="transform: translate(237.6px, 83.4552px); border: 2px dashed rgb(221, 221, 221); width: 245.175px; height: 165.512px;" data-x="237.60023264735764" data-y="83.45521311610798">
+                      <img src="/signatures/{{ .signatures.Latin }}" id="SignImg" class="hide_page Sign-Img-drag"
+                        style="transform: translate(237.6px, 83.4552px); border: 2px dashed rgb(221, 221, 221); width: 245.175px; height: 165.512px;"
+                        data-x="237.60023264735764" data-y="83.45521311610798">
                       {{ else if eq .signatures.Signature_selected "latin_data" }}
-                      <img src="/signatures/{{ .signatures.Latin_data }}" id="SignImg" class="hide_page Sign-Img-drag" style="transform: translate(237.6px, 83.4552px); border: 2px dashed rgb(221, 221, 221); width: 245.175px; height: 165.512px;" data-x="237.60023264735764" data-y="83.45521311610798">
+                      <img src="/signatures/{{ .signatures.Latin_data }}" id="SignImg" class="hide_page Sign-Img-drag"
+                        style="transform: translate(237.6px, 83.4552px); border: 2px dashed rgb(221, 221, 221); width: 245.175px; height: 165.512px;"
+                        data-x="237.60023264735764" data-y="83.45521311610798">
                       {{ else }}
-                      <img src="/signatures/signatures/default.png" id="SignImg" class="hide_page Sign-Img-drag" style="transform: translate(237.6px, 83.4552px); border: 2px dashed rgb(221, 221, 221); width: 245.175px; height: 165.512px;" data-x="237.60023264735764" data-y="83.45521311610798">
+                      <img src="/signatures/signatures/default.png" id="SignImg" class="hide_page Sign-Img-drag"
+                        style="transform: translate(237.6px, 83.4552px); border: 2px dashed rgb(221, 221, 221); width: 245.175px; height: 165.512px;"
+                        data-x="237.60023264735764" data-y="83.45521311610798">
                       {{ end }}
                       <!-- End Signature -->
                     </div>
@@ -183,48 +195,27 @@
                 <div class="card"
                   style="border-radius: 15px;border: solid 1px blue;padding: 0.5rem;background-color: #F8F9FF;">
                   <div class="card-body">
-                    <!-- PDF Viewer -->
-                    <!-- <div class="row" style="position:relative;">
-                      <canvas id="PDFSign"></canvas>
-                      <div class="col-6 signing">
-                        <i id="signBtn" class="btn btn-sm btn-primary" style="position:absolute; top:2%; left:87%"><a
-                            onclick="sign(1)">sign</a></i>
-                      </div>
-                      <img src="/signatures/signature.png" id="SignImg" class="hide_page"
-                        style="transform: translate(237.6px, 83.4552px); border: 2px dashed rgb(221, 221, 221); width: 213.988px; height: 76.7375px;"
-                        data-x="237.60023264735764" data-y="83.45521311610798">
-                    </div> -->
-                    <!-- End PDF Viewer -->
-                    <!-- Pagination PDF -->
-                    <!-- <div class="row mx-auto mt-3">
-                      <ul class="pagination bottom justify-content-center" style="list-style: none; display: flex;">
-                        <li style="margin-right: 5px;" class="btn btn-primary disabled"><a onclick="prevPage()"><i
-                              class="material-icons">left</i></a></li>
-                        <li style="margin-right: 5px;" class="btn btn-primary active"><a
-                            onclick="renderingPage(doc, 1)">1</a></li>
-                        <li style="margin-right: 5px;" class="btn btn-primary disabled"><a onclick="nextPage()"><i
-                              class="material-icons">right</i></a></li>
-                      </ul>
-                    </div> -->
-                    <!-- End Pagination PDF -->
+                    <h5 class="card-title" style="margin-top: 2rem;"><b>Sukses berhasil melakukan tanda tangan</b></h5>
+                    <h5 class="card-title" style="margin-top: 4rem;"><b>Pilih selesai untuk menyimpan tanda tangan anda!</b></h5>
                   </div>
                 </div>
               </div>
+              <input type="text" name="invite_status" id="invite_status" class="hide_page" value="false">
             </li>
             <!-- End Preview Tanda Tangan Documents -->
 
             <!-- STEP 4 - Undang Orang Lain -->
-            <!-- <li class="step">
+            <li class="step">
               <div class="container text-center" style="width: 85% !important;">
                 <div class="card"
                   style="border-radius: 15px;border: solid 1px blue;padding: 0.5rem;background-color: #F8F9FF;">
                   <div class="card-body">
-                    <img src="landing/img/signatures/documents.png" alt="doc" class="img-fluid" style="size: 80%;">
-                    <h5 class="card-title" style="margin-top: 2rem;"><b>STEP 4 </b></h5>
+                    <h5 class="card-title" style="margin-top: 2rem;"><b>Undang Orang lain untuk tanda tangan</b></h5>
                   </div>
                 </div>
               </div>
-            </li> -->
+              <input type="text" name="invite_status" id="invite_status" class="hide_page" value="true">
+            </li>
             <!-- Undang Orang Lain -->
           </ul>
           <!-- End Section Changes -->
@@ -255,10 +246,18 @@
               </div>
               <div id="pagination-numbers" class="hide_page"></div>
               <div class="col text-start">
-                <button type="button" class="btn btn-primary btn-sm button-next pagination-button" id="next-button"
+                <!-- <button type="button" class="btn btn-primary btn-sm button-next pagination-button" id="next-button"
                   style="border-radius: 24px;background-color: #4154F1;padding-left: 2rem;padding-right: 2rem;">
                   Next
-                </button>
+                </button> -->
+                <div class="col text-start"><button type="button"
+                    class="btn btn-primary btn-sm button-next pagination-button" id="next-button"
+                    style="border-radius: 24px;background-color: #4154F1;padding-left: 2rem;padding-right: 2rem;">
+                    Next
+                  </button>
+                  <button type="submit" class="btn btn-primary btn-sm hide_page" id="submit" name="submit"
+                    style="border-radius: 24px;background-color: #4154F1;padding-left: 2rem;padding-right: 2rem;">Selesai</button>
+                </div>
               </div>
             </div>
           </div>
@@ -269,7 +268,28 @@
     </div>
   </section>
   <!-- End Values Section -->
-
+  <!-- Modal -->
+  <div class="modal" tabindex="-1" role="dialog" id="invitesign" style="display: none;">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Undang Orang Lain</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+            style="border: none; background-color: white;" onclick="exitInvite()">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>Apakah anda ingin mengundang orang lain untuk melakukan tanda tangan?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" onclick="noInvite()">Tidak</button>
+          <button type="button" class="btn btn-primary" onclick="yesInvite()">Ya</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End Modal -->
 </main>
 <!-- End main -->
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>

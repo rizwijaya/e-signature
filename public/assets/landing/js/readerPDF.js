@@ -1,10 +1,10 @@
 var doc;
 var fileReader = new FileReader();
-var sign_x = 0.0;
-var sign_y = 0.0;
-var sign_page = 0;
-var sign_h = 0.0;
-var sign_w = 0.0;
+var sign_x = 237.60023264735764;
+var sign_y = 83.45521311610798;
+var sign_page = 1;
+var sign_h = 165.512;
+var sign_w = 245.175;
 var sign_status = false;
 var curPage;
 function sign(klik) { 

@@ -7,6 +7,7 @@ const progressbar = document.getElementById("progress-page");
 const progressbutton = document.getElementById("progress-button-1");
 const progressbutton2 = document.getElementById("progress-button-2");
 const progressbutton3 = document.getElementById("progress-button-3");
+const invitesign = document.getElementById("invitesign");
 var signPage = document.getElementById("signPage");
 var signX = document.getElementById("signX");
 var signY = document.getElementById("signY");
@@ -16,6 +17,31 @@ const paginationLimit = 1;
 const pageCount = Math.ceil(listItems.length / paginationLimit);
 let currentPage = 1;
 
+function noInvite() {
+  if(!sign_status && currentPage + 1 == 3) {
+    //console.log("please signing first!");
+    alert("Harap tambahkan tanda tangan sebelum melanjutkan!");
+    setCurrentPage(currentPage);
+  } else {
+      invitesign.style.display = "none";
+      setCurrentPage(currentPage + 1);
+  }
+}
+
+function yesInvite() {
+  if(!sign_status && currentPage + 1 == 3) {
+    //console.log("please signing first!");
+    alert("Harap tambahkan tanda tangan sebelum melanjutkan!");
+    setCurrentPage(currentPage);
+  } else {
+      invitesign.style.display = "none";
+      setCurrentPage(currentPage + 2);
+  }
+}
+
+function exitInvite() {
+  invitesign.style.display = "none";
+}
 const disableButton = (button) => {
   button.classList.add("disabled");
   button.setAttribute("disabled", true);
@@ -33,8 +59,10 @@ const handlePageButtonsStatus = () => {
     enableButton(prevButton);
   }
 
-  if (pageCount === currentPage) {
-    disableButton(nextButton);
+  if (currentPage === 3) {
+    $("#next-button").addClass("hide_page");
+    $("#submit").removeClass("hide_page");
+    //disableButton(nextButton);
   } else {
     enableButton(nextButton);
   }
@@ -101,7 +129,7 @@ const progressPage = (page) => {
     progressbutton2.style.color = "#444444";
     progressbutton3.style.backgroundColor = "#E9ECEF";
     progressbutton3.style.color = "#444444";
-  } else if (page == 2) {
+  } else if (page == 2 || page == 4) {
     progressbar.style.width = "50%";
     progressbutton.style.backgroundColor = "rgba(65, 84, 241, 1)";
     progressbutton.style.color = "white";
@@ -126,8 +154,14 @@ window.addEventListener("load", () => {
 
   prevButton.addEventListener("click", () => {
     if(!sign_status && currentPage - 1 == 3) {
-      console.log("please signing first!");
+      alert("Harap tambahkan tanda tangan sebelum melanjutkan!");
       setCurrentPage(currentPage);
+    } else if (currentPage == 4) {
+      setCurrentPage(currentPage - 2);
+    } else if(currentPage == 3) {
+      $("#submit").addClass("hide_page");
+      $("#next-button").removeClass("hide_page");
+      setCurrentPage(currentPage - 1);
     } else {
       setCurrentPage(currentPage - 1);
     }
@@ -139,7 +173,13 @@ window.addEventListener("load", () => {
       alert("Harap tambahkan tanda tangan sebelum melanjutkan!");
       setCurrentPage(currentPage);
     } else {
-      setCurrentPage(currentPage + 1);
+      if (currentPage+1 == 3) {
+        invitesign.style.display = "block";
+      } else if(currentPage === 4) {
+        setCurrentPage(currentPage - 1);
+      } else {
+        setCurrentPage(currentPage + 1);
+      }
     }
   });
 
