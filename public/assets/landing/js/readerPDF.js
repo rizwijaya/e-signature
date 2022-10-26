@@ -1,13 +1,21 @@
 var doc;
 var fileReader = new FileReader();
-
+var sign_x = 0.0;
+var sign_y = 0.0;
+var sign_page = 0;
+var sign_h = 0.0;
+var sign_w = 0.0;
+var sign_status = false;
+var curPage;
 function sign(klik) { 
   if (klik == 1) { //IF Button Click to Signing
     $(".signing").html( //Changing button to cancel
-      '<i id="signBtn" class= "btn btn-sm btn-danger" style="position:absolute; top:2%; left:87%"><a onclick="sign(2)">cancel</a></i>'
+      '<i id="signBtnSave" class="btn btn-sm btn-primary" style="position:absolute; top:2%; left:74%"><a onclick="sign(3)">save</a></i>' +
+      '<i id="signBtnCancel" class="btn btn-sm btn-danger" style="position:absolute; top:2%; left:82%"><a onclick="sign(2)">cancel</a></i>'
     );
     $("#SignImg").addClass("Sign-Img");
     $("#SignImg").removeClass("hide_page");
+    sign_status = false;
    // $("#PDFSign").attr('id', 'signImg') //Adding id images to canvas
   } else if(klik == 2) { //IF Cancel Signing
     $(".signing").html( //Changing button to sign
@@ -15,13 +23,32 @@ function sign(klik) {
     );
     $("#SignImg").addClass("hide_page");
     $("#SignImg").removeClass("Sign-Img");
-  } else {
+    sign_status = false;
+  } else if(klik == 3) { //If Button Save
     $(".signing").html( //Changing button to sign
-    '<i id="signBtn" class="btn btn-sm btn-primary" style="position:absolute; top:2%; left:87%"><a onclick="sign(1)">sign</a></i>'
+      '<i id="signBtnEdit" class="btn btn-sm btn-primary" style="position:absolute; top:2%; left:87%"><a onclick="sign(4)">Edit</a></i>'
+    ); 
+    $("#SignImg").removeClass("Sign-Img-drag");
+    $("#SignImg").addClass("Sign-bdr");
+    sign_status = true;
+    sign_page = curPage;
+  } else if(klik == 4) { //IF Button Edit
+    $(".signing").html( //Changing button to sign
+      '<i id="signBtnSave" class="btn btn-sm btn-primary" style="position:absolute; top:2%; left:74%"><a onclick="sign(3)">save</a></i>' +
+      '<i id="signBtnDelete" class="btn btn-sm btn-danger" style="position:absolute; top:2%; left:82%"><a onclick="sign(2)">delete</a></i>'
     );
-    $("#SignImg").addClass("hide_page");
-    $("#SignImg").removeClass("Sign-Img");
+    $("#SignImg").addClass("Sign-Img-drag");
+    $("#SignImg").removeClass("hide_page");
+    $("#SignImg").removeClass("Sign-bdr");
+    sign_status = false;
   }
+  // else {
+  //   $(".signing").html( //Changing button to sign
+  //   '<i id="signBtn" class="btn btn-sm btn-primary" style="position:absolute; top:2%; left:87%"><a onclick="sign(1)">sign</a></i>'
+  //   );
+  //   $("#SignImg").addClass("hide_page");
+  //   $("#SignImg").removeClass("Sign-Img");
+  // }
 }
 
 function setPagination() {
@@ -79,10 +106,18 @@ function renderingPage(pdf, pageNumber) {
       $(".pagination.bottom li").first().removeClass("disabled");
     }
   }
-
-//   console.log("Page PDF Reader" + pageNumber)
-//   console.log("Current Pages: " + curPage)
+  //Check Signing or Not Sign in Pages
+  if (sign_status) {
+    if (pageNumber == sign_page) {
+      $("#SignImg").removeClass("hide_page");
+    } else {
+      $("#SignImg").addClass("hide_page");
+    }
+  }
+  // console.log("Page PDF Reader" + pageNumber)
+  // console.log("Current Pages: " + curPage)
   curPage = pageNumber;
+  //sign_page = pageNumber;
   //$("#pageinfo").text(pageNumber + "/" + pdf.numPages);
   pdf.getPage(pageNumber).then(function (page) {
     //console.log("Page loaded");

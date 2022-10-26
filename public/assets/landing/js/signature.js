@@ -1,4 +1,4 @@
-interact('.Sign-Img')
+interact('.Sign-Img-drag')
   .draggable({ //drag and drop
     inertia: true,
     restrict: {
@@ -18,14 +18,16 @@ interact('.Sign-Img')
 
       target.setAttribute('data-x', x);
       target.setAttribute('data-y', y);
-      console.log('Coordinate X,Y(' + event.pageX + ', ' + event.pageY + ')')
+      //console.log('Coordinate X,Y(' + event.pageX + ', ' + event.pageY + ')')
+      sign_x = event.pageX;
+      sign_y = event.pageY;
     },
     onend: function (event) {
       var target = event.target;
      // target.classList.add('Sign-Img--remove')
     }
   });
-interact('.Sign-Img')
+interact('.Sign-Img-drag')
   .resizable({
     // resize from all edges and corners
     edges: { left: true, right: true, bottom: true, top: true },
@@ -56,6 +58,10 @@ interact('.Sign-Img')
     target.style.width  = event.rect.width + 'px';
     target.style.height = event.rect.height + 'px';
 
+    // console.log('Width: ' + event.rect.width + 'px')
+    // console.log('Height: ' + event.rect.height + 'px')
+    sign_h = event.rect.height;
+    sign_w = event.rect.width;
     // translate when resizing from top or left edges
     x += event.deltaRect.left;
     y += event.deltaRect.top;
