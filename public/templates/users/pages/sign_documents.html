@@ -1,6 +1,24 @@
 {{ define "content" }}
 
 <style>
+.Sign-Img {
+  position: absolute !important;
+  margin-left: 20px;
+  padding: 20px;
+  display: inline-block;
+  -webkit-transform: translate(0, 0);
+  -moz-transform: translate(0, 0);
+  -ms-transform: translate(0, 0);
+  transform: translate(0, 0);
+}
+
+.Sign-Img img {
+  max-width: 100%;
+  height: auto;
+}
+</style>
+
+<style>
   .hide_page {
     display: none;
   }
@@ -173,15 +191,19 @@
 
           <!-- STEP 2 - Lihat Documents -->
           <li class="step">
-            <div class="container text-center" style="width: 55% !important;">
+            <div class="container text-center" style="width: 60% !important;">
               <div class="card"
                 style="border-radius: 15px;border: solid 1px blue;padding: 0.5rem;background-color: #F8F9FF;">
                 <div class="card-body">
-                  <div class="row">
+                  <div class="row" style="position:relative;">
                     <!-- <div class="signatures" style="position: absolute"></div> -->
                     <canvas id="PDFSign"></canvas>
+                    <div class="col-6 signing">
+                      <i id="signBtn" class="btn btn-sm btn-primary" style="position:absolute; top:2%; left:87%"><a onclick="sign(1)">sign</a></i>
+                    </div>
+                    <img src="/signatures/signature.png" id="SignImg" class="hide_page" style="transform: translate(237.6px, 83.4552px); border: 2px dashed rgb(221, 221, 221); width: 213.988px; height: 76.7375px;" data-x="237.60023264735764" data-y="83.45521311610798">
                   </div>
-                  <div class="mx-auto mt-3">
+                  <div class="row mx-auto mt-3">
                     <ul class="pagination bottom justify-content-center" style="list-style: none; display: flex;">
                       <li style="margin-right: 5px;" class="btn btn-primary disabled"><a onclick="prevPage()"><i
                             class="material-icons">left</i></a></li>

@@ -1,6 +1,29 @@
 var doc;
 var fileReader = new FileReader();
 
+function sign(klik) { 
+  if (klik == 1) { //IF Button Click to Signing
+    $(".signing").html( //Changing button to cancel
+      '<i id="signBtn" class= "btn btn-sm btn-danger" style="position:absolute; top:2%; left:87%"><a onclick="sign(2)">cancel</a></i>'
+    );
+    $("#SignImg").addClass("Sign-Img");
+    $("#SignImg").removeClass("hide_page");
+   // $("#PDFSign").attr('id', 'signImg') //Adding id images to canvas
+  } else if(klik == 2) { //IF Cancel Signing
+    $(".signing").html( //Changing button to sign
+      '<i id="signBtn" class="btn btn-sm btn-primary" style="position:absolute; top:2%; left:87%"><a onclick="sign(1)">sign</a></i>'
+    );
+    $("#SignImg").addClass("hide_page");
+    $("#SignImg").removeClass("Sign-Img");
+  } else {
+    $(".signing").html( //Changing button to sign
+    '<i id="signBtn" class="btn btn-sm btn-primary" style="position:absolute; top:2%; left:87%"><a onclick="sign(1)">sign</a></i>'
+    );
+    $("#SignImg").addClass("hide_page");
+    $("#SignImg").removeClass("Sign-Img");
+  }
+}
+
 function setPagination() {
   $(".pagination.bottom").html(
     '<li style="margin-right: 5px;" class="btn btn-primary disabled"><a onclick="prevPage()"><i class="material-icons">left</i></a></li><li style="margin-right: 5px;" class="btn btn-primary active"><a onclick="renderingPage(doc, 1)">1</a></li><li style="margin-right: 5px;" class="btn btn-primary disabled"><a onclick="nextPage()"><i class="material-icons">right</i></a></li>'
