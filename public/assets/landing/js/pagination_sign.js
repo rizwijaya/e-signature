@@ -9,6 +9,9 @@ const progressbutton2 = document.getElementById("progress-button-2");
 const progressbutton3 = document.getElementById("progress-button-3");
 const invitesign = document.getElementById("invitesign");
 const prevconf = document.getElementById("prevconf");
+const emptydata = document.getElementById("emptydata");
+const submitform = document.getElementById("submitform");
+const invite_sts = document.getElementById("invite_status")
 var signPage = document.getElementById("signPage");
 var signX = document.getElementById("signX");
 var signY = document.getElementById("signY");
@@ -17,6 +20,20 @@ var signW = document.getElementById("signW");
 const paginationLimit = 1;
 const pageCount = Math.ceil(listItems.length / paginationLimit);
 let currentPage = 1;
+
+$(document).ready(function() {
+  $(".add-email").click(function() {
+    var html = $(".copy-fields").html();
+    $(".after-add-email").after(html);
+  });
+  
+  $("body").on("click", ".remove", function() {
+    $(this)
+      .parents(".control-group")
+      .remove();
+  });
+});
+
 
 function noInvite() {
   if(!sign_status && currentPage + 1 == 3) {
@@ -43,10 +60,24 @@ function yesInvite() {
 function exitInvite() {
   invitesign.style.display = "none";
 }
+
 const disableButton = (button) => {
   button.classList.add("disabled");
   button.setAttribute("disabled", true);
 };
+
+function submitForm() {
+  submitform.style.display = "block";
+}
+
+function exitSubmit() {
+  submitform.style.display = "none";
+}
+
+$('#submit').click(function(){
+  submitform.style.display = "none";
+  $('#form-documents').submit();
+})
 
 const enableButton = (button) => {
   button.classList.remove("disabled");
@@ -60,9 +91,15 @@ const handlePageButtonsStatus = () => {
     enableButton(prevButton);
   }
 
-  if (currentPage === 3) {
+  if(currentPage === 3) {
+    invite_sts.value = "false";
+  } else if(currentPage === 4) {
+    invite_sts.value = "true";
+  }
+
+  if (currentPage === 3 || currentPage === 4) {
     $("#next-button").addClass("hide_page");
-    $("#submit").removeClass("hide_page");
+    $("#finish").removeClass("hide_page");
     //disableButton(nextButton);
   } else {
     enableButton(nextButton);
@@ -97,7 +134,7 @@ const getPaginationNumbers = () => {
 
 const setCurrentPage = (pageNum) => {
   currentPage = pageNum;
-  if (pageNum == 3) {
+  if (pageNum == 3 || pageNum == 4) {
     signPage.value = sign_page;
     signX.value = sign_x;
     signY.value = sign_y;
@@ -130,7 +167,7 @@ const progressPage = (page) => {
     progressbutton2.style.color = "#444444";
     progressbutton3.style.backgroundColor = "#E9ECEF";
     progressbutton3.style.color = "#444444";
-  } else if (page == 2 || page == 4) {
+  } else if (page == 2) {
     progressbar.style.width = "50%";
     progressbutton.style.backgroundColor = "rgba(65, 84, 241, 1)";
     progressbutton.style.color = "white";
@@ -138,7 +175,7 @@ const progressPage = (page) => {
     progressbutton2.style.color = "white";
     progressbutton3.style.backgroundColor = "#E9ECEF";
     progressbutton3.style.color = "#444444";
-  } else if (page == 3) {
+  } else if (page == 3 || page == 4) {
     progressbar.style.width = "100%";
     progressbutton.style.backgroundColor = "rgba(65, 84, 241, 1)";
     progressbutton.style.color = "white";
@@ -154,9 +191,11 @@ function yesPrev() {
     alert("Harap tambahkan tanda tangan sebelum melanjutkan!");
     setCurrentPage(currentPage);
   } else if (currentPage == 4) {
+    $("#finish").addClass("hide_page");
+    $("#next-button").removeClass("hide_page");
     setCurrentPage(currentPage - 2);
   } else if(currentPage == 3) {
-    $("#submit").addClass("hide_page");
+    $("#finish").addClass("hide_page");
     $("#next-button").removeClass("hide_page");
     setCurrentPage(currentPage - 1);
   } else {
@@ -166,6 +205,10 @@ function yesPrev() {
 
 function exitPrev() {
   prevconf.style.display = "none";
+}
+
+function exitEmpty() {
+  emptydata.style.display = "none";
 }
 
 window.addEventListener("load", () => {
@@ -178,14 +221,15 @@ window.addEventListener("load", () => {
 
   nextButton.addEventListener("click", () => {
     if(!sign_status && currentPage + 1 == 3) {
-      //console.log("please signing first!");
-      alert("Harap tambahkan tanda tangan sebelum melanjutkan!");
+      emptydata.style.display = "block";
       setCurrentPage(currentPage);
+    } else if (currentPage + 1 == 2 && document.getElementById("file doc").files.length == 0) {
+        emptydata.style.display = "block";
+        setCurrentPage(currentPage);
     } else {
+      emptydata.style.display = "none";
       if (currentPage+1 == 3) {
         invitesign.style.display = "block";
-      } else if(currentPage === 4) {
-        setCurrentPage(currentPage - 1);
       } else {
         setCurrentPage(currentPage + 1);
       }

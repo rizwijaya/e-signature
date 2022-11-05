@@ -55,6 +55,7 @@ func Init(db *mongo.Database, conf config.Conf, router *gin.Engine) *gin.Engine 
 	signature.POST("/add-signatures", signaturesHandlerV1.AddSignatures)
 	signature.GET("/change-signatures/:sign_type", signaturesHandlerV1.ChangeSignatures)
 	signature.GET("/sign-documents", signaturesViewV1.SignDocuments)
+	signature.POST("/sign-documents", signaturesHandlerV1.SignDocuments)
 	//user.GET("/list-signature", signaturesViewV1.ListSignature)
 	//signatures := router.Group("/", basic.Auth(conf))
 	//Routing API Service

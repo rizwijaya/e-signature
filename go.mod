@@ -14,9 +14,11 @@ require (
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/golobby/dotenv v1.3.1
 	github.com/ipfs/go-ipfs-api v0.3.0 // indirect
+	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
 	github.com/stretchr/testify v1.8.0 // indirect
+	github.com/unidoc/unipdf/v3 v3.40.0 // indirect
 	github.com/xdg-go/stringprep v1.0.3 // indirect
-	go.mongodb.org/mongo-driver v1.10.2 // indirect
+	go.mongodb.org/mongo-driver v1.11.0 // indirect
 	golang.org/x/crypto v0.1.0 // indirect
 	golang.org/x/tools v0.2.0 // indirect
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22 // indirect

@@ -8,23 +8,34 @@ interact('.Sign-Img-drag')
     },
     autoScroll: true,
     onmove: function (event) {
+      console.log(event)
       var target = event.target,
           x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
           y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
-
+      //console.log("drangg");
       target.style.webkitTransform = target.style.transform = 'translate(' + x + 'px, ' + y + 'px)';
       target.style.border = '2px dashed #ddd';
       //target.classList.remove('Sign-Img--remove')
 
       target.setAttribute('data-x', x);
       target.setAttribute('data-y', y);
-      //console.log('Coordinate X,Y(' + event.pageX + ', ' + event.pageY + ')')
-      sign_x = event.pageX;
-      sign_y = event.pageY;
-    },
-    onend: function (event) {
-      var target = event.target;
-     // target.classList.add('Sign-Img--remove')
+      var canvas = document.getElementById("PDFSign");
+      const rect = canvas.getBoundingClientRect();
+
+      // var x = event.clientX;
+      // var y = event.clientY;
+      //console.log("X: " + x + " Y: " + y);
+      //Left top
+      const ptX = rect.x + window.scrollX;
+      const ptY = rect.y + window.scrollY;
+      //Right bottom
+      const ltX = rect.right + window.scrollX;
+      const ltY = rect.bottom + window.scrollY;
+      //console.log(ptX, ptY);
+      // console.log('Coordinate X,Y(' + (event.pageX - ptX) + ', ' + (event.pageY - ptY) + ')')
+      // console.log(`Coordinat Right, bottom(` + (ltX - event.pageX) + `, ` + (ltY - event.pageY) + `)`)
+      sign_x = event.pageX - ptX;
+      sign_y = event.pageY - ptY;
     }
   });
 interact('.Sign-Img-drag')

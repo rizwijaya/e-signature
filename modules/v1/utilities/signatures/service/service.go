@@ -14,6 +14,10 @@ import (
 	"time"
 
 	"github.com/fogleman/gg"
+	"github.com/nfnt/resize"
+	"github.com/unidoc/unipdf/v3/common/license"
+	"github.com/unidoc/unipdf/v3/creator"
+	"github.com/unidoc/unipdf/v3/model"
 )
 
 type Service interface {
@@ -25,6 +29,8 @@ type Service interface {
 	UpdateMySignatures(signature string, signaturedata string, sign string) error
 	GetMySignature(sign string, id string, name string) (models.MySignatures, error)
 	ChangeSignatures(sign_type string, idsignature string) error
+	ResizeImages(mysign models.MySignatures, input models.SignDocuments) string
+	SignDocuments(imgpath string, input models.SignDocuments) string
 }
 
 type service struct {
@@ -48,6 +54,14 @@ func Tanggal(t time.Time) string {
 func Clock(t time.Time) string {
 	return fmt.Sprintf("%02d:%02d",
 		t.Hour(), t.Minute())
+}
+
+func init() {
+	//err := license.SetMeteredKey("38eba2573e9c03c6c2d1881618ee9c4666ebc0e9960afa5a82b16d368875f816")
+	err := license.SetMeteredKey("46a38610c111cdc6514f96d24a72fe7ceffd43415f8f481c7b249472e9967d63")
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 func (s *service) CreateImgSignature(input models.AddSignature) string {
@@ -209,4 +223,99 @@ func (s *service) GetMySignature(sign string, id string, name string) (models.My
 func (s *service) ChangeSignatures(sign_type string, idsignature string) error {
 	err := s.repository.ChangeSignature(sign_type, idsignature)
 	return err
+}
+
+func (s *service) ResizeImages(mysign models.MySignatures, input models.SignDocuments) string {
+	signatures := mysign.Latin
+	if mysign.Signature_selected == "signature" {
+		signatures = mysign.Signature
+	} else if mysign.Signature_selected == "signature_data" {
+		signatures = mysign.Signature_data
+	} else if mysign.Signature_selected == "latin" {
+		signatures = mysign.Latin
+	} else if mysign.Signature_selected == "latin_data" {
+		signatures = mysign.Latin_data
+	}
+	path := fmt.Sprintf("./public/images/signatures/%s", signatures)
+	r, err := os.Open(path)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer r.Close()
+	img, err := png.Decode(r)
+	if err != nil {
+		log.Fatal(err)
+	}
+	m := resize.Resize(uint(input.Width*0.75), uint(input.Height*0.75), img, resize.Lanczos3)
+	path2 := fmt.Sprintf("sizes-%s.png", mysign.Signature_selected)
+	out, err := os.Create(path2)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer out.Close()
+	png.Encode(out, m)
+	return path2
+}
+
+func (s *service) SignDocuments(imgpath string, input models.SignDocuments) string {
+	c := creator.New()
+	//imgPath2 := fmt.Sprintf("./public/temp/sizes-signature.png")
+	img, err := c.NewImageFromFile(imgpath)
+	if err != nil {
+		log.Println(err)
+		return ""
+	}
+	img.SetPos(input.X_coord*0.75, input.Y_coord*0.75)
+	//img.SetPos(189.296875, 84.40625)
+	inputPath := fmt.Sprintf("./public/temp/%s", input.Name)
+	// Read the input pdf file.
+	f, err := os.Open(inputPath)
+	if err != nil {
+		log.Println(err)
+		return ""
+	}
+	defer f.Close()
+
+	pdfReader, err := model.NewPdfReader(f)
+	if err != nil {
+		log.Println(err)
+		return ""
+	}
+
+	numPages, err := pdfReader.GetNumPages()
+	if err != nil {
+		log.Println(err)
+		return ""
+	}
+
+	// Load the pages.
+	for i := 0; i < numPages; i++ {
+		page, err := pdfReader.GetPage(i + 1)
+		if err != nil {
+			log.Println(err)
+			return ""
+		}
+		// Add the page.
+		err = c.AddPage(page)
+		if err != nil {
+			log.Println(err)
+			return ""
+		}
+
+		// If the specified page, or -1, apply the image to the page.
+		if i+1 == int(input.SignPage) || int(input.SignPage) == -1 {
+			err = c.Draw(img)
+			if err != nil {
+				log.Println(err)
+				return ""
+			}
+		}
+	}
+	inputPath2 := fmt.Sprintf("./public/temp/signed_%s", input.Name)
+	err = c.WriteToFile(inputPath2)
+	if err != nil {
+		log.Println(err)
+		return ""
+	}
+	return inputPath2
 }

@@ -101,7 +101,7 @@
   <!-- ======= Values Section ======= -->
   <section id="values" class="values" style="padding: 30px 0 !important;">
     <div class="container">
-      <form action="/sign-documents" method="POST" enctype="multipart/form-data">
+      <form action="/sign-documents" method="POST" enctype="multipart/form-data" id="form-documents">
         <div class="row ">
           <!-- Section Changes -->
           <ul style="list-style: none;" id="paginated-list" data-current-page="1" aria-live="polite">
@@ -183,38 +183,61 @@
                     <input type="text" name="signY" id="signY" class="hide_page">
                     <input type="text" name="signH" id="signH" class="hide_page">
                     <input type="text" name="signW" id="signW" class="hide_page">
+                    <input type="text" name="invite_status" id="invite_status" class="hide_page">
                   </div>
                 </div>
               </div>
             </li>
             <!-- End Preview and Sign Documents -->
 
-            <!-- STEP 3 - Preview Tanda Tangan Documents -->
+            <!-- STEP 3 - Success Signatures Tangan Documents -->
             <li class="step">
-              <div class="container text-center" style="width: 60% !important;">
-                <div class="card"
-                  style="border-radius: 15px;border: solid 1px blue;padding: 0.5rem;background-color: #F8F9FF;">
-                  <div class="card-body">
-                    <h5 class="card-title" style="margin-top: 2rem;"><b>Sukses berhasil melakukan tanda tangan</b></h5>
-                    <h5 class="card-title" style="margin-top: 4rem;"><b>Pilih selesai untuk menyimpan tanda tangan anda!</b></h5>
-                  </div>
-                </div>
+              <div class="container text-center" style="width: 50% !important;">
+                <img src="landing/img/signatures/task-done.png" alt="task-done" class="img-fluid">
+                <h3 style="text-align: center;color: #4154F1;margin-top: 2rem;">
+                  <b>Berhasil Melakukan Tanda Tangan!<br>Pilih selesai untuk menyimpan data.</b>
+                </h3>
               </div>
-              <input type="text" name="invite_status" id="invite_status" class="hide_page" value="false">
+              <!-- <input type="text" name="invite_status" id="invite_status" class="hide_page" value="false"> -->
             </li>
-            <!-- End Preview Tanda Tangan Documents -->
+            <!-- End Success Signatures Tangan Documents -->
 
             <!-- STEP 4 - Undang Orang Lain -->
             <li class="step">
-              <div class="container text-center" style="width: 85% !important;">
+              <div class="container text-center" style="width: 65% !important;">
                 <div class="card"
                   style="border-radius: 15px;border: solid 1px blue;padding: 0.5rem;background-color: #F8F9FF;">
                   <div class="card-body">
-                    <h5 class="card-title" style="margin-top: 2rem;"><b>Undang Orang lain untuk tanda tangan</b></h5>
+                    <h5 class="card-title" style="margin-top: 2rem;"><b>Undang Orang Lain Tanda Tangan</b></h5>
+                    <h6 class="card-title mt-2" style="margin-bottom: 2rem;">masukan email untuk mengundang orang lain
+                    </h6>
+                    <div class="input-group control-group after-add-email"
+                      style="margin: 0 auto; width: 75%; background: none;border: none;">
+                      <input type="text" name="email[]" class="form-control"
+                        placeholder="masukan email untuk mengundang">
+                      <div class="input-group-btn">
+                        <button class="btn btn-primary add-email" type="button"><i class="bi bi-plus"></i>
+                          Tambah</button>
+                      </div>
+                    </div>
+                    <div class="copy-fields hide_page">
+                      <div class="control-group input-group"
+                        style="margin: 10px auto; width: 75%; background: none;border: none;">
+                        <input type="text" name="email[]" class="form-control"
+                          placeholder="masukan email untuk mengundang">
+                        <div class="input-group-btn">
+                          <button class="btn btn-danger remove" type="button"><i class="bi bi-x"></i> Hapus</button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="control-group input-group" style="margin: 10px auto; width: 75%;">
+                      <textarea name="note" id="note" class="form-control" placeholder="masukan catatan"
+                        style="height: 162px;"></textarea>
+                    </div>
                   </div>
                 </div>
               </div>
-              <input type="text" name="invite_status" id="invite_status" class="hide_page" value="true">
+              <!-- <input type="text" name="invite_status" id="invite_status" class="hide_page" value="true"> -->
             </li>
             <!-- Undang Orang Lain -->
           </ul>
@@ -246,16 +269,12 @@
               </div>
               <div id="pagination-numbers" class="hide_page"></div>
               <div class="col text-start">
-                <!-- <button type="button" class="btn btn-primary btn-sm button-next pagination-button" id="next-button"
-                  style="border-radius: 24px;background-color: #4154F1;padding-left: 2rem;padding-right: 2rem;">
-                  Next
-                </button> -->
                 <div class="col text-start"><button type="button"
                     class="btn btn-primary btn-sm button-next pagination-button" id="next-button"
                     style="border-radius: 24px;background-color: #4154F1;padding-left: 2rem;padding-right: 2rem;">
                     Next
                   </button>
-                  <button type="submit" class="btn btn-primary btn-sm hide_page" id="submit" name="submit"
+                  <button class="btn btn-primary btn-sm hide_page" onclick="submitForm()" id="finish"
                     style="border-radius: 24px;background-color: #4154F1;padding-left: 2rem;padding-right: 2rem;">Selesai</button>
                 </div>
               </div>
@@ -268,6 +287,49 @@
     </div>
   </section>
   <!-- End Values Section -->
+  <!-- Data Kosong -->
+  <div class="modal" tabindex="-1" role="dialog" id="emptydata" style="display: none;">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Data Kosong!</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+            style="border: none; background-color: white;" onclick="exitEmpty()">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>Harap tambahkan data sebelum melanjutkan</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" onclick="exitEmpty()">Tambah</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End Data Kosong -->
+  <!-- Modal Konfirmasi Simpan Data -->
+  <div class="modal" tabindex="-1" role="dialog" id="submitform" style="display: none;">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Simpan Data</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+            style="border: none; background-color: white;" onclick="exitSubmit()">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>Apakah anda yakin ingin menyimpan data tanda tangan anda? Pastikan data yang anda simpan sudah benar</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" onclick="exitSubmit()">Tidak</button>
+          <button type="submit" id="submit" name="submit" class="btn btn-primary">Ya</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End Modal Konfirmasi Simpan Data -->
   <!-- Modal Konfirmasi undang orang lain -->
   <div class="modal" tabindex="-1" role="dialog" id="invitesign" style="display: none;">
     <div class="modal-dialog" role="document">
@@ -290,31 +352,31 @@
     </div>
   </div>
   <!-- End Modal Konfirmasi undang orang lain -->
-    <!-- Modal Kembali -->
-    <div class="modal" tabindex="-1" role="dialog" id="prevconf" style="display: none;">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Konfirmasi Kembali</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"
-              style="border: none; background-color: white;" onclick="exitPrev()">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <p>Apakah anda ingin kembali ketahap sebelumnya, jika anda kembali data yang ada saat ini tidak akan disimpan?</p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-danger" onclick="exitPrev()">Tidak</button>
-            <button type="button" class="btn btn-primary" onclick="yesPrev()">Ya</button>
-          </div>
+  <!-- Modal Kembali -->
+  <div class="modal" tabindex="-1" role="dialog" id="prevconf" style="display: none;">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Konfirmasi Kembali</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+            style="border: none; background-color: white;" onclick="exitPrev()">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>Apakah anda ingin kembali ketahap sebelumnya, jika anda kembali data yang ada saat ini tidak akan disimpan?
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" onclick="exitPrev()">Tidak</button>
+          <button type="button" class="btn btn-primary" onclick="yesPrev()">Ya</button>
         </div>
       </div>
     </div>
-    <!-- End Modal Kembali -->
+  </div>
+  <!-- End Modal Kembali -->
 </main>
 <!-- End main -->
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script type="text/javascript" src="https://mozilla.github.io/pdf.js/build/pdf.js"></script>
 <script type="text/javascript" src="https://mozilla.github.io/pdf.js/build/pdf.worker.js"></script>
 <!-- Import new PDFJS & Worker -->

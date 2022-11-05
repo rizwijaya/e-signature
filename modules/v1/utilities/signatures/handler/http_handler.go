@@ -4,6 +4,7 @@ import (
 	"e-signature/modules/v1/utilities/signatures/models"
 	api "e-signature/pkg/api_response"
 	"fmt"
+	"log"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -42,4 +43,40 @@ func (h *signaturesHandler) ChangeSignatures(c *gin.Context) {
 	user := fmt.Sprintf("%v", session.Get("sign"))
 	h.signaturesService.ChangeSignatures(signing, user)
 	c.Redirect(302, "/my-signatures")
+}
+
+func (h *signaturesHandler) SignDocuments(c *gin.Context) {
+	session := sessions.Default(c)
+	var input models.SignDocuments
+	err := c.ShouldBind(&input)
+	if err != nil {
+		log.Println(err)
+		c.Redirect(302, "/sign-documents")
+		return
+	}
+	file, err := c.FormFile("file")
+	if err != nil {
+		log.Println(err)
+	}
+	input.Name = file.Filename
+	//Saving Image to Directory
+	path := fmt.Sprintf("./public/temp/%s", input.Name)
+	err = c.SaveUploadedFile(file, path)
+	if err != nil {
+		log.Println(err)
+	}
+	//sign document
+	mysignatures, _ := h.signaturesService.GetMySignature(fmt.Sprintf("%v", session.Get("sign")), fmt.Sprintf("%v", session.Get("id")), fmt.Sprintf("%v", session.Get("name")))
+	//Resize Images Signatures
+	img := h.signaturesService.ResizeImages(mysignatures, input)
+	//Signing Documents
+	sign := h.signaturesService.SignDocuments(img, input)
+	fmt.Println("Document Signed: " + sign)
+	//invite people
+	if input.Invite_sts { //Check invite or not
+		fmt.Println("Invite People")
+	}
+	//push in blockchain
+	fmt.Println(input)
+	c.Redirect(302, "/sign-documents")
 }
