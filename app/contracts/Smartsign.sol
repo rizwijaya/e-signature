@@ -3,201 +3,136 @@ pragma solidity ^0.8.0;
 pragma abicoder v2;
 
 contract Smartsign {
-    address public sistem;
-    address public userAccess;
-    uint256 profileCount;
-    uint256 signatureCount;
     uint256 documentCount;
-    uint256 mySignatureCount;
 
     constructor() {
-        sistem = msg.sender;
-        userAccess = msg.sender;
-        profileCount = 1;
-        signatureCount = 1;
         documentCount = 1;
-        mySignatureCount = 1;
     }
 
     //------Model data------//
-    //Modal Signature Saya
-    struct MySignature {
-        address signers;
-        string signature_data;
-        string signature_nodata;
-        string latin_data;
-        string latin_nodata;
-        string date_updated;
-    }
-
-    //Model Document Data
+    //Model Document
     struct Document {
-        //Document selama proses ttd dari awal sampai selesai
-        uint256 document_id;
-        bytes32 hash_original; //identifier hash original file untuk get data history ttd dan urutkan paling baru
-        address signers;
-        uint signing; //Yang telah ttd
-        string namefile;
-        string hash_file;
-        string hash_ipfs;
+        bytes32 file; //Hash asli
+        uint256 document_id; //ID document
+        address creator; //Pembuat Documents
         string metadata;
-        uint state; //1 Process Signed, 2 Signed
-        uint totalsigned;
-        uint createdtime;
-        uint completedtime;
-        bool exist;
-        mapping(address => Allsigners) allsigners;
-    }
-    //Model Document Signers
-    struct Allsigners {
-        address signer_address;
-        bool state; //True is signed and False is not signed
-        string date; //Tanggal TTD
-        bool exist;
-    }
-    //------End Model data------//
-
-    //------Permission Access------//
-    // Permission hanya admin/sistem yang dapat mengakses
-    modifier onlySistem() {
-        require(msg.sender == sistem);
-        _;
-    }
-    //Permission User yang dapat mengakses
-    modifier permissionUser() {
-        require(msg.sender == userAccess);
-        _;
-    }
-    //Multipermissions
-    mapping(address => bool) members;
-
-    function addPermission(address _member) public {
-        members[_member] = true;
+        string hash; //Hash akhir
+        string ipfs; //data document di ipfs
+        uint256 state; //1 Process Signed, 2 Signed
+        bool visibility; //ditampilkan atau tidak
+        uint256 createdtime; //tgl request ttd
+        uint256 completedtime;
+        bool exist; //check apakah dokument
+        mapping(address => Signers) signers; //Data alamat penandatangan
     }
 
-    function permission(address _member) internal view returns (bool) {
-        if (members[_member]) {
-            return true;
-        }
-        return false;
+    struct Signers {
+        address sign_addr;
+        uint256 sign_id;
+        string signers_id; //id signatures
+        string signers_hash;
+        bool signers_state; //status ttd 
+        uint sign_time; //tgl ttd
+        uint256 document_id;
     }
-
-    //Document Permission for Signing
-    function docPermission(bytes32 _hash) internal view returns (bool) {
-        if (documents[_hash].exist == false) {
-            return false;
-        }
-        if (documents[_hash].signing == 0 || documents[_hash].state == 2) {
-            //Tidak ada dokumen atau Telah melakukan ttd semua
-            return false;
-        }
-        //Permission Address Signed or Not
-        if (documents[_hash].allsigners[msg.sender].exist == true) {
-            //Terdapat Address
-            if (documents[_hash].allsigners[msg.sender].state == false) {
-                //Jika address belum ttd
-                return true;
-            }
-        }
-        return false;
-    }
-
-    //------End Permission Access------//
-
-    //------MySignatures Function------//
-    address[] public mySignature;
-    mapping(address => MySignature) public mySign;
-    //Add My-Signatures
-    function addmysignatures(string memory _signature_data, string memory _signature_nodata, string memory _latin_data, string memory _latin_nodata, string memory _date_updated) public {
-        MySignature memory newMySignature = 
-            MySignature({
-                signers: msg.sender,
-                signature_data: _signature_data,
-                signature_nodata: _signature_nodata,
-                latin_data: _latin_data,
-                latin_nodata: _latin_nodata,
-                date_updated: _date_updated
-            });
-            mySign[msg.sender] = newMySignature;
-            mySignature.push(msg.sender);
-            mySignatureCount += 1;
-    }
-    //------End MySignatures Function------//
-
-    //------Document Function------//
-    // mapping(bytes32 => Document) documents;
-    bytes32[] public documentlists;
     mapping(bytes32 => Document) documents;
-
-    // mapping(bytes32 => Document) documents;
-    // bytes32[] documentlist;
-    //------Signing Document------//
-    function signDoc(
-        bytes32 _hash_original,
-        string memory _namefile,
-        string memory _hash_file,
-        string memory _metadata,
-        string memory _hash_ipfs,
-        uint256 _totalsigned,
-        uint256 signing,
-        uint256 _createdtime
-    ) public {
-        require(
-            docPermission(_hash_original),
-            "You are not allowed to sign this document"
-        );
-        if (documents[_hash_original].signing - 1 == 0) {
-            //User terakhir yang melakukan ttd
-            documents[_hash_original].state = 2; //State Signed
-        } else {
-            documents[_hash_original].state = 1; //state Process Sign
+    mapping(bytes32 => bytes32) signedDocs;
+    //------End Model data------//
+    function stringToBytes32(string memory source) private pure returns (bytes32 result) {
+        bytes memory tempEmptyStringTest = bytes(source);
+        if (tempEmptyStringTest.length == 0) {
+            return 0x0;
         }
-
-        documents[_hash_original].document_id = documentCount;
-        documents[_hash_original].signers = msg.sender;
-        documents[_hash_original].namefile = _namefile;
-        documents[_hash_original].hash_original = _hash_original;
-        documents[_hash_original].hash_file = _hash_file;
-        documents[_hash_original].metadata = _metadata;
-        documents[_hash_original].hash_ipfs = _hash_ipfs;
-        documents[_hash_original].signing = signing - 1;
-        documents[_hash_original].totalsigned = _totalsigned;
-        documents[_hash_original].createdtime = _createdtime;
-        documents[_hash_original].completedtime = block.timestamp;
-        documents[_hash_original].exist = true;
-        documentlists.push(_hash_original);
-        documentCount += 1;
-    }
-
-    //Add signers in ttd process
-    function addsigners(
-        bytes32 _hash_original,
-        address _signers,
-        string memory _date
-    ) public {
-        require(
-            docPermission(_hash_original),
-            "You are not allowed to sign this document"
-        );
-        documents[_hash_original].allsigners[_signers] = Allsigners({
-            signer_address: _signers,
-            state: true,
-            date: _date,
-            exist: true
-        });
-    }
-
-    //------End Signing Document------//
-    //------Get Document Latest------//
-
-    //------End Get Document Latest------//
-    //------Verify Document Function------//
-    function verify_document(bytes32 _hash) public view returns (bool) {
-        if (keccak256(bytes(documents[_hash].hash_file)) != keccak256(bytes(""))) {
-            //Document Exist
-            return true;
+        assembly {
+                result := mload(add(source, 32))
         }
-        return false;
     }
-    // ------End Document Function------//
+    function bytes32ToString(bytes32 _bytes32) private pure returns (string memory) {
+        bytes memory bytesArray = new bytes(32);
+        for (uint256 i; i < 32; i++) {
+            bytesArray[i] = _bytes32[i];
+            }
+        return string(bytesArray);
+    }
+    //------ Signing Process ------//
+    //Created Document
+    function create(
+        string memory _file, address creator, 
+        string memory _metadata, string memory _hash, 
+        string memory _ipfs, uint256 _state, bool _visibility, 
+        uint256 _time, address[] memory _signers, string[] memory _signers_id
+    ) public {
+        bytes32 byte_id = stringToBytes32(_file);
+        Document storage newDocument = documents[byte_id];
+        newDocument.document_id = documentCount;
+        newDocument.file = byte_id;
+        newDocument.creator = creator;
+        newDocument.metadata = _metadata;
+        newDocument.hash = _hash;
+        newDocument.ipfs = _ipfs;
+        newDocument.state = _state;
+        newDocument.visibility = _visibility;
+        newDocument.createdtime = _time;
+        newDocument.completedtime = _time;
+        newDocument.exist = true;
+        for (uint256 i=0; i<_signers.length; i++) {
+            newDocument.signers[_signers[i]].sign_addr = _signers[i];
+            newDocument.signers[_signers[i]].sign_id = i;
+            newDocument.signers[_signers[i]].signers_id = _signers_id[i];
+            newDocument.signers[_signers[i]].signers_hash = _hash;
+            newDocument.signers[_signers[i]].signers_state = false;
+            newDocument.signers[_signers[i]].sign_time = _time;
+            newDocument.signers[_signers[i]].document_id = documentCount;
+        }
+        documentCount++;
+    }
+    //Get Document Data with Hash Original Files
+    //Original hash document disimpan didalam file local
+    function getDoc(string memory _file) public view returns(
+        uint256, address, string memory, string memory, 
+        string memory, uint256, bool, uint256, uint256, bool
+    ) {
+        bytes32 byte_id = stringToBytes32(_file);
+        Document storage temp = documents[byte_id];
+        require(temp.exist == true, "Document not exist");
+        return(temp.document_id, temp.creator, 
+        temp.metadata, temp.hash, temp.ipfs, temp.state,
+        temp.visibility, temp.createdtime, temp.completedtime, 
+        temp.exist);
+    }
+    //Get Signatures Data in Documents
+    function getSign(string memory _file, address _signers_id) public view returns(
+        uint256, string memory, string memory, bool, uint, uint256
+    ) {
+        bytes32 byteFile = stringToBytes32(_file);
+        Document storage temp = documents[byteFile];
+        require(temp.exist == true, "Document not exist");
+        require(temp.signers[_signers_id].sign_addr == _signers_id, "Signers not exist");
+        return(temp.signers[_signers_id].sign_id, temp.signers[_signers_id].signers_id,
+        temp.signers[_signers_id].signers_hash, temp.signers[_signers_id].signers_state, 
+        temp.signers[_signers_id].sign_time, temp.signers[_signers_id].document_id);
+    }
+    //Signing Document dengan hash asli
+    function signDoc(string memory _file, address _signers_id, string memory _signers_hash, string memory _ipfs, uint256 _time) public {
+        bytes32 byteFile = stringToBytes32(_file);
+        Document storage signDocument = documents[byteFile];
+        require(signDocument.exist == true, "Document not exist2");
+        require(signDocument.signers[_signers_id].sign_time > 1, "Document not exist");
+        require(signDocument.signers[_signers_id].signers_state == false, "You are signed this document");
+        signDocument.ipfs = _ipfs;
+        signDocument.completedtime = _time;
+        signDocument.hash = _signers_hash; //Update last hash
+        signDocument.signers[_signers_id].signers_hash = _signers_hash; //users hash
+        signDocument.signers[_signers_id].signers_state = true;
+        signDocument.signers[_signers_id].sign_time = _time;
+        bytes32 signedfile = stringToBytes32(_signers_hash);
+        signedDocs[signedfile] = signDocument.file;
+    }
+
+    //Verify Documents
+    function verifyDoc(string memory _hash) public view returns(string memory) {
+        bytes32 signed = stringToBytes32(_hash);
+        return bytes32ToString(signedDocs[signed]);
+    }
+     //------ End Signing Process ------//
 }
