@@ -26,11 +26,11 @@ type Signatures struct {
 type SignDocuments struct {
 	//File       string  `json:"file" form:"file" binding:"required"`
 	Name       string
-	SignPage   float64 `json:"signPage" form:"signPage" binding:"required"`
-	X_coord    float64 `json:"signX" form:"signX" binding:"required"`
-	Y_coord    float64 `json:"signY" form:"signY" binding:"required"`
-	Height     float64 `json:"signH" form:"signH" binding:"required"`
-	Width      float64 `json:"signW" form:"signW" binding:"required"`
-	Invite_sts bool    `json:"invite_status" form:"invite_status"`
-	Email      string  `json:"email" form:"email"`
+	SignPage   float64  `json:"signPage" form:"signPage" binding:"required"`
+	X_coord    float64  `json:"signX" form:"signX" binding:"required"`
+	Y_coord    float64  `json:"signY" form:"signY" binding:"required"`
+	Height     float64  `json:"signH" form:"signH" binding:"required"`
+	Width      float64  `json:"signW" form:"signW" binding:"required"`
+	Invite_sts bool     `json:"invite_status" form:"invite_status"`
+	Email      []string `json:"email[]" form:"email[]"`
 }

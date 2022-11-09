@@ -1,85 +1,82 @@
-interact('.Sign-Img-drag')
-  .draggable({ //drag and drop
+interact(".Sign-Img-drag")
+  .draggable({
     inertia: true,
     restrict: {
       restriction: "parent",
       endOnly: true,
-      elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
+      elementRect: { top: 0, left: 0, bottom: 1, right: 1 },
     },
     autoScroll: true,
-    onmove: function (event) {
-      console.log(event)
-      var target = event.target,
-          x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
-          y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
-      //console.log("drangg");
-      target.style.webkitTransform = target.style.transform = 'translate(' + x + 'px, ' + y + 'px)';
-      target.style.border = '2px dashed #ddd';
-      //target.classList.remove('Sign-Img--remove')
-
-      target.setAttribute('data-x', x);
-      target.setAttribute('data-y', y);
-      var canvas = document.getElementById("PDFSign");
-      const rect = canvas.getBoundingClientRect();
-
-      // var x = event.clientX;
-      // var y = event.clientY;
-      //console.log("X: " + x + " Y: " + y);
-      //Left top
-      const ptX = rect.x + window.scrollX;
-      const ptY = rect.y + window.scrollY;
-      //Right bottom
-      const ltX = rect.right + window.scrollX;
-      const ltY = rect.bottom + window.scrollY;
-      //console.log(ptX, ptY);
-      // console.log('Coordinate X,Y(' + (event.pageX - ptX) + ', ' + (event.pageY - ptY) + ')')
-      // console.log(`Coordinat Right, bottom(` + (ltX - event.pageX) + `, ` + (ltY - event.pageY) + `)`)
-      sign_x = event.pageX - ptX;
-      sign_y = event.pageY - ptY;
-    }
-  });
-interact('.Sign-Img-drag')
+    onmove: handleOnMove,
+  })
   .resizable({
-    // resize from all edges and corners
     edges: { left: true, right: true, bottom: true, top: true },
-
-    //keep aspectratio
     preserveAspectRatio: true,
-
-    // keep the edges inside the parent
     restrictEdges: {
-      outer: 'parent',
+      outer: "parent",
       endOnly: true,
     },
-
-    // minimum size
     restrictSize: {
       min: { width: 50, height: 25 },
     },
-
     inertia: true,
   })
+  .on("resizemove", handleResizeMove);
 
-  .on('resizemove', function (event) {
-    var target = event.target,
-        x = (parseFloat(target.getAttribute('data-x')) || 0),
-        y = (parseFloat(target.getAttribute('data-y')) || 0);
+function handleOnMove(event) {
+  // Event info
+  const { target } = event;
+  const x = (parseFloat(target.getAttribute("data-x")) || 0) + event.dx;
+  const y = (parseFloat(target.getAttribute("data-y")) || 0) + event.dy;
 
-    // update the element's style
-    target.style.width  = event.rect.width + 'px';
-    target.style.height = event.rect.height + 'px';
+  // Movement
+  const transVal = `translate(${x}px, ${y}px)`;
+  target.style.transform = target.style.webkitTransform = transVal;
+  target.setAttribute("data-x", x);
+  target.setAttribute("data-y", y);
 
-    // console.log('Width: ' + event.rect.width + 'px')
-    // console.log('Height: ' + event.rect.height + 'px')
-    sign_h = event.rect.height;
-    sign_w = event.rect.width;
-    // translate when resizing from top or left edges
-    x += event.deltaRect.left;
-    y += event.deltaRect.top;
+  applySignPosition();
+}
 
-    target.style.webkitTransform = target.style.transform =
-        'translate(' + x + 'px,' + y + 'px)';
-    
-    target.setAttribute('data-x', x);
-    target.setAttribute('data-y', y);
-  });
+function handleResizeMove(event) {
+  const { target } = event;
+  let x = parseFloat(target.getAttribute("data-x")) || 0;
+  let y = parseFloat(target.getAttribute("data-y")) || 0;
+
+  // update the element's style
+  target.style.width = event.rect.width + "px";
+  target.style.height = event.rect.height + "px";
+
+  // translate when resizing from top or left edges
+  x += event.deltaRect.left;
+  y += event.deltaRect.top;
+
+  const transVal = `translate(${x}px, ${y}px)`;
+  target.style.transform = target.style.webkitTransform = transVal;
+  target.setAttribute("data-x", x);
+  target.setAttribute("data-y", y);
+
+  sign_h = event.rect.height;
+  sign_w = event.rect.width;
+}
+
+function applySignPosition() {
+  // Canvas and signature rect
+  // Rect -> element x and y relative to __page__
+  const canvEl = document.getElementById("PDFSign");
+  const sigEl = document.getElementById("SignImg");
+  const canvRect = canvEl.getBoundingClientRect();
+  const sigRect = sigEl.getBoundingClientRect();
+
+  // Setting values to be submitted
+  // value will be fraction (percentage) of __canvas__
+  // Warn: Setting global value
+  sign_x = Math.abs(canvRect.left - sigRect.left) / canvRect.width;
+  sign_y = Math.abs(canvRect.top - sigRect.top) / canvRect.height;
+  sign_h = sigRect.height / canvRect.height;
+  sign_w = sigRect.width / canvRect.width;
+}
+
+// Put this in global scope to be used in other place
+// other place -> clicking 'save' button will call this function
+window.applySignPosition = applySignPosition;

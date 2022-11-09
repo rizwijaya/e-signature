@@ -31,6 +31,7 @@ type Service interface {
 	ChangeSignatures(sign_type string, idsignature string) error
 	ResizeImages(mysign models.MySignatures, input models.SignDocuments) string
 	SignDocuments(imgpath string, input models.SignDocuments) string
+	InvitePeople(email []string) error
 }
 
 type service struct {
@@ -58,6 +59,7 @@ func Clock(t time.Time) string {
 
 func init() {
 	//err := license.SetMeteredKey("38eba2573e9c03c6c2d1881618ee9c4666ebc0e9960afa5a82b16d368875f816")
+	//New Licence 345b46cc6941c36f6d4528a304c7b6ceb1855e56a2c76ca0db93f3f4b3586904
 	err := license.SetMeteredKey("46a38610c111cdc6514f96d24a72fe7ceffd43415f8f481c7b249472e9967d63")
 	if err != nil {
 		log.Println(err)
@@ -265,7 +267,7 @@ func (s *service) SignDocuments(imgpath string, input models.SignDocuments) stri
 		log.Println(err)
 		return ""
 	}
-	img.SetPos(input.X_coord*0.75, input.Y_coord*0.75)
+	// img.SetPos(input.X_coord*0.75, input.Y_coord*0.75)
 	//img.SetPos(189.296875, 84.40625)
 	inputPath := fmt.Sprintf("./public/temp/%s", input.Name)
 	// Read the input pdf file.
@@ -304,7 +306,8 @@ func (s *service) SignDocuments(imgpath string, input models.SignDocuments) stri
 
 		// If the specified page, or -1, apply the image to the page.
 		if i+1 == int(input.SignPage) || int(input.SignPage) == -1 {
-			err = c.Draw(img)
+			positionedImg := calcImagePos(img, page, input)
+			err = c.Draw(positionedImg)
 			if err != nil {
 				log.Println(err)
 				return ""
@@ -318,4 +321,59 @@ func (s *service) SignDocuments(imgpath string, input models.SignDocuments) stri
 		return ""
 	}
 	return inputPath2
+}
+
+func calcImagePos(img *creator.Image, page *model.PdfPage, input models.SignDocuments) *creator.Image {
+	bbox, err := page.GetMediaBox()
+
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+
+	pageWidth := (*bbox).Urx - (*bbox).Llx
+	pageHeight := (*bbox).Ury - (*bbox).Lly
+
+	// X and Y is actually a image pos relative
+	// to page width (element width in html)
+	lCorrection := 1 + 0.09
+	wCorrection := 1 - 0.05
+	imgLeft := input.X_coord * pageWidth * lCorrection
+	imgTop := input.Y_coord * pageHeight
+	imgWidth := input.Width * pageWidth * wCorrection
+	imgHeight := input.Height * pageHeight
+
+	img.SetPos(imgLeft, imgTop)
+	img.SetWidth(imgWidth)
+	img.SetHeight(imgHeight)
+
+	// TODO: log only, can be deleted
+	// log.Println("---")
+	// log.Println(input.X_coord, input.Y_coord, "|", imgLeft, imgTop, "|", pageWidth, pageHeight)
+	// log.Println("inputWidth", input.Width, "->", imgWidth)
+	// log.Println("---")
+
+	return img
+}
+
+func (s *service) InvitePeople(email []string) error {
+	// const CONFIG_SMTP_HOST = "smtp.gmail.com"
+	// const CONFIG_SMTP_PORT = 587
+	// const CONFIG_SENDER_NAME = "PT. Telkom Indonesia <contact@tamaska.id>"
+	// const CONFIG_AUTH_EMAIL = "contact@tamaska.id"
+	// const CONFIG_AUTH_PASSWORD = "uyhiqdzkcknojmfh"
+	// to := []string{"contact@tamaska.id"}
+	// cc := []string{}
+
+	// body := "Subject: " + formHubungiKami.SenderSubject + "\n\n" + "Nama: " + formHubungiKami.SenderName + "\n\n" + "Nama Instansi: " + formHubungiKami.SenderInstution + "\n\n" + "Nomor HP: " + formHubungiKami.SenderPhone + "\n\n" + "Email: " + formHubungiKami.SenderEmail + "\n\n" + "Pesan: " + formHubungiKami.SenderMsg + "\n\n"
+
+	// auth := smtp.PlainAuth("", CONFIG_AUTH_EMAIL, CONFIG_AUTH_PASSWORD, CONFIG_SMTP_HOST)
+	// smtpAddr := fmt.Sprintf("%s:%d", CONFIG_SMTP_HOST, CONFIG_SMTP_PORT)
+
+	// err := smtp.SendMail(smtpAddr, auth, CONFIG_AUTH_EMAIL, append(to, cc...), []byte(body))
+	// if err != nil {
+	// 	return err
+	// }
+
+	return nil
 }

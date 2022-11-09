@@ -1,41 +1,75 @@
 var doc;
 var fileReader = new FileReader();
-var sign_x = 237.60023264735764;
-var sign_y = 83.45521311610798;
+var sign_x = 10;
+var sign_y = 10;
+var sign_h = 0;
+var sign_w = 0;
 var sign_page = 1;
-var sign_h = 165.512;
-var sign_w = 245.175;
 var sign_status = false;
 var curPage;
-function sign(klik) { 
-  if (klik == 1) { //IF Button Click to Signing
-    $(".signing").html( //Changing button to cancel
-      '<i id="signBtnSave" class="btn btn-sm btn-primary" style="position:absolute; top:2%; left:74%"><a onclick="sign(3)">save</a></i>' +
-      '<i id="signBtnCancel" class="btn btn-sm btn-danger" style="position:absolute; top:2%; left:82%"><a onclick="sign(2)">cancel</a></i>'
+function sign(klik) {
+  if (klik == 1) {
+    //IF Button Click to Signing
+    //Changing button to cancel
+    $(".signing").html(
+      `
+<div style="position:absolute; top: 0; right:0">
+  <i id="signBtnSave" class="btn btn-sm btn-primary"><a onclick="sign(3)">save</a></i>
+  <i id="signBtnCancel" class="btn btn-sm btn-danger"><a onclick="sign(2)">cancel</a></i>
+</div>
+      `
     );
+
     $("#SignImg").addClass("Sign-Img");
     $("#SignImg").removeClass("hide_page");
+
+    const canvEl = document.querySelector("#PDFSign");
+    const canvRect = canvEl.getBoundingClientRect();
+
+    $("#SignImg").data("x", 10);
+    $("#SignImg").data("y", 10);
+    $("#SignImg").css("width", canvRect.width / 2);
+    $("#SignImg").css("transform", "translate(10px, 10px)");
+
     sign_status = false;
-   // $("#PDFSign").attr('id', 'signImg') //Adding id images to canvas
-  } else if(klik == 2) { //IF Cancel Signing
-    $(".signing").html( //Changing button to sign
-      '<i id="signBtn" class="btn btn-sm btn-primary" style="position:absolute; top:2%; left:87%"><a onclick="sign(1)">sign</a></i>'
+  } else if (klik == 2) {
+    //IF Cancel Signing
+    //Changing button to sign
+    $(".signing").html(
+      `
+<div style="position:absolute; top: 0; right:0">
+  <i id="signBtn" class="btn btn-sm btn-primary"><a onclick="sign(1)">sign</a></i>
+</div>
+`
     );
     $("#SignImg").addClass("hide_page");
     $("#SignImg").removeClass("Sign-Img");
     sign_status = false;
-  } else if(klik == 3) { //If Button Save
-    $(".signing").html( //Changing button to sign
-      '<i id="signBtnEdit" class="btn btn-sm btn-primary" style="position:absolute; top:2%; left:87%"><a onclick="sign(4)">Edit</a></i>'
-    ); 
+  } else if (klik == 3) {
+    //If Button Save
+    //Changing button to sign
+    $(".signing").html(
+      `
+<div style="position:absolute; top: 0; right:0">
+  <i id="signBtnEdit" class="btn btn-sm btn-primary"><a onclick="sign(4)">Edit</a></i>
+</div>
+`
+    );
     $("#SignImg").removeClass("Sign-Img-drag");
     $("#SignImg").addClass("Sign-bdr");
     sign_status = true;
     sign_page = curPage;
-  } else if(klik == 4) { //IF Button Edit
-    $(".signing").html( //Changing button to sign
-      '<i id="signBtnSave" class="btn btn-sm btn-primary" style="position:absolute; top:2%; left:74%"><a onclick="sign(3)">save</a></i>' +
-      '<i id="signBtnDelete" class="btn btn-sm btn-danger" style="position:absolute; top:2%; left:82%"><a onclick="sign(2)">delete</a></i>'
+    window.applySignPosition();
+  } else if (klik == 4) {
+    //IF Button Edit
+    //Changing button to sign
+    $(".signing").html(
+      `
+<div style="position:absolute; top: 0; right:0">
+  <i id="signBtnSave" class="btn btn-sm btn-primary"><a onclick="sign(3)">save</a></i>
+  <i id="signBtnDelete" class="btn btn-sm btn-danger"><a onclick="sign(2)">delete</a></i>
+</div>
+`
     );
     $("#SignImg").addClass("Sign-Img-drag");
     $("#SignImg").removeClass("hide_page");
@@ -78,7 +112,7 @@ function nextPage() {
 }
 
 function renderingPage(pdf, pageNumber) {
- //If page not available
+  //If page not available
   if (pageNumber < 1 || pageNumber > pdf.numPages) {
     alert("Enter between 1 and " + pdf.numPages);
     return;
@@ -149,14 +183,16 @@ function renderPage(file, pageNumber) {
     //var data = fileReader.result
     var data = new Uint8Array(this.result);
     var loadingTask = pdfjsLib.getDocument({ data: data });
-    loadingTask.promise.then(function (pdf) {
+    loadingTask.promise.then(
+      function (pdf) {
         doc = pdf;
         setPagination();
         //$(".navigation").show();
         //console.log("PDF loaded");
         renderingPage(doc, 1);
       },
-      function (reason) { // PDF loading error
+      function (reason) {
+        // PDF loading error
         console.error(reason);
       }
     );

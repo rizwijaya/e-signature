@@ -75,8 +75,10 @@ func (h *signaturesHandler) SignDocuments(c *gin.Context) {
 	//invite people
 	if input.Invite_sts { //Check invite or not
 		fmt.Println("Invite People")
+		//h.signaturesService.InvitePeople(input.Email)
+		fmt.Println(input)
 	}
 	//push in blockchain
-	fmt.Println(input)
+	//fmt.Println(input)
 	c.Redirect(302, "/sign-documents")
 }

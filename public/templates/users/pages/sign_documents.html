@@ -3,13 +3,8 @@
 <style>
   .Sign-Img {
     position: absolute !important;
-    margin-left: 20px;
-    padding: 20px;
     display: inline-block;
-    -webkit-transform: translate(0, 0);
-    -moz-transform: translate(0, 0);
-    -ms-transform: translate(0, 0);
-    transform: translate(0, 0);
+    outline: 2px dashed rgb(221, 221, 221);
   }
 
   .Sign-Img img {
@@ -18,7 +13,7 @@
   }
 
   .Sign-bdr {
-    border: none !important;
+    outline: none !important;
   }
 </style>
 
@@ -118,8 +113,11 @@
                       <input type="file" name="file" id="file doc" class="drop-zone-pdf__input" accept="application/pdf"
                         required>
                     </div>
-                    <h5 class="card-title" id="titlenya" style="margin-top: 2rem;"><b>Silahkan upload dokumen terlebih
-                        dahulu<br>untuk melakukan tanda tangan terhadap dokumen yang dipilih </b></h5>
+                    <h5 class="w-100" id="titlenya" style="margin-top: 2rem; font-weight:bold; white-space:normal;">
+                      Silahkan upload dokumen terlebih dahulu
+                      <br>
+                      untuk melakukan tanda tangan terhadap dokumen yang dipilih
+                    </h5>
                   </div>
                 </div>
               </div>
@@ -134,34 +132,23 @@
                   <div class="card-body">
                     <!-- PDF Viewer -->
                     <div class="row" style="position:relative;">
-                      <!-- <div class="signatures" style="position: absolute"></div> -->
                       <canvas id="PDFSign"></canvas>
                       <div class="col-6 signing">
-                        <i id="signBtn" class="btn btn-sm btn-primary" style="position:absolute; top:2%; left:87%"><a
-                            onclick="sign(1)">sign</a></i>
+                        <div style="position:absolute; top: 0; right:0">
+                          <i id="signBtn" class="btn btn-sm btn-primary"><a onclick="sign(1)">sign</a></i>
+                        </div>
                       </div>
                       <!-- Signature -->
                       {{ if eq .signatures.Signature_selected "signature" }}
-                      <img src="/signatures/{{ .signatures.Signature }}" id="SignImg" class="hide_page Sign-Img-drag"
-                        style="transform: translate(237.6px, 83.4552px); border: 2px dashed rgb(221, 221, 221); width: 245.175px; height: 165.512px;"
-                        data-x="237.60023264735764" data-y="83.45521311610798">
+                      <img src="/signatures/{{ .signatures.Signature }}" id="SignImg" class="hide_page Sign-Img-drag">
                       {{ else if eq .signatures.Signature_selected "signature_data" }}
-                      <img src="/signatures/{{ .signatures.Signature_data }}" id="SignImg"
-                        class="hide_page Sign-Img-drag"
-                        style="transform: translate(237.6px, 83.4552px); border: 2px dashed rgb(221, 221, 221); width: 245.175px; height: 165.512px;"
-                        data-x="237.60023264735764" data-y="83.45521311610798">
+                      <img src="/signatures/{{ .signatures.Signature_data }}" id="SignImg" class="hide_page Sign-Img-drag">
                       {{ else if eq .signatures.Signature_selected "latin" }}
-                      <img src="/signatures/{{ .signatures.Latin }}" id="SignImg" class="hide_page Sign-Img-drag"
-                        style="transform: translate(237.6px, 83.4552px); border: 2px dashed rgb(221, 221, 221); width: 245.175px; height: 165.512px;"
-                        data-x="237.60023264735764" data-y="83.45521311610798">
+                      <img src="/signatures/{{ .signatures.Latin }}" id="SignImg" class="hide_page Sign-Img-drag">
                       {{ else if eq .signatures.Signature_selected "latin_data" }}
-                      <img src="/signatures/{{ .signatures.Latin_data }}" id="SignImg" class="hide_page Sign-Img-drag"
-                        style="transform: translate(237.6px, 83.4552px); border: 2px dashed rgb(221, 221, 221); width: 245.175px; height: 165.512px;"
-                        data-x="237.60023264735764" data-y="83.45521311610798">
+                      <img src="/signatures/{{ .signatures.Latin_data }}" id="SignImg" class="hide_page Sign-Img-drag">
                       {{ else }}
-                      <img src="/signatures/signatures/default.png" id="SignImg" class="hide_page Sign-Img-drag"
-                        style="transform: translate(237.6px, 83.4552px); border: 2px dashed rgb(221, 221, 221); width: 245.175px; height: 165.512px;"
-                        data-x="237.60023264735764" data-y="83.45521311610798">
+                      <img src="/signatures/signatures/default.png" id="SignImg" class="hide_page Sign-Img-drag">
                       {{ end }}
                       <!-- End Signature -->
                     </div>
@@ -377,15 +364,15 @@
   <!-- End Modal Kembali -->
 </main>
 <!-- End main -->
-<script type="text/javascript" src="https://mozilla.github.io/pdf.js/build/pdf.js"></script>
-<script type="text/javascript" src="https://mozilla.github.io/pdf.js/build/pdf.worker.js"></script>
+<!-- <script type="text/javascript" src="https://mozilla.github.io/pdf.js/build/pdf.js"></script> -->
+<!-- <script type="text/javascript" src="https://mozilla.github.io/pdf.js/build/pdf.worker.js"></script> -->
 <!-- Import new PDFJS & Worker -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.min.js"
   integrity="sha512-Z8CqofpIcnJN80feS2uccz+pXWgZzeKxDsDNMD/dJ6997/LSRY+W4NmEt9acwR+Gt9OHN0kkI1CTianCwoqcjQ=="
   crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.worker.min.js"
-  integrity="sha512-lHibs5XrZL9hXP3Dhr/d2xJgPy91f2mhVAasrSbMkbmoTSm2Kz8DuSWszBLUg31v+BM6tSiHSqT72xwjaNvl0g=="
-  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.worker.min.js" -->
+<!--   integrity="sha512-lHibs5XrZL9hXP3Dhr/d2xJgPy91f2mhVAasrSbMkbmoTSm2Kz8DuSWszBLUg31v+BM6tSiHSqT72xwjaNvl0g==" -->
+<!--   crossorigin="anonymous" referrerpolicy="no-referrer"></script> -->
 
 <script src="/landing/js/pagination_sign.js"> </script>
 <script src="/landing/js/uploadPDF.js"></script>
