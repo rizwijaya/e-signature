@@ -9,7 +9,7 @@ contract Smartsign {
         documentCount = 1;
     }
 
-    //------Model data------//
+    // ------Model data------ //
     //Model Document
     struct Document {
         bytes32 file; //Hash asli
@@ -33,11 +33,12 @@ contract Smartsign {
         string signers_hash;
         bool signers_state; //status ttd 
         uint sign_time; //tgl ttd
-        uint256 document_id;
     }
     mapping(bytes32 => Document) documents;
     mapping(bytes32 => bytes32) signedDocs;
-    //------End Model data------//
+    //mapping(address => mapping(uint256))
+    //------ End Model data ------//
+    //------ Convertion Data ------//
     function stringToBytes32(string memory source) private pure returns (bytes32 result) {
         bytes memory tempEmptyStringTest = bytes(source);
         if (tempEmptyStringTest.length == 0) {
@@ -54,6 +55,7 @@ contract Smartsign {
             }
         return string(bytesArray);
     }
+    //------ End Convertion Data ------//
     //------ Signing Process ------//
     //Created Document
     function create(
@@ -82,7 +84,6 @@ contract Smartsign {
             newDocument.signers[_signers[i]].signers_hash = _hash;
             newDocument.signers[_signers[i]].signers_state = false;
             newDocument.signers[_signers[i]].sign_time = _time;
-            newDocument.signers[_signers[i]].document_id = documentCount;
         }
         documentCount++;
     }
@@ -102,7 +103,7 @@ contract Smartsign {
     }
     //Get Signatures Data in Documents
     function getSign(string memory _file, address _signers_id) public view returns(
-        uint256, string memory, string memory, bool, uint, uint256
+        uint256, string memory, string memory, bool, uint
     ) {
         bytes32 byteFile = stringToBytes32(_file);
         Document storage temp = documents[byteFile];
@@ -110,13 +111,13 @@ contract Smartsign {
         require(temp.signers[_signers_id].sign_addr == _signers_id, "Signers not exist");
         return(temp.signers[_signers_id].sign_id, temp.signers[_signers_id].signers_id,
         temp.signers[_signers_id].signers_hash, temp.signers[_signers_id].signers_state, 
-        temp.signers[_signers_id].sign_time, temp.signers[_signers_id].document_id);
+        temp.signers[_signers_id].sign_time);
     }
     //Signing Document dengan hash asli
     function signDoc(string memory _file, address _signers_id, string memory _signers_hash, string memory _ipfs, uint256 _time) public {
         bytes32 byteFile = stringToBytes32(_file);
         Document storage signDocument = documents[byteFile];
-        require(signDocument.exist == true, "Document not exist2");
+        require(signDocument.exist == true, "Document not exist");
         require(signDocument.signers[_signers_id].sign_time > 1, "Document not exist");
         require(signDocument.signers[_signers_id].signers_state == false, "You are signed this document");
         signDocument.ipfs = _ipfs;
@@ -134,5 +135,6 @@ contract Smartsign {
         bytes32 signed = stringToBytes32(_hash);
         return bytes32ToString(signedDocs[signed]);
     }
-     //------ End Signing Process ------//
+     // ------ End Signing Process ------ //
 }
+// Untuk fitur list dokumen user pakai db, jadi db akan menyimpan daftar user dan dokumen_ori di blockchain
