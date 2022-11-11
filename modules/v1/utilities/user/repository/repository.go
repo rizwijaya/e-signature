@@ -36,6 +36,7 @@ type Repository interface {
 	CheckEmailExist(email string) (models.ProfileDB, error)
 	TransferBalance(user models.ProfileDB) error
 	GetBalance(user models.ProfileDB, pw string) (string, error)
+	GetUserByEmail(email string) (models.User, error)
 }
 
 type repository struct {
@@ -285,4 +286,16 @@ func (r *repository) GetBalance(user models.ProfileDB, pw string) (string, error
 		return "", err
 	}
 	return balance.String(), nil
+}
+
+func (r *repository) GetUserByEmail(email string) (models.User, error) {
+	var user models.User
+	filter := map[string]interface{}{"email": email}
+	c := r.db.Collection("users")
+	err := c.FindOne(context.Background(), filter).Decode(&user)
+	if err != nil {
+		log.Println(err)
+		return user, err
+	}
+	return user, nil
 }

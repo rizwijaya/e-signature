@@ -1,12 +1,14 @@
 package view
 
 import (
+	api "e-signature/app/contracts"
 	"e-signature/modules/v1/utilities/signatures/repository"
 	"e-signature/modules/v1/utilities/signatures/service"
 	"fmt"
 	"log"
 	"net/http"
 
+	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -20,8 +22,8 @@ func NewSignaturesView(signaturesService service.Service) *signaturesView {
 	return &signaturesView{signaturesService}
 }
 
-func View(db *mongo.Database) *signaturesView {
-	Repository := repository.NewRepository(db)
+func View(db *mongo.Database, blockhain *api.Api, client *ethclient.Client) *signaturesView {
+	Repository := repository.NewRepository(db, blockhain, client)
 	Service := service.NewService(Repository)
 	return NewSignaturesView(Service)
 }

@@ -7,17 +7,17 @@ import (
 )
 
 type User struct {
-	Id           primitive.ObjectID
-	Idsignature  string
-	Name         string
-	Password     string
+	Id           primitive.ObjectID `bson:"_id"`
+	Idsignature  string             `bson:"idsignature"`
+	Name         string             `bson:"name"`
+	Password     string             `bson:"password"`
 	PasswordHash string
 	//ImageIPFS      string
-	Role           int
-	Publickey      string
-	Identity_card  string
-	Email          string
-	Phone          string
+	Role           int    `bson:"role"`
+	Publickey      string `bson:"public_key"`
+	Identity_card  string `bson:"identity_card"`
+	Email          string `bson:"email"`
+	Phone          string `bson:"phone"`
 	Dateregistered string
 }
 

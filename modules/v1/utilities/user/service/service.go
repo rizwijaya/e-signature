@@ -16,6 +16,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/ethereum/go-ethereum/common"
 	shell "github.com/ipfs/go-ipfs-api"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
@@ -38,6 +39,7 @@ type Service interface {
 	CheckEmailExist(email string) (string, error)
 	GetBalance(user models.ProfileDB, pw string) (string, error)
 	TransferBalance(user models.ProfileDB) error
+	GetPublicKey(email []string) ([]common.Address, []string)
 }
 
 type service struct {
@@ -116,6 +118,7 @@ func (s *service) Login(input models.LoginInput) (models.ProfileDB, error) {
 }
 
 func (s *service) CreateAccount(user models.User) (string, error) {
+	conf, _ := config.Init()
 	//Input Hash Password
 	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.MinCost)
 	if err != nil {
@@ -129,7 +132,7 @@ func (s *service) CreateAccount(user models.User) (string, error) {
 		log.Println(err)
 		return "", err
 	}
-	user.Publickey = string(s.Encrypt([]byte(user.Publickey), user.Password))
+	user.Publickey = string(s.Encrypt([]byte(user.Publickey), conf.App.Secret_key))
 	//user.Identity_card = string(s.Encrypt([]byte(user.Identity_card), user.Password))
 	//fmt.Println(string(s.Decrypt([]byte(user.Publickey), user.Password)))
 	//Save to Database
@@ -297,6 +300,24 @@ func (s *service) TransferBalance(user models.ProfileDB) error {
 		log.Println(err)
 	}
 	return err
+}
+
+func (s *service) GetPublicKey(email []string) ([]common.Address, []string) {
+	var idSignature []string
+	var addr []common.Address
+
+	conf, _ := config.Init()
+	for _, v := range email {
+		user, err := s.repository.GetUserByEmail(v)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+		addr = append(addr, common.HexToAddress(string(s.Decrypt([]byte(user.Publickey), conf.App.Secret_key))))
+		idSignature = append(idSignature, user.Idsignature)
+	}
+
+	return addr, idSignature
 }
 
 // func (s *service) SavetoSystem(user models.User) error {

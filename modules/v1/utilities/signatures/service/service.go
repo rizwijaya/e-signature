@@ -1,14 +1,18 @@
 package service
 
 import (
+	"crypto/sha256"
 	"e-signature/modules/v1/utilities/signatures/models"
 	"e-signature/modules/v1/utilities/signatures/repository"
 	modelsUser "e-signature/modules/v1/utilities/user/models"
 	"encoding/base64"
+	"encoding/hex"
 	"fmt"
 	"image"
 	"image/png"
+	"io"
 	"log"
+	"math/big"
 	"os"
 	"strings"
 	"time"
@@ -32,6 +36,10 @@ type Service interface {
 	ResizeImages(mysign models.MySignatures, input models.SignDocuments) string
 	SignDocuments(imgpath string, input models.SignDocuments) string
 	InvitePeople(email []string) error
+	GenerateHashDocument(input string) string
+	AddToBlockhain(input models.SignDocuments) error
+	AddUserDocs(input models.SignDocuments) error
+	DocumentSigned(sign models.SignDocs) error
 }
 
 type service struct {
@@ -58,9 +66,9 @@ func Clock(t time.Time) string {
 }
 
 func init() {
-	//err := license.SetMeteredKey("38eba2573e9c03c6c2d1881618ee9c4666ebc0e9960afa5a82b16d368875f816")
-	//New Licence 345b46cc6941c36f6d4528a304c7b6ceb1855e56a2c76ca0db93f3f4b3586904
-	err := license.SetMeteredKey("46a38610c111cdc6514f96d24a72fe7ceffd43415f8f481c7b249472e9967d63")
+	//Demo: 58f9d9cb8ba964ee240d04196ee9b1e9406107505e36d553fc2c057002de766a
+	//Develop:345b46cc6941c36f6d4528a304c7b6ceb1855e56a2c76ca0db93f3f4b3586904
+	err := license.SetMeteredKey("58f9d9cb8ba964ee240d04196ee9b1e9406107505e36d553fc2c057002de766a")
 	if err != nil {
 		log.Println(err)
 	}
@@ -249,7 +257,7 @@ func (s *service) ResizeImages(mysign models.MySignatures, input models.SignDocu
 		log.Fatal(err)
 	}
 	m := resize.Resize(uint(input.Width*0.75), uint(input.Height*0.75), img, resize.Lanczos3)
-	path2 := fmt.Sprintf("sizes-%s.png", mysign.Signature_selected)
+	path2 := fmt.Sprintf("./public/temp/sizes-%s.png", mysign.Signature_selected)
 	out, err := os.Create(path2)
 	if err != nil {
 		log.Fatal(err)
@@ -261,14 +269,11 @@ func (s *service) ResizeImages(mysign models.MySignatures, input models.SignDocu
 
 func (s *service) SignDocuments(imgpath string, input models.SignDocuments) string {
 	c := creator.New()
-	//imgPath2 := fmt.Sprintf("./public/temp/sizes-signature.png")
 	img, err := c.NewImageFromFile(imgpath)
 	if err != nil {
 		log.Println(err)
 		return ""
 	}
-	// img.SetPos(input.X_coord*0.75, input.Y_coord*0.75)
-	//img.SetPos(189.296875, 84.40625)
 	inputPath := fmt.Sprintf("./public/temp/%s", input.Name)
 	// Read the input pdf file.
 	f, err := os.Open(inputPath)
@@ -347,12 +352,6 @@ func calcImagePos(img *creator.Image, page *model.PdfPage, input models.SignDocu
 	img.SetWidth(imgWidth)
 	img.SetHeight(imgHeight)
 
-	// TODO: log only, can be deleted
-	// log.Println("---")
-	// log.Println(input.X_coord, input.Y_coord, "|", imgLeft, imgTop, "|", pageWidth, pageHeight)
-	// log.Println("inputWidth", input.Width, "->", imgWidth)
-	// log.Println("---")
-
 	return img
 }
 
@@ -375,5 +374,51 @@ func (s *service) InvitePeople(email []string) error {
 	// 	return err
 	// }
 
+	return nil
+}
+
+func (s *service) GenerateHashDocument(input string) string {
+	file := strings.NewReader(input)
+	hash := sha256.New()
+	if _, err := io.Copy(hash, file); err != nil {
+		log.Fatal(err)
+	}
+
+	return hex.EncodeToString(hash.Sum(nil))
+}
+
+func (s *service) AddToBlockhain(input models.SignDocuments) error {
+	timeSign := new(big.Int)
+	location, err := time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		return err
+	}
+	timeNow := time.Now().In(location)
+	timeFormat := timeNow.Format("15040502012006")
+	timeSign, _ = timeSign.SetString(timeFormat, 10)
+	err = s.repository.AddToBlockhain(input, timeSign)
+	return err
+}
+
+func (s *service) AddUserDocs(input models.SignDocuments) error {
+	err := s.repository.AddUserDocs(input)
+	return err
+}
+
+func (s *service) DocumentSigned(sign models.SignDocs) error {
+	timeSign := new(big.Int)
+	location, err := time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	timeNow := time.Now().In(location)
+	timeFormat := timeNow.Format("15040502012006")
+	timeSign, _ = timeSign.SetString(timeFormat, 10)
+	err = s.repository.DocumentSigned(sign, timeSign)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
 	return nil
 }

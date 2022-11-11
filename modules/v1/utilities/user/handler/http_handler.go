@@ -1,6 +1,7 @@
 package user
 
 import (
+	"e-signature/app/config"
 	"e-signature/modules/v1/utilities/user/models"
 	notif "e-signature/pkg/notification"
 	"fmt"
@@ -13,6 +14,7 @@ import (
 )
 
 func (h *userHandler) Login(c *gin.Context) {
+	conf, _ := config.Init()
 	session := sessions.Default(c)
 	var input models.LoginInput
 	err := c.ShouldBind(&input)
@@ -33,11 +35,11 @@ func (h *userHandler) Login(c *gin.Context) {
 		})
 		return
 	}
-	PublicKey := h.userService.Decrypt([]byte(user.PublicKey), input.Password)
+	PublicKey := h.userService.Decrypt([]byte(user.PublicKey), conf.App.Secret_key)
 	user.PublicKey = string(PublicKey)
 	//------ Enabled in Production karena melakukan transfer balance ----------------
 	// //Check Balance Accounts
-	// mybalance, _ := h.userService.GetBalance(user, input.Password)
+	// mybalance, _ := h.userService.GetBalance(user, conf.App.Secret_key)
 	// //fmt.Println(mybalance)
 	// if mybalance == "0" { //transfer balance if balance is 0
 	// 	err := h.userService.TransferBalance(user)

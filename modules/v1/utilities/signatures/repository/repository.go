@@ -6,25 +6,57 @@ import (
 	modelsUser "e-signature/modules/v1/utilities/user/models"
 	"fmt"
 	"log"
+	"math/big"
 	"time"
 
+	blockhainAuth "e-signature/app/blockhain"
+	"e-signature/app/config"
+	api "e-signature/app/contracts"
+
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/ethclient"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type Repository interface {
+	LogTransactions(address string, tx_hash string, nonce string, desc string) error
 	DefaultSignatures(user modelsUser.User, id string) error
 	UpdateMySignatures(signature string, signaturedata string, sign string) error
 	GetMySignature(sign string) (models.Signatures, error)
 	ChangeSignature(sign_type string, sign string) error
+	AddToBlockhain(input models.SignDocuments, times *big.Int) error
+	AddUserDocs(input models.SignDocuments) error
+	DocumentSigned(sign models.SignDocs, timeSign *big.Int) error
 }
 
 type repository struct {
-	db *mongo.Database
+	db         *mongo.Database
+	blockchain *api.Api
+	client     *ethclient.Client
 }
 
-func NewRepository(db *mongo.Database) *repository {
-	return &repository{db}
+func NewRepository(db *mongo.Database, blockchain *api.Api, client *ethclient.Client) *repository {
+	return &repository{db, blockchain, client}
+}
+
+func (r *repository) LogTransactions(address string, tx_hash string, nonce string, desc string) error {
+	ctx := context.TODO()
+	trans := models.Transac{
+		Id:           primitive.NewObjectID(),
+		Address:      fmt.Sprintf("%v", address),
+		Tx_hash:      fmt.Sprintf("%v", tx_hash),
+		Nonce:        nonce,
+		Description:  desc,
+		Date_created: time.Now(),
+	}
+	c := r.db.Collection("transactions")
+	_, err := c.InsertOne(ctx, &trans)
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
+	return nil
 }
 
 func (r *repository) DefaultSignatures(user modelsUser.User, id string) error {
@@ -97,4 +129,49 @@ func (r *repository) ChangeSignature(sign_type string, sign string) error {
 		return err
 	}
 	return nil
+}
+
+func (r *repository) AddToBlockhain(input models.SignDocuments, times *big.Int) error {
+	conf, _ := config.Init()
+	auth := blockhainAuth.GetAccountAuth(blockhainAuth.Connect(), conf.Blockhain.Secret_key)
+	document, err := r.blockchain.Create(auth, input.Hash_original, common.HexToAddress(input.Creator), "metadata", input.Hash, input.IPFS, big.NewInt(1), false, times, input.Address, input.IdSignature)
+	if err != nil {
+		log.Println(err)
+	}
+	//Logging transaksi.
+	r.LogTransactions(input.Creator, document.Hash().Hex(), auth.Nonce.String(), "Membuat Dokumen "+input.Name+" untuk tanda tangan, biaya transaksi "+document.Cost().String())
+	return err
+}
+
+func (r *repository) AddUserDocs(input models.SignDocuments) error {
+	for _, v := range input.Address {
+		signedDocuments := struct {
+			Id           primitive.ObjectID `bson:"_id,omitempty"`
+			Address      string             `bson:"address"`
+			Hash         string             `bson:"hash"`
+			Date_Created time.Time          `bson:"date_created"`
+		}{
+			Id:           primitive.NewObjectID(),
+			Address:      v.String(),
+			Hash:         input.Hash,
+			Date_Created: time.Now(),
+		}
+
+		c := r.db.Collection("signedDocuments")
+		_, err := c.InsertOne(context.Background(), &signedDocuments)
+		if err != nil {
+			log.Fatal(err)
+			return err
+		}
+	}
+	return nil
+}
+
+func (r *repository) DocumentSigned(sign models.SignDocs, timeSign *big.Int) error {
+	conf, _ := config.Init()
+	auth := blockhainAuth.GetAccountAuth(blockhainAuth.Connect(), conf.Blockhain.Secret_key)
+	signDocs, err := r.blockchain.SignDoc(auth, sign.Hash_original, common.HexToAddress(sign.Creator), sign.Hash, sign.IPFS, timeSign)
+	//Logging Transaction
+	r.LogTransactions(sign.Creator, signDocs.Hash().Hex(), auth.Nonce.String(), "Menandatangani  Hash Dokumen: "+sign.Hash_original+" dengan biaya transaksi "+signDocs.Cost().String())
+	return err
 }

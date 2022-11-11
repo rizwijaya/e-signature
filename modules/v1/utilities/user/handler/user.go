@@ -30,7 +30,7 @@ func Handler(db *mongo.Database, blockhain *api.Api, client *ethclient.Client) *
 	userRepository := repository.NewRepository(db, blockhain, client)
 	userService := service.NewService(userRepository)
 
-	signatureRepository := er.NewRepository(db)
+	signatureRepository := er.NewRepository(db, blockhain, client)
 	signatureService := es.NewService(signatureRepository)
 	userHandler := NewUserHandler(userService, signatureService)
 	return userHandler
