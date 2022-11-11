@@ -25,7 +25,7 @@ func NewSignaturesHandler(signaturesService service.Service, serviceUser service
 
 func Handler(db *mongo.Database, blockhain *api.Api, client *ethclient.Client) *signaturesHandler {
 	//Signatures
-	Repository := repository.NewRepository(db)
+	Repository := repository.NewRepository(db, blockhain, client)
 	Service := service.NewService(Repository)
 	//User
 	RepoUser := repoUser.NewRepository(db, blockhain, client)

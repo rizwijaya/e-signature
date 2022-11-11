@@ -1,11 +1,13 @@
 package signatures
 
 import (
+	"e-signature/app/config"
 	"e-signature/modules/v1/utilities/signatures/models"
 	api "e-signature/pkg/api_response"
 	"fmt"
 	"log"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
@@ -46,8 +48,11 @@ func (h *signaturesHandler) ChangeSignatures(c *gin.Context) {
 }
 
 func (h *signaturesHandler) SignDocuments(c *gin.Context) {
+	conf, _ := config.Init()
 	session := sessions.Default(c)
 	var input models.SignDocuments
+	var signDocs models.SignDocs
+	//Input Mapping
 	err := c.ShouldBind(&input)
 	if err != nil {
 		log.Println(err)
@@ -65,20 +70,50 @@ func (h *signaturesHandler) SignDocuments(c *gin.Context) {
 	if err != nil {
 		log.Println(err)
 	}
-	//sign document
+	//Get Images signatures
 	mysignatures, _ := h.signaturesService.GetMySignature(fmt.Sprintf("%v", session.Get("sign")), fmt.Sprintf("%v", session.Get("id")), fmt.Sprintf("%v", session.Get("name")))
 	//Resize Images Signatures
 	img := h.signaturesService.ResizeImages(mysignatures, input)
-	//Signing Documents
+	//Signing Documents to PDF
 	sign := h.signaturesService.SignDocuments(img, input)
-	fmt.Println("Document Signed: " + sign)
+	//Generate hash document
+	input.Hash_original = h.signaturesService.GenerateHashDocument(path)
+	input.Hash = h.signaturesService.GenerateHashDocument(sign)
+	//Get Address Creator
+	input.Creator = fmt.Sprintf("%v", session.Get("public_key"))
+	//Input to IPFS
+	err, input.IPFS = h.serviceUser.UploadIPFS(sign)
+	if err != nil {
+		log.Println(err)
+	}
+	//Encript IPFS and Get Signatures Data
+	input.IPFS = string(h.serviceUser.Encrypt([]byte(input.IPFS), conf.App.Secret_key))
+	input.Address, input.IdSignature = h.serviceUser.GetPublicKey(input.Email)
+	//Add Creator for signatures
+	input.Address = append(input.Address, common.HexToAddress(input.Creator))
+	input.IdSignature = append(input.IdSignature, input.Creator)
+	//Input to blockchain
+	err = h.signaturesService.AddToBlockhain(input)
+	if err != nil {
+		log.Println(err)
+	}
+	//Signing Creator in Documents
+	signDocs.Hash_original = input.Hash_original
+	signDocs.Creator = input.Creator
+	signDocs.Hash = input.Hash
+	signDocs.IPFS = input.IPFS
+	h.signaturesService.DocumentSigned(signDocs)
+
 	//invite people
 	if input.Invite_sts { //Check invite or not
 		fmt.Println("Invite People")
-		//h.signaturesService.InvitePeople(input.Email)
-		fmt.Println(input)
+		//h.signaturesService.InvitePeople(input.Email) //Invite Via Email
 	}
-	//push in blockchain
+	//Masukan db, isinya addr user(pk) dan doc yang di signs
+	err = h.signaturesService.AddUserDocs(input)
+	if err != nil {
+		log.Println(err)
+	}
 	//fmt.Println(input)
 	c.Redirect(302, "/sign-documents")
 }

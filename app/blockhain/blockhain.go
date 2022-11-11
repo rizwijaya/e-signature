@@ -6,6 +6,7 @@ import (
 	"e-signature/app/config"
 	api "e-signature/app/contracts"
 	database "e-signature/app/databases"
+	"e-signature/modules/v1/utilities/user/models"
 	"fmt"
 	"log"
 	"math/big"
@@ -17,15 +18,6 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
-
-type Transac struct {
-	Id           primitive.ObjectID `bson:"_id"`
-	Address      string             `bson:"address"`
-	Tx_hash      string             `bson:"tx_hash"`
-	Nonce        string             `bson:"nonce"`
-	Description  string             `bson:"description"`
-	Date_created time.Time          `bson:"date_created"`
-}
 
 func GetAccountAuth(client *ethclient.Client, privateKeyAddress string) *bind.TransactOpts {
 	privateKey, err := crypto.HexToECDSA(privateKeyAddress)
@@ -90,7 +82,7 @@ func Init(conf config.Conf) (*api.Api, *ethclient.Client) {
 
 	db := database.Init(conf)
 	ctx := context.TODO()
-	trans := Transac{
+	trans := models.Transac{
 		Id:           primitive.NewObjectID(),
 		Address:      fmt.Sprintf("%v", address.Hex()),
 		Tx_hash:      fmt.Sprintf("%v", tx.Hash().Hex()),

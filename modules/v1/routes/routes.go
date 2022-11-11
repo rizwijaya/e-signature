@@ -37,7 +37,7 @@ func ParseTmpl(router *gin.Engine) *gin.Engine { //Load HTML Template
 func Init(db *mongo.Database, conf config.Conf, router *gin.Engine) *gin.Engine {
 	blockchain, client := blockhain.Init(conf)
 	signaturesHandlerV1 := signaturesHandlerV1.Handler(db, blockchain, client)
-	signaturesViewV1 := signaturesViewV1.View(db)
+	signaturesViewV1 := signaturesViewV1.View(db, blockchain, client)
 	userHandlerV1 := userHandlerV1.Handler(db, blockchain, client)
 	userViewV1 := userViewV1.View(db, blockchain, client)
 	// Routing Website Service
