@@ -106,14 +106,75 @@ func (h *signaturesHandler) SignDocuments(c *gin.Context) {
 
 	//invite people
 	if input.Invite_sts { //Check invite or not
-		fmt.Println("Invite People")
+		fmt.Println("Sisa Invite People Via Email Habis itu selesai")
 		//h.signaturesService.InvitePeople(input.Email) //Invite Via Email
 	}
-	//Masukan db, isinya addr user(pk) dan doc yang di signs
 	err = h.signaturesService.AddUserDocs(input)
 	if err != nil {
 		log.Println(err)
 	}
 	//fmt.Println(input)
 	c.Redirect(302, "/sign-documents")
+}
+
+func (h *signaturesHandler) InviteSignatures(c *gin.Context) {
+	conf, _ := config.Init()
+	session := sessions.Default(c)
+	var input models.InviteSignatures
+	var signDocs models.SignDocs
+	var DocData models.SignDocuments
+	//Input Mapping
+	err := c.ShouldBind(&input)
+	if err != nil {
+		log.Println(err)
+		c.Redirect(302, "/invite-signatures")
+		return
+	}
+	file, err := c.FormFile("file")
+	if err != nil {
+		log.Println(err)
+	}
+	DocData.Name = file.Filename
+	//Saving Image to Directory
+	path := fmt.Sprintf("./public/temp/%s", DocData.Name)
+	err = c.SaveUploadedFile(file, path)
+	if err != nil {
+		log.Println(err)
+	}
+	DocData.Email = input.Email
+	DocData.Note = input.Note
+	//Generate hash document
+	DocData.Hash_original = h.signaturesService.GenerateHashDocument(path)
+	DocData.Hash = DocData.Hash_original
+	//Get Address Creator
+	DocData.Creator = fmt.Sprintf("%v", session.Get("public_key"))
+	//Input to IPFS
+	err, DocData.IPFS = h.serviceUser.UploadIPFS(path)
+	if err != nil {
+		log.Println(err)
+	}
+	//Encript IPFS and Get Signatures Data
+	DocData.IPFS = string(h.serviceUser.Encrypt([]byte(DocData.IPFS), conf.App.Secret_key))
+	DocData.Address, DocData.IdSignature = h.serviceUser.GetPublicKey(DocData.Email)
+	//Input to blockchain
+	err = h.signaturesService.AddToBlockhain(DocData)
+	if err != nil {
+		log.Println(err)
+	}
+	//Signing Creator in Documents
+	signDocs.Hash_original = DocData.Hash_original
+	signDocs.Creator = DocData.Creator
+	signDocs.Hash = DocData.Hash
+	signDocs.IPFS = DocData.IPFS
+	h.signaturesService.DocumentSigned(signDocs)
+
+	//invite people
+	fmt.Println("Sisa Invite People Via Email Habis itu selesai")
+	//h.signaturesService.InvitePeople(DocData.Email) //Invite Via Email
+
+	err = h.signaturesService.AddUserDocs(DocData)
+	if err != nil {
+		log.Println(err)
+	}
+	c.Redirect(302, "/invite-signatures")
 }

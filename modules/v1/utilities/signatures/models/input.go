@@ -39,7 +39,12 @@ type SignDocuments struct {
 	Hash          string
 	Hash_original string
 	Creator       string
-	Metadata      string
-	Address       []common.Address
-	IdSignature   []string
+	//Metadata      string
+	Address     []common.Address
+	IdSignature []string
+}
+
+type InviteSignatures struct {
+	Email []string `json:"email[]" form:"email[]" binding:"required"`
+	Note  string   `json:"note" form:"note" binding:"required"`
 }

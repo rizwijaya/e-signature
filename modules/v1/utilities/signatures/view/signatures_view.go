@@ -60,3 +60,12 @@ func (h *signaturesView) SignDocuments(c *gin.Context) {
 		"signatures": getSignature,
 	})
 }
+
+func (h *signaturesView) InviteSignatures(c *gin.Context) {
+	session := sessions.Default(c)
+	title := "Invite Signatures - SmartSign"
+	c.HTML(http.StatusOK, "invite_signatures.html", gin.H{
+		"title": title,
+		"user":  session.Get("id"),
+	})
+}
