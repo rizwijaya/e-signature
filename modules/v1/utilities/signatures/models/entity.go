@@ -35,6 +35,7 @@ type Transac struct {
 	Address      string             `bson:"address"`
 	Tx_hash      string             `bson:"tx_hash"`
 	Nonce        string             `bson:"nonce"`
+	Prices       string             `bson:"prices"`
 	Description  string             `bson:"description"`
 	Date_created time.Time          `bson:"date_created"`
 }

@@ -20,7 +20,7 @@ import (
 )
 
 type Repository interface {
-	LogTransactions(address string, tx_hash string, nonce string, desc string) error
+	LogTransactions(address string, tx_hash string, nonce string, desc string, prices string) error
 	DefaultSignatures(user modelsUser.User, id string) error
 	UpdateMySignatures(signature string, signaturedata string, sign string) error
 	GetMySignature(sign string) (models.Signatures, error)
@@ -40,13 +40,14 @@ func NewRepository(db *mongo.Database, blockchain *api.Api, client *ethclient.Cl
 	return &repository{db, blockchain, client}
 }
 
-func (r *repository) LogTransactions(address string, tx_hash string, nonce string, desc string) error {
+func (r *repository) LogTransactions(address string, tx_hash string, nonce string, desc string, prices string) error {
 	ctx := context.TODO()
 	trans := models.Transac{
 		Id:           primitive.NewObjectID(),
 		Address:      fmt.Sprintf("%v", address),
 		Tx_hash:      fmt.Sprintf("%v", tx_hash),
 		Nonce:        nonce,
+		Prices:       prices,
 		Description:  desc,
 		Date_created: time.Now(),
 	}
@@ -134,12 +135,12 @@ func (r *repository) ChangeSignature(sign_type string, sign string) error {
 func (r *repository) AddToBlockhain(input models.SignDocuments, times *big.Int) error {
 	conf, _ := config.Init()
 	auth := blockhainAuth.GetAccountAuth(blockhainAuth.Connect(), conf.Blockhain.Secret_key)
-	document, err := r.blockchain.Create(auth, input.Hash_original, common.HexToAddress(input.Creator), "metadata", input.Hash, input.IPFS, big.NewInt(1), false, times, input.Address, input.IdSignature)
+	document, err := r.blockchain.Create(auth, input.Hash_original, common.HexToAddress(input.Creator), input.Name, input.Hash, input.IPFS, big.NewInt(1), false, times, input.Address, input.IdSignature)
 	if err != nil {
 		log.Println(err)
 	}
 	//Logging transaksi.
-	r.LogTransactions(input.Creator, document.Hash().Hex(), auth.Nonce.String(), "Membuat Dokumen "+input.Name+" untuk tanda tangan, biaya transaksi "+document.Cost().String())
+	r.LogTransactions(input.Creator, document.Hash().Hex(), auth.Nonce.String(), "Membuat Dokumen "+input.Name+" untuk tanda tangan", document.Cost().String())
 	return err
 }
 
@@ -172,6 +173,6 @@ func (r *repository) DocumentSigned(sign models.SignDocs, timeSign *big.Int) err
 	auth := blockhainAuth.GetAccountAuth(blockhainAuth.Connect(), conf.Blockhain.Secret_key)
 	signDocs, err := r.blockchain.SignDoc(auth, sign.Hash_original, common.HexToAddress(sign.Creator), sign.Hash, sign.IPFS, timeSign)
 	//Logging Transaction
-	r.LogTransactions(sign.Creator, signDocs.Hash().Hex(), auth.Nonce.String(), "Menandatangani  Hash Dokumen: "+sign.Hash_original+" dengan biaya transaksi "+signDocs.Cost().String())
+	r.LogTransactions(sign.Creator, signDocs.Hash().Hex(), auth.Nonce.String(), "Menandatangani Dokumen dengan kode : "+sign.Hash_original, signDocs.Cost().String())
 	return err
 }
