@@ -40,6 +40,7 @@ type Service interface {
 	AddToBlockhain(input models.SignDocuments) error
 	AddUserDocs(input models.SignDocuments) error
 	DocumentSigned(sign models.SignDocs) error
+	GetListDocument(publickey string) []models.ListDocument
 }
 
 type service struct {
@@ -50,9 +51,18 @@ func NewService(repository repository.Repository) *service {
 	return &service{repository}
 }
 
+var hari = [...]string{
+	"Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"}
+
 var bulan = [...]string{
 	"Januari", "Februari", "Maret", "April", "Mei", "Juni",
 	"Juli", "Agustus", "September", "Oktober", "Nopember", "Desember",
+}
+
+func TanggalJam(t time.Time) string {
+	return fmt.Sprintf("%s, %02d %s %d | %02d:%02d WIB",
+		hari[t.Weekday()], t.Day(), bulan[t.Month()-1][:3], t.Year(), t.Hour(), int(t.Minute()),
+	)
 }
 
 func Tanggal(t time.Time) string {
@@ -421,4 +431,15 @@ func (s *service) DocumentSigned(sign models.SignDocs) error {
 		return err
 	}
 	return nil
+}
+
+func (s *service) GetListDocument(publickey string) []models.ListDocument {
+	listDoc := s.repository.ListDocumentNoSign(publickey)
+	for i := range listDoc {
+		listDoc[i].Date_created_WIB = TanggalJam(listDoc[i].Date_created)
+		listDoc[i].Documents = s.repository.GetDocument(listDoc[i].Hash, publickey)
+		//fmt.Println(listDoc[i].Documents)
+	}
+	// fmt.Println(publickey)
+	return listDoc
 }

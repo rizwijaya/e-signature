@@ -69,3 +69,15 @@ func (h *signaturesView) InviteSignatures(c *gin.Context) {
 		"user":  session.Get("id"),
 	})
 }
+
+func (h *signaturesView) RequestSignatures(c *gin.Context) {
+	session := sessions.Default(c)
+	title := "Signature Request - SmartSign"
+	listDocument := h.signaturesService.GetListDocument(fmt.Sprintf("%v", session.Get("public_key")))
+	c.HTML(http.StatusOK, "request_signatures.html", gin.H{
+		"title":     title,
+		"user":      session.Get("id"),
+		"name":      session.Get("name"),
+		"documents": listDocument,
+	})
+}

@@ -3,6 +3,7 @@ package models
 import (
 	"time"
 
+	"github.com/ethereum/go-ethereum/common"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -38,4 +39,29 @@ type Transac struct {
 	Prices       string             `bson:"prices"`
 	Description  string             `bson:"description"`
 	Date_created time.Time          `bson:"date_created"`
+}
+
+type ListDocument struct {
+	Id               primitive.ObjectID `bson:"_id"`
+	Address          string             `bson:"address"`
+	Hash             string             `bson:"hash"`
+	Judul            string             `bson:"judul"`
+	Note             string             `bson:"note"`
+	Date_created     time.Time          `bson:"date_created"`
+	Date_created_WIB string
+	Documents        DocumentBlockchain `bson:"documents"`
+}
+
+type DocumentBlockchain struct {
+	Document_id   string
+	Creator       common.Address
+	Creator_id    string
+	Metadata      string
+	Hash          string
+	IPFS          string
+	State         string
+	Visibility    bool
+	Createdtime   string
+	Completedtime string
+	Exist         bool
 }
