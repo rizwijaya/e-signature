@@ -14,6 +14,7 @@ contract Smartsign {
     struct Document {
         bytes32 file; //Hash asli
         uint256 document_id; //ID document
+        string creator_id;
         address creator; //Pembuat Documents
         string metadata;
         string hash; //Hash akhir
@@ -59,7 +60,7 @@ contract Smartsign {
     //------ Signing Process ------//
     //Created Document
     function create(
-        string memory _file, address creator, 
+        string memory _file, address creator, string memory _creator_id, 
         string memory _metadata, string memory _hash, 
         string memory _ipfs, uint256 _state, bool _visibility, 
         uint256 _time, address[] memory _signers, string[] memory _signers_id
@@ -69,6 +70,7 @@ contract Smartsign {
         newDocument.document_id = documentCount;
         newDocument.file = byte_id;
         newDocument.creator = creator;
+        newDocument.creator_id = _creator_id;
         newDocument.metadata = _metadata;
         newDocument.hash = _hash;
         newDocument.ipfs = _ipfs;
@@ -90,13 +92,13 @@ contract Smartsign {
     //Get Document Data with Hash Original Files
     //Original hash document disimpan didalam file local
     function getDoc(string memory _file) public view returns(
-        uint256, address, string memory, string memory, 
+        uint256, address, string memory, string memory, string memory, 
         string memory, uint256, bool, uint256, uint256, bool
     ) {
         bytes32 byte_id = stringToBytes32(_file);
         Document storage temp = documents[byte_id];
         require(temp.exist == true, "Document not exist");
-        return(temp.document_id, temp.creator, 
+        return(temp.document_id, temp.creator, temp.creator_id, 
         temp.metadata, temp.hash, temp.ipfs, temp.state,
         temp.visibility, temp.createdtime, temp.completedtime, 
         temp.exist);
@@ -115,7 +117,7 @@ contract Smartsign {
     }
     //Signing Document dengan hash asli
     function signDoc(string memory _file, address _signers_id, string memory _signers_hash, string memory _ipfs, uint256 _time) public {
-        bytes32 byteFile = stringToBytes32(_file);
+        bytes32 byteFile = stringToBytes32(_file); //Hash Original
         Document storage signDocument = documents[byteFile];
         require(signDocument.exist == true, "Document not exist");
         require(signDocument.signers[_signers_id].sign_time > 1, "Document not exist");
