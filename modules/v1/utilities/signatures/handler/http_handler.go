@@ -81,6 +81,7 @@ func (h *signaturesHandler) SignDocuments(c *gin.Context) {
 	input.Hash = h.signaturesService.GenerateHashDocument(sign)
 	//Get Address Creator
 	input.Creator = fmt.Sprintf("%v", session.Get("public_key"))
+	input.Creator_id = fmt.Sprintf("%v", session.Get("sign"))
 	//Input to IPFS
 	err, input.IPFS = h.serviceUser.UploadIPFS(sign)
 	if err != nil {
@@ -142,12 +143,14 @@ func (h *signaturesHandler) InviteSignatures(c *gin.Context) {
 		log.Println(err)
 	}
 	DocData.Email = input.Email
+	DocData.Judul = input.Judul
 	DocData.Note = input.Note
 	//Generate hash document
 	DocData.Hash_original = h.signaturesService.GenerateHashDocument(path)
 	DocData.Hash = DocData.Hash_original
 	//Get Address Creator
 	DocData.Creator = fmt.Sprintf("%v", session.Get("public_key"))
+	DocData.Creator_id = fmt.Sprintf("%v", session.Get("sign"))
 	//Input to IPFS
 	err, DocData.IPFS = h.serviceUser.UploadIPFS(path)
 	if err != nil {

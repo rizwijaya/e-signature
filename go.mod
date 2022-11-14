@@ -5,11 +5,13 @@ go 1.16
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/ethereum/go-ethereum v1.10.21
+	github.com/fatih/structs v1.1.0
 	github.com/fogleman/gg v1.3.0 // indirect
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-contrib/multitemplate v0.0.0-20220323084503-710510e67c20
 	github.com/gin-contrib/sessions v0.0.5
 	github.com/gin-gonic/gin v1.7.7
+	github.com/go-playground/validator v9.31.0+incompatible // indirect
 	github.com/go-playground/validator/v10 v10.10.1
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/golobby/dotenv v1.3.1

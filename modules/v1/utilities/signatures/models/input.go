@@ -35,10 +35,12 @@ type SignDocuments struct {
 	Invite_sts    bool     `json:"invite_status" form:"invite_status"`
 	Email         []string `json:"email[]" form:"email[]"`
 	Note          string   `json:"note" form:"note"`
+	Judul         string   `json:"judul" form:"judul"`
 	IPFS          string
 	Hash          string
 	Hash_original string
 	Creator       string
+	Creator_id    string
 	//Metadata      string
 	Address     []common.Address
 	IdSignature []string
@@ -46,5 +48,6 @@ type SignDocuments struct {
 
 type InviteSignatures struct {
 	Email []string `json:"email[]" form:"email[]" binding:"required"`
+	Judul string   `json:"judul" form:"judul" binding:"required"`
 	Note  string   `json:"note" form:"note" binding:"required"`
 }

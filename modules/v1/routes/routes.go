@@ -27,6 +27,7 @@ func ParseTmpl(router *gin.Engine) *gin.Engine { //Load HTML Template
 	router.Static("/form/js", "./public/assets/form/js")
 	router.Static("/form/img", "./public/assets/form/img")
 	router.Static("/signatures", "./public/images/signatures")
+	router.Static("/file/documents", "./public/temp/pdfsign")
 
 	// router.Static("/dash", "./public/assets/dashboard")
 	// router.Static("/dashcustom", "./public/assets/dashboard/assets/css")
@@ -58,6 +59,9 @@ func Init(db *mongo.Database, conf config.Conf, router *gin.Engine) *gin.Engine 
 	signature.POST("/sign-documents", signaturesHandlerV1.SignDocuments)
 	signature.GET("/invite-signatures", signaturesViewV1.InviteSignatures)
 	signature.POST("/invite-signatures", signaturesHandlerV1.InviteSignatures)
+	signature.GET("/request-signatures", signaturesViewV1.RequestSignatures)
+	signature.GET("/document/:hash", signaturesViewV1.Document)
+
 	//user.GET("/list-signature", signaturesViewV1.ListSignature)
 	//signatures := router.Group("/", basic.Auth(conf))
 	//Routing API Service
