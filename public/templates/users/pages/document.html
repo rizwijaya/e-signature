@@ -1,0 +1,167 @@
+{{ define "content" }}
+
+<style>
+  .Sign-Img {
+    position: absolute !important;
+    display: inline-block;
+    outline: 2px dashed rgb(221, 221, 221);
+  }
+
+  .Sign-Img img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .Sign-bdr {
+    outline: none !important;
+  }
+</style>
+
+<style>
+  .hide_page {
+    display: none;
+  }
+
+  .step {
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .pagination-button:not(.disabled):hover {
+    background: #fff;
+  }
+</style>
+
+<!-- main -->
+<main id="main">
+  <section class="breadcrumbs">
+    <div class="container">
+      <ol>
+        <li><a href="/">Home</a></li>
+        <li>Document Signatures</li>
+      </ol>
+      <h2>Document Signatures</h2>
+    </div>
+  </section>
+  <!-- ======= Values Section ======= -->
+  <section id="values" class="values" style="padding: 30px 0 !important;">
+    <div class="container">
+      <form action="/sign-documents" method="POST" enctype="multipart/form-data" id="form-documents">
+        <div class="row ">
+          <!-- Section Changes --> 
+          <div class="container text-center" style="width: 60% !important;">
+            <div class="card"
+              style="border-radius: 15px;border: solid 1px blue;padding: 0.5rem;background-color: #F8F9FF;">
+              <div class="card-body">
+                <!-- PDF Viewer -->
+                <div class="row" style="position:relative;">
+                  <canvas id="PDFSign"></canvas>
+                  <div class="col-6 signing">
+                    <div style="position:absolute; top: 0; right:0">
+                      <i id="signBtn" class="btn btn-sm btn-primary"><a onclick="sign(1)">sign</a></i>
+                    </div>
+                  </div>
+                  <!-- Signature -->
+                  {{ if eq .signatures.Signature_selected "signature" }}
+                  <img src="/signatures/{{ .signatures.Signature }}" id="SignImg" class="hide_page Sign-Img-drag">
+                  {{ else if eq .signatures.Signature_selected "signature_data" }}
+                  <img src="/signatures/{{ .signatures.Signature_data }}" id="SignImg" class="hide_page Sign-Img-drag">
+                  {{ else if eq .signatures.Signature_selected "latin" }}
+                  <img src="/signatures/{{ .signatures.Latin }}" id="SignImg" class="hide_page Sign-Img-drag">
+                  {{ else if eq .signatures.Signature_selected "latin_data" }}
+                  <img src="/signatures/{{ .signatures.Latin_data }}" id="SignImg" class="hide_page Sign-Img-drag">
+                  {{ else }}
+                  <img src="/signatures/signatures/default.png" id="SignImg" class="hide_page Sign-Img-drag">
+                  {{ end }}
+                  <!-- End Signature -->
+                </div>
+                <!-- End PDF Viewer -->
+                <!-- Pagination PDF -->
+                <div class="row mx-auto mt-3">
+                  <ul class="pagination bottom justify-content-center" style="list-style: none; display: flex;">
+                    <li style="margin-right: 5px;" class="btn btn-primary disabled"><a onclick="prevPage()"><i
+                          class="material-icons">left</i></a></li>
+                    <li style="margin-right: 5px;" class="btn btn-primary active"><a
+                        onclick="renderingPage(doc, 1)">1</a></li>
+                    <li style="margin-right: 5px;" class="btn btn-primary disabled"><a onclick="nextPage()"><i
+                          class="material-icons">right</i></a></li>
+                  </ul>
+                </div>
+                <!-- End Pagination PDF -->
+                <input type="text" name="signPage" id="signPage" class="hide_page">
+                <input type="text" name="signX" id="signX" class="hide_page">
+                <input type="text" name="signY" id="signY" class="hide_page">
+                <input type="text" name="signH" id="signH" class="hide_page">
+                <input type="text" name="signW" id="signW" class="hide_page">
+                <input type="text" name="invite_status" id="invite_status" class="hide_page">
+              </div>
+            </div>
+          </div>
+          <!-- End Section Changes -->
+
+          <!-- Button submit --->
+          <div class="container mt-4 mb-4">
+            <div class="row">
+              <div class="col text-center">
+                <button class="btn btn-primary btn-sm" onclick="submitForm()" id="finish"
+                style="border-radius: 24px;background-color: #4154F1;padding-left: 2rem;padding-right: 2rem;">Selesai</button>
+              </div>
+            </div>
+          </div>
+          <!-- End Button submit --->
+        </div>
+      </form>
+    </div>
+  </section>
+  <!-- End Values Section -->
+  <!-- Data Kosong -->
+  <div class="modal" tabindex="-1" role="dialog" id="emptydata" style="display: none;">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Data Kosong!</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+            style="border: none; background-color: white;" onclick="exitEmpty()">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>Harap tambahkan data sebelum melanjutkan</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" onclick="exitEmpty()">Tambah</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End Data Kosong -->
+  <!-- Modal Konfirmasi Simpan Data -->
+  <div class="modal" tabindex="-1" role="dialog" id="submitform" style="display: none;">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Simpan Data</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+            style="border: none; background-color: white;" onclick="exitSubmit()">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>Apakah anda yakin ingin menyimpan data tanda tangan anda? Pastikan data yang anda simpan sudah benar</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" onclick="exitSubmit()">Tidak</button>
+          <button type="submit" id="submit" name="submit" class="btn btn-primary">Ya</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End Modal Konfirmasi Simpan Data -->
+</main>
+<!-- End main -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.min.js"
+  integrity="sha512-Z8CqofpIcnJN80feS2uccz+pXWgZzeKxDsDNMD/dJ6997/LSRY+W4NmEt9acwR+Gt9OHN0kkI1CTianCwoqcjQ=="
+  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="/landing/js/readerPDF_request.js"></script>
+<!-- End main -->
+{{ end }}
