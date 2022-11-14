@@ -4,6 +4,7 @@ import (
 	api "e-signature/app/contracts"
 	"e-signature/modules/v1/utilities/user/repository"
 	"e-signature/modules/v1/utilities/user/service"
+	error "e-signature/pkg/http-error"
 	notif "e-signature/pkg/notification"
 	"fmt"
 	"net/http"
@@ -71,9 +72,17 @@ func (h *userView) Dashboard(c *gin.Context) {
 
 func (h *userView) Register(c *gin.Context) {
 	title := "Pendaftaran - SmartSign"
+	out := []error.Form{
+		{
+			Field:   "no field",
+			Message: "invalid input",
+		},
+	}
+
 	c.HTML(http.StatusOK, "register.html",
 		gin.H{
-			"title": title,
+			"title":    title,
+			"errorVal": out,
 		},
 	)
 
@@ -85,10 +94,17 @@ func (h *userView) Register(c *gin.Context) {
 func (h *userView) Login(c *gin.Context) {
 	title := "Masuk - SmartSign"
 	fm, _ := notif.GetMessage(c.Writer, c.Request, "registered")
+	out := []error.Form{
+		{
+			Field:   "no field",
+			Message: "invalid input",
+		},
+	}
 	if fm == nil {
 		c.HTML(http.StatusOK, "login.html",
 			gin.H{
-				"title": title,
+				"title":    title,
+				"errorVal": out,
 			},
 		)
 		return
@@ -96,6 +112,7 @@ func (h *userView) Login(c *gin.Context) {
 	c.HTML(http.StatusOK, "login.html",
 		gin.H{
 			"title":      title,
+			"errorVal":   out,
 			"registered": fmt.Sprintf("%s", fm),
 		},
 	)

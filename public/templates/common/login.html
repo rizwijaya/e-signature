@@ -78,6 +78,11 @@
                                 <label for="idsignature" class="form-label">ID Signature</label>
                                 <input type="text" class="form-control" id="idsignature" name="idsignature"
                                     placeholder="Masukan id signature" autofocus />
+                                {{ range $formErr := .errorVal }}
+                                    {{ if (eq $formErr.Field "IdSignature") }}  
+                                        <p class="mt-1" style="color: red; font-size: 1vw;">{{ $formErr.Message }}</p>
+                                    {{ end }}
+                                {{ end }}
                             </div>
                             <div class="mb-3 form-password-toggle">
                                 <div class="d-flex justify-content-between">
@@ -92,6 +97,11 @@
                                         aria-describedby="password" />
                                     <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
                                 </div>
+                                {{ range $formErr := .errorVal }}
+                                    {{ if (eq $formErr.Field "Password") }}  
+                                    <p class="mt-1" style="color: red; font-size: 1vw;">{{ $formErr.Message }}</p>
+                                    {{ end }}
+                                {{ end }}
                             </div>
                             <div class="mb-3">
                                 <div class="form-check">

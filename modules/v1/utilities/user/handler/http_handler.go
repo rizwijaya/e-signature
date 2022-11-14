@@ -3,7 +3,9 @@ package user
 import (
 	"e-signature/app/config"
 	"e-signature/modules/v1/utilities/user/models"
+	error "e-signature/pkg/http-error"
 	notif "e-signature/pkg/notification"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -11,6 +13,7 @@ import (
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 )
 
 func (h *userHandler) Login(c *gin.Context) {
@@ -19,19 +22,36 @@ func (h *userHandler) Login(c *gin.Context) {
 	var input models.LoginInput
 	err := c.ShouldBind(&input)
 	if err != nil {
-		log.Println(err)
-		c.HTML(http.StatusOK, "login.html", gin.H{
-			"title":   "Login - SmartSign",
-			"message": "ID Signature/Password salah!",
-		})
+		var verr validator.ValidationErrors
+		if errors.As(err, &verr) {
+			log.Println(err)
+			out := make([]error.Form, len(verr))
+			for i, fe := range verr {
+				out[i] = error.Form{
+					Field:   fe.Field(),
+					Message: error.FormValidationError(fe),
+				}
+			}
+			c.HTML(http.StatusOK, "login.html", gin.H{
+				"title":    "Login - SmartSign",
+				"errorVal": out,
+				"message":  "ID Signature/Password salah!",
+			})
+		}
 		return
 	}
-
+	out := []error.Form{
+		{
+			Field:   "no field",
+			Message: "invalid input",
+		},
+	}
 	user, err := h.userService.Login(input)
 	if err != nil {
 		c.HTML(http.StatusOK, "login.html", gin.H{
-			"title":   "Login - SmartSign",
-			"message": "ID Signature/Password salah!",
+			"title":    "Login - SmartSign",
+			"errorVal": out,
+			"message":  "ID Signature/Password salah!",
 		})
 		return
 	}
@@ -85,21 +105,38 @@ func (h *userHandler) Register(c *gin.Context) {
 	//Input Validation
 	err := c.ShouldBind(&input)
 	if err != nil {
-		log.Println(err)
-		c.HTML(http.StatusOK, "register.html", gin.H{
-			"title": "pendaftaran - SmartSign",
-			//"message": err.Error(),
-			"message": "Harap masukan input dengan benar.",
-		})
+		var verr validator.ValidationErrors
+		if errors.As(err, &verr) {
+			log.Println(err)
+			out := make([]error.Form, len(verr))
+			for i, fe := range verr {
+				out[i] = error.Form{
+					Field:   fe.Field(),
+					Message: error.FormValidationError(fe),
+				}
+			}
+			c.HTML(http.StatusOK, "register.html", gin.H{
+				"title":    "pendaftaran - SmartSign",
+				"errorVal": out,
+				"message":  "Harap masukan input dengan benar.",
+			})
+		}
 		return
+	}
+	out := []error.Form{
+		{
+			Field:   "no field",
+			Message: "invalid input",
+		},
 	}
 
 	//Check if user already exist
 	id, _ := h.userService.CheckUserExist(input.IdSignature)
 	if id == "exist" {
 		c.HTML(http.StatusOK, "register.html", gin.H{
-			"title":   "Register - SmartSign",
-			"message": "ID Signature sudah terdaftar.",
+			"title":    "Register - SmartSign",
+			"errorVal": out,
+			"message":  "ID Signature sudah terdaftar.",
 		})
 		return
 	}
@@ -107,26 +144,31 @@ func (h *userHandler) Register(c *gin.Context) {
 	email, _ := h.userService.CheckEmailExist(input.Email)
 	if email == "exist" {
 		c.HTML(http.StatusOK, "register.html", gin.H{
-			"title":   "Register - SmartSign",
-			"message": "Email sudah terdaftar.",
+			"title":    "Register - SmartSign",
+			"errorVal": out,
+			"message":  "Email sudah terdaftar.",
 		})
 		return
 	}
-
+	location, err := time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		log.Println(err)
+	}
 	user.Idsignature = input.IdSignature
 	user.Name = input.Name
 	user.Password = input.Password
 	user.Role = 2 //Role User
 	user.Email = input.Email
 	user.Phone = input.Phone
-	user.Dateregistered = time.Now().String()
+	user.Dateregistered = time.Now().In(location).String()
 	//Binding File
 	file, err := c.FormFile("file")
 	if err != nil {
 		log.Println(err)
 		c.HTML(http.StatusOK, "register.html", gin.H{
-			"title":   "Register - SmartSign",
-			"message": "Terjadi kesalahan, harap hubungi administrator.",
+			"title":    "Register - SmartSign",
+			"errorVal": out,
+			"message":  "Terjadi kesalahan, harap hubungi administrator.",
 		})
 		return
 	}
@@ -136,8 +178,9 @@ func (h *userHandler) Register(c *gin.Context) {
 	if err != nil {
 		log.Println(err)
 		c.HTML(http.StatusOK, "register.html", gin.H{
-			"title":   "Register - SmartSign",
-			"message": "Terjadi kesalahan, harap hubungi administrator.",
+			"title":    "Register - SmartSign",
+			"errorVal": out,
+			"message":  "Terjadi kesalahan, harap hubungi administrator.",
 		})
 		return
 	}
@@ -148,8 +191,9 @@ func (h *userHandler) Register(c *gin.Context) {
 	idn, err := h.userService.CreateAccount(user)
 	if err != nil {
 		c.HTML(http.StatusOK, "register.html", gin.H{
-			"title":   "Register - SmartSign",
-			"message": "Terjadi kesalahan, harap hubungi administrator.",
+			"title":    "Register - SmartSign",
+			"errorVal": out,
+			"message":  "Terjadi kesalahan, harap hubungi administrator.",
 		})
 		return
 	}
@@ -161,8 +205,9 @@ func (h *userHandler) Register(c *gin.Context) {
 	err = h.signatureService.DefaultSignatures(user, idn)
 	if err != nil {
 		c.HTML(http.StatusOK, "register.html", gin.H{
-			"title":   "Register - SmartSign",
-			"message": "Terjadi kesalahan, harap hubungi administrator.",
+			"title":    "Register - SmartSign",
+			"errorVal": out,
+			"message":  "Terjadi kesalahan, harap hubungi administrator.",
 		})
 		return
 	}

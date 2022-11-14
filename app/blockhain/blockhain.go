@@ -81,6 +81,10 @@ func Init(conf config.Conf) (*api.Api, *ethclient.Client) {
 	fmt.Println("tx : ", tx.Hash().Hex())
 
 	db := database.Init(conf)
+	location, err := time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		log.Fatal(err)
+	}
 	ctx := context.TODO()
 	trans := models.Transac{
 		Id:           primitive.NewObjectID(),
@@ -88,7 +92,7 @@ func Init(conf config.Conf) (*api.Api, *ethclient.Client) {
 		Tx_hash:      fmt.Sprintf("%v", tx.Hash().Hex()),
 		Nonce:        auth.Nonce.String(),
 		Description:  "Membuat Kontrak",
-		Date_created: time.Now(),
+		Date_created: time.Now().In(location),
 	}
 	c := db.Collection("transactions")
 	_, err = c.InsertOne(ctx, &trans)

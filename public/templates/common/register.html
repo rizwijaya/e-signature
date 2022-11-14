@@ -69,21 +69,41 @@
                                         <label for="idsignature" class="form-label">ID Signature</label>
                                         <input type="text" class="form-control" id="idsignature" name="idsignature"
                                             placeholder="Masukan id signature" autofocus required />
+                                        {{ range $formErr := .errorVal }}
+                                            {{ if (eq $formErr.Field "IdSignature") }}  
+                                            <p class="mt-1" style="color: red; font-size: 1vw;">{{ $formErr.Message }}</p>
+                                            {{ end }}
+                                        {{ end }}
                                     </div>
                                     <div class="mb-3">
                                         <label for="name" class="form-label">Nama</label>
                                         <input type="text" class="form-control" id="name" name="name"
                                             placeholder="Masukan nama" autofocus required />
+                                        {{ range $formErr := .errorVal }}
+                                            {{ if (eq $formErr.Field "Name") }}  
+                                            <p class="mt-1" style="color: red; font-size: 1vw;">{{ $formErr.Message }}</p>
+                                            {{ end }}
+                                        {{ end }}
                                     </div>
                                     <div class="mb-3">
                                         <label for="email" class="form-label">Email</label>
                                         <input type="email" class="form-control" id="email" name="email"
                                             placeholder="Masukan email" autofocus required />
+                                        {{ range $formErr := .errorVal }}
+                                            {{ if (eq $formErr.Field "Email") }}  
+                                            <p class="mt-1" style="color: red; font-size: 1vw;">{{ $formErr.Message }}</p>
+                                            {{ end }}
+                                        {{ end }}
                                     </div>
                                     <div class="mb-3">
                                         <label for="phone" class="form-label">Nomor</label>
                                         <input type="text" class="form-control" id="phone" name="phone"
                                             placeholder="Masukan nomor hp" autofocus required />
+                                        {{ range $formErr := .errorVal }}
+                                            {{ if (eq $formErr.Field "Phone") }}  
+                                            <p class="mt-1" style="color: red; font-size: 1vw;">{{ $formErr.Message }}</p>
+                                            {{ end }}
+                                        {{ end }}
                                     </div>
                                 </div>
                                 <div class="col-6">
@@ -93,6 +113,11 @@
                                             <span class="drop-zone__prompt">Masukan kartu identitas</span>
                                             <input type="file" name="file" id="file" class="drop-zone__input" required>
                                         </div>
+                                        {{ range $formErr := .errorVal }}
+                                        {{ if (eq $formErr.Field "File") }}  
+                                        <p class="mt-1" style="color: red; font-size: 1vw;">{{ $formErr.Message }}</p>
+                                        {{ end }}
+                                        {{ end }}
                                     </div>
                                     <div class="mb-3 form-password-toggle">
                                         <div class="d-flex justify-content-between">
@@ -105,6 +130,11 @@
                                             <span class="input-group-text cursor-pointer"><i
                                                     class="bx bx-hide"></i></span>
                                         </div>
+                                        {{ range $formErr := .errorVal }}
+                                        {{ if (eq $formErr.Field "Password") }}  
+                                        <p class="mt-1" style="color: red; font-size: 1vw;">{{ $formErr.Message }}</p>
+                                        {{ end }}
+                                        {{ end }}
                                     </div>
                                     <div class="mb-3 form-password-toggle">
                                         <div class="d-flex justify-content-between">
@@ -117,6 +147,11 @@
                                             <span class="input-group-text cursor-pointer"><i
                                                     class="bx bx-hide"></i></span>
                                         </div>
+                                        {{ range $formErr := .errorVal }}
+                                        {{ if (eq $formErr.Field "CPassword") }}  
+                                        <p class="mt-1" style="color: red; font-size: 1vw;">{{ $formErr.Message }}</p>
+                                        {{ end }}
+                                        {{ end }}
                                     </div>
                                 </div>
                             </div>

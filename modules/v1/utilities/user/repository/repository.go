@@ -147,6 +147,11 @@ func (r *repository) GeneratePublicKey(user models.User) (models.User, error) {
 // 	return nil
 // }
 func (r *repository) Register(user models.User) (interface{}, error) {
+	location, err := time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
 	user.Id = primitive.NewObjectID()
 	profile := models.ProfileDB{
 		Id:            user.Id,
@@ -158,7 +163,7 @@ func (r *repository) Register(user models.User) (interface{}, error) {
 		Password:      user.PasswordHash,
 		PublicKey:     user.Publickey,
 		Role_id:       user.Role,
-		Date_created:  time.Now(),
+		Date_created:  time.Now().In(location),
 	}
 	c := r.db.Collection("users")
 	id, err := c.InsertOne(context.Background(), &profile)
@@ -254,7 +259,11 @@ func (r *repository) TransferBalance(user models.ProfileDB) error {
 	if err != nil {
 		return err
 	}
-
+	location, err := time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
 	ctx := context.TODO()
 	trans := models.Transac{
 		Id:           primitive.NewObjectID(),
@@ -262,7 +271,7 @@ func (r *repository) TransferBalance(user models.ProfileDB) error {
 		Tx_hash:      fmt.Sprintf("%v", txs.Hash().Hex()),
 		Nonce:        big.NewInt(int64(nonce)).String(),
 		Description:  "Kirim Ether kepada user +",
-		Date_created: time.Now(),
+		Date_created: time.Now().In(location),
 	}
 	c := r.db.Collection("transactions")
 	_, err = c.InsertOne(ctx, &trans)
