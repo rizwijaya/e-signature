@@ -9,6 +9,29 @@ var sign_w = 0;
 var sign_page = 1;
 var sign_status = false;
 var curPage;
+var signPage = document.getElementById("signPage");
+var signX = document.getElementById("signX");
+var signY = document.getElementById("signY");
+var signH = document.getElementById("signH");
+var signW = document.getElementById("signW");
+
+function submitForm() {
+  submitform.style.display = "block";
+}
+
+function exitSubmit() {
+  submitform.style.display = "none";
+}
+
+function exitEmpty() {
+  emptydata.style.display = "none";
+}
+
+$('#submit').click(function(){
+  submitform.style.display = "none";
+  $('#form-documents').submit();
+})
+
 function sign(klik) {
   if (klik == 1) {
     //IF Button Click to Signing
@@ -62,6 +85,12 @@ function sign(klik) {
     sign_status = true;
     sign_page = curPage;
     window.applySignPosition();
+    signPage.value = sign_page;
+    signX.value = sign_x;
+    signY.value = sign_y;
+    signH.value = sign_h;
+    signW.value = sign_w;
+    console.log(signX.value, signY.value, signH.value, signW.value);
   } else if (klik == 4) {
     //IF Button Edit
     //Changing button to sign
@@ -180,7 +209,7 @@ function renderingPage(pdf, pageNumber) {
 }
 
 window.onload = function () {
-  var url = "/file/documents/sample.pdf";
+  var url = ["/file/documents/",filePdf].join('');
   //read pdf in server side
   pdfjsLib
     .getDocument(url)

@@ -46,7 +46,7 @@
   <!-- ======= Values Section ======= -->
   <section id="values" class="values" style="padding: 30px 0 !important;">
     <div class="container">
-      <form action="/sign-documents" method="POST" enctype="multipart/form-data" id="form-documents">
+      <form action="/document/{{ .hash }}" method="POST" enctype="multipart/form-data" id="form-documents">
         <div class="row ">
           <!-- Section Changes --> 
           <div class="container text-center" style="width: 60% !important;">
@@ -93,7 +93,6 @@
                 <input type="text" name="signY" id="signY" class="hide_page">
                 <input type="text" name="signH" id="signH" class="hide_page">
                 <input type="text" name="signW" id="signW" class="hide_page">
-                <input type="text" name="invite_status" id="invite_status" class="hide_page">
               </div>
             </div>
           </div>
@@ -162,6 +161,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.min.js"
   integrity="sha512-Z8CqofpIcnJN80feS2uccz+pXWgZzeKxDsDNMD/dJ6997/LSRY+W4NmEt9acwR+Gt9OHN0kkI1CTianCwoqcjQ=="
   crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+  var filePdf = '{{ .file }}';
+  //var filePdf = 'signed_Rundown Acara KULTAM 2021_2.pdf'
+</script>
 <script src="/landing/js/readerPDF_request.js"></script>
 <!-- End main -->
 {{ end }}

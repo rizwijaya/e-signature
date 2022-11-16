@@ -1,9 +1,12 @@
 package view
 
 import (
+	"e-signature/app/config"
 	api "e-signature/app/contracts"
 	"e-signature/modules/v1/utilities/signatures/repository"
 	"e-signature/modules/v1/utilities/signatures/service"
+	repoUser "e-signature/modules/v1/utilities/user/repository"
+	serviceUser "e-signature/modules/v1/utilities/user/service"
 	"fmt"
 	"log"
 	"net/http"
@@ -16,16 +19,21 @@ import (
 
 type signaturesView struct {
 	signaturesService service.Service
+	serviceUser       serviceUser.Service
 }
 
-func NewSignaturesView(signaturesService service.Service) *signaturesView {
-	return &signaturesView{signaturesService}
+func NewSignaturesView(signaturesService service.Service, userService serviceUser.Service) *signaturesView {
+	return &signaturesView{signaturesService, userService}
 }
 
 func View(db *mongo.Database, blockhain *api.Api, client *ethclient.Client) *signaturesView {
+	//Signatures
 	Repository := repository.NewRepository(db, blockhain, client)
 	Service := service.NewService(Repository)
-	return NewSignaturesView(Service)
+	//User
+	RepoUser := repoUser.NewRepository(db, blockhain, client)
+	serviceUser := serviceUser.NewService(RepoUser)
+	return NewSignaturesView(Service, serviceUser)
 }
 
 func (h *signaturesView) Index(c *gin.Context) {
@@ -74,10 +82,39 @@ func (h *signaturesView) RequestSignatures(c *gin.Context) {
 	session := sessions.Default(c)
 	title := "Signature Request - SmartSign"
 	listDocument := h.signaturesService.GetListDocument(fmt.Sprintf("%v", session.Get("public_key")))
+	//Kurang file apabila sudah signing maka tidak usah ditampilkan
 	c.HTML(http.StatusOK, "request_signatures.html", gin.H{
 		"title":     title,
 		"user":      session.Get("id"),
 		"name":      session.Get("name"),
 		"documents": listDocument,
+	})
+}
+
+func (h *signaturesView) Document(c *gin.Context) {
+	conf, _ := config.Init()
+	session := sessions.Default(c)
+	hash := c.Param("hash")
+	title := "Signature Document - SmartSign"
+	getSignature, err := h.signaturesService.GetMySignature(fmt.Sprintf("%v", session.Get("sign")), fmt.Sprintf("%v", session.Get("id")), fmt.Sprintf("%v", session.Get("name")))
+	if err != nil {
+		log.Println(err)
+		c.Redirect(http.StatusMovedPermanently, "/request-signatures")
+	}
+	getDocument := h.signaturesService.GetDocument(hash, fmt.Sprintf("%v", session.Get("public_key")))
+	getDocIPFS := string(h.serviceUser.Decrypt([]byte(getDocument.IPFS), conf.App.Secret_key))
+	directory := "./public/temp/pdfsign/"
+	_, err = h.serviceUser.GetFileIPFS(getDocIPFS, getDocument.Hash_ori+".pdf", directory)
+	if err != nil {
+		log.Println(err)
+		c.Redirect(http.StatusMovedPermanently, "/request-signatures")
+	}
+	//fmt.Println(dir)
+	c.HTML(http.StatusOK, "document.html", gin.H{
+		"title":      title,
+		"user":       session.Get("id"),
+		"signatures": getSignature,
+		"hash":       hash,
+		"file":       getDocument.Hash_ori + ".pdf",
 	})
 }

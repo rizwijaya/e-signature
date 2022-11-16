@@ -32,6 +32,7 @@ type Repository interface {
 	DocumentSigned(sign models.SignDocs, timeSign *big.Int) error
 	ListDocumentNoSign(publickey string) []models.ListDocument
 	GetDocument(hash string, publickey string) models.DocumentBlockchain
+	GetSigners(hash string, publickey string) models.Signers
 }
 
 type repository struct {
@@ -184,6 +185,7 @@ func (r *repository) AddUserDocs(input models.SignDocuments) error {
 		signedDocuments := struct {
 			Id           primitive.ObjectID `bson:"_id,omitempty"`
 			Address      string             `bson:"address"`
+			Hash_Ori     string             `bson:"hash_ori"`
 			Hash         string             `bson:"hash"`
 			Judul        string             `bson:"judul"`
 			Note         string             `bson:"note"`
@@ -191,6 +193,7 @@ func (r *repository) AddUserDocs(input models.SignDocuments) error {
 		}{
 			Id:           primitive.NewObjectID(),
 			Address:      v.String(),
+			Hash_Ori:     input.Hash_original,
 			Hash:         input.Hash,
 			Judul:        input.Judul,
 			Note:         input.Note,
@@ -238,7 +241,7 @@ func (r *repository) GetDocument(hash string, publickey string) models.DocumentB
 	var doc models.DocumentBlockchain
 	var err error
 	var document_id, state, Createdtime, Completedtime *big.Int
-	document_id, doc.Creator, doc.Creator_id, doc.Metadata, doc.Hash, doc.IPFS, state, doc.Visibility, Createdtime, Completedtime, doc.Exist, err = r.blockchain.GetDoc(&bind.CallOpts{From: common.HexToAddress(publickey)}, hash)
+	document_id, doc.Creator, doc.Creator_id, doc.Metadata, doc.Hash_ori, doc.Hash, doc.IPFS, state, doc.Visibility, Createdtime, Completedtime, doc.Exist, err = r.blockchain.GetDoc(&bind.CallOpts{From: common.HexToAddress(publickey)}, hash)
 	if err != nil {
 		log.Println("Error Get Document")
 	}
@@ -248,4 +251,18 @@ func (r *repository) GetDocument(hash string, publickey string) models.DocumentB
 	doc.Completedtime = Completedtime.String()
 
 	return doc
+}
+
+func (r *repository) GetSigners(hash string, publickey string) models.Signers {
+	var signers models.Signers
+	var err error
+	var sign_id, sign_time *big.Int
+	sign_id, signers.Signers_id, signers.Signers_hash, signers.Signers_state, sign_time, err = r.blockchain.GetSign(&bind.CallOpts{From: common.HexToAddress(publickey)}, hash, common.HexToAddress(publickey))
+	if err != nil {
+		log.Println("Error Get Signers")
+	}
+	signers.Sign_id = sign_id.String()
+	signers.Sign_time = sign_time.String()
+
+	return signers
 }

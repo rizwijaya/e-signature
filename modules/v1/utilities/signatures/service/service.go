@@ -41,6 +41,7 @@ type Service interface {
 	AddUserDocs(input models.SignDocuments) error
 	DocumentSigned(sign models.SignDocs) error
 	GetListDocument(publickey string) []models.ListDocument
+	GetDocument(hash string, publickey string) models.DocumentBlockchain
 }
 
 type service struct {
@@ -284,7 +285,7 @@ func (s *service) SignDocuments(imgpath string, input models.SignDocuments) stri
 		log.Println(err)
 		return ""
 	}
-	inputPath := fmt.Sprintf("./public/temp/%s", input.Name)
+	inputPath := fmt.Sprintf("./public/temp/pdfsign/%s", input.Name)
 	// Read the input pdf file.
 	f, err := os.Open(inputPath)
 	if err != nil {
@@ -329,7 +330,7 @@ func (s *service) SignDocuments(imgpath string, input models.SignDocuments) stri
 			}
 		}
 	}
-	inputPath2 := fmt.Sprintf("./public/temp/signed_%s", input.Name)
+	inputPath2 := fmt.Sprintf("./public/temp/pdfsign/signed_%s", input.Name)
 	err = c.WriteToFile(inputPath2)
 	if err != nil {
 		log.Println(err)
@@ -366,6 +367,8 @@ func calcImagePos(img *creator.Image, page *model.PdfPage, input models.SignDocu
 }
 
 func (s *service) InvitePeople(email []string) error {
+	// Email : smartsign@rizwijaya.com
+	// Password : rizwijaya123#smartsign
 	// const CONFIG_SMTP_HOST = "smtp.gmail.com"
 	// const CONFIG_SMTP_PORT = 587
 	// const CONFIG_SENDER_NAME = "PT. Telkom Indonesia <contact@tamaska.id>"
@@ -437,9 +440,15 @@ func (s *service) GetListDocument(publickey string) []models.ListDocument {
 	listDoc := s.repository.ListDocumentNoSign(publickey)
 	for i := range listDoc {
 		listDoc[i].Date_created_WIB = TanggalJam(listDoc[i].Date_created)
-		listDoc[i].Documents = s.repository.GetDocument(listDoc[i].Hash, publickey)
-		//fmt.Println(listDoc[i].Documents)
+		listDoc[i].Documents = s.repository.GetDocument(listDoc[i].Hash_original, publickey)
+		listDoc[i].Documents.Signers = s.repository.GetSigners(listDoc[i].Hash_original, publickey)
 	}
 	// fmt.Println(publickey)
 	return listDoc
+}
+
+func (s *service) GetDocument(hash string, publickey string) models.DocumentBlockchain {
+	doc := s.repository.GetDocument(hash, publickey)
+	doc.Signers = s.repository.GetSigners(hash, publickey)
+	return doc
 }

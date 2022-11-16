@@ -25,7 +25,7 @@ import (
 type Service interface {
 	ConnectIPFS() *shell.Shell
 	UploadIPFS(path string) (error, string)
-	GetFileIPFS(hash string, output string) (string, error)
+	GetFileIPFS(hash string, output string, directory string) (string, error)
 	Login(input models.LoginInput) (models.ProfileDB, error)
 	CreateAccount(user models.User) (string, error)
 	//SaveImage(input models.RegisterUserInput, file *multipart.FileHeader) (string, error)
@@ -82,9 +82,9 @@ func (s *service) UploadIPFS(path string) (error, string) {
 	return nil, cid
 }
 
-func (s *service) GetFileIPFS(hash string, output string) (string, error) {
+func (s *service) GetFileIPFS(hash string, output string, directory string) (string, error) {
 	sh := s.ConnectIPFS()
-	outputName := "./public/images/" + output
+	outputName := directory + output
 	err := sh.Get(hash, outputName)
 	if err != nil {
 		log.Println(err)
