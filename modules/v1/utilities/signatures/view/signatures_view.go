@@ -82,7 +82,7 @@ func (h *signaturesView) RequestSignatures(c *gin.Context) {
 	session := sessions.Default(c)
 	title := "Signature Request - SmartSign"
 	listDocument := h.signaturesService.GetListDocument(fmt.Sprintf("%v", session.Get("public_key")))
-	//Kurang file apabila sudah signing maka tidak usah ditampilkan
+
 	c.HTML(http.StatusOK, "request_signatures.html", gin.H{
 		"title":     title,
 		"user":      session.Get("id"),

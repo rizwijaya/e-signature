@@ -6,6 +6,7 @@ import (
 	api "e-signature/pkg/api_response"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/gin-contrib/sessions"
@@ -84,6 +85,11 @@ func (h *signaturesHandler) SignDocuments(c *gin.Context) {
 	input.Hash = input.Hash_original
 	//Input to IPFS
 	err, IPFS := h.serviceUser.UploadIPFS(sign)
+	if err != nil {
+		log.Println(err)
+	}
+	//Delete file uploaded sign
+	err = os.Remove(path)
 	if err != nil {
 		log.Println(err)
 	}
@@ -207,7 +213,6 @@ func (h *signaturesHandler) Document(c *gin.Context) {
 	signDocs.Hash = input.Hash
 	signDocs.IPFS = input.IPFS
 	h.signaturesService.DocumentSigned(signDocs)
-	fmt.Println(input) //Debug tahap 1
 	c.Redirect(302, "/request-signatures")
 }
 
