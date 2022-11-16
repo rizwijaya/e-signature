@@ -175,3 +175,52 @@ func (h *signaturesHandler) InviteSignatures(c *gin.Context) {
 	}
 	c.Redirect(302, "/invite-signatures")
 }
+
+func (h *signaturesHandler) Document(c *gin.Context) {
+	var input models.SignDocuments
+	var signDocs models.SignDocs
+	conf, _ := config.Init()
+	session := sessions.Default(c)
+	//Input Mapping
+	err := c.ShouldBind(&input)
+	if err != nil {
+		log.Println(err)
+	}
+	input.Hash_original = c.Param("hash")
+	input.Name = input.Hash_original + ".pdf"
+	//Get Images signatures
+	mysignatures, _ := h.signaturesService.GetMySignature(fmt.Sprintf("%v", session.Get("sign")), fmt.Sprintf("%v", session.Get("id")), fmt.Sprintf("%v", session.Get("name")))
+	//Resize Images Signatures
+	img := h.signaturesService.ResizeImages(mysignatures, input)
+	//Signing Document to PDF
+	signing := h.signaturesService.SignDocuments(img, input)
+	//Generate Hash Document Signed and Upload to IPFS
+	input.Hash = h.signaturesService.GenerateHashDocument(signing)
+	err, input.IPFS = h.serviceUser.UploadIPFS(signing)
+	if err != nil {
+		log.Println(err)
+	}
+	input.IPFS = string(h.serviceUser.Encrypt([]byte(input.IPFS), conf.App.Secret_key))
+	//Signing Documents in Blockchain
+	signDocs.Hash_original = input.Hash_original
+	signDocs.Creator = fmt.Sprintf("%v", session.Get("public_key"))
+	signDocs.Hash = input.Hash
+	signDocs.IPFS = input.IPFS
+	h.signaturesService.DocumentSigned(signDocs)
+	fmt.Println(input) //Debug tahap 1
+	c.Redirect(302, "/request-signatures")
+}
+
+//----- Get Documents and Signatures -----//
+func (h *signaturesHandler) GetDocs(c *gin.Context) {
+	session := sessions.Default(c)
+	hash := c.Param("hash")
+	id := c.Param("id")
+	if id == "" {
+		id = fmt.Sprintf("%v", session.Get("id"))
+	}
+	fmt.Println(hash)
+	docs := h.signaturesService.GetDocument(hash, id)
+	fmt.Println(docs)
+	c.JSON(200, docs)
+}
