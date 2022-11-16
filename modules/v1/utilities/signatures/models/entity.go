@@ -45,6 +45,7 @@ type ListDocument struct {
 	Id               primitive.ObjectID `bson:"_id"`
 	Address          string             `bson:"address"`
 	Hash             string             `bson:"hash"`
+	Hash_original    string             `bson:"hash_ori"`
 	Judul            string             `bson:"judul"`
 	Note             string             `bson:"note"`
 	Date_created     time.Time          `bson:"date_created"`
@@ -57,6 +58,7 @@ type DocumentBlockchain struct {
 	Creator       common.Address
 	Creator_id    string
 	Metadata      string
+	Hash_ori      string
 	Hash          string
 	IPFS          string
 	State         string
@@ -64,4 +66,14 @@ type DocumentBlockchain struct {
 	Createdtime   string
 	Completedtime string
 	Exist         bool
+	Signers       Signers
+}
+
+type Signers struct {
+	Sign_addr     common.Address
+	Sign_id       string
+	Signers_id    string
+	Signers_hash  string
+	Signers_state bool
+	Sign_time     string
 }

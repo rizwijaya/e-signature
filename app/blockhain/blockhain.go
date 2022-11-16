@@ -68,8 +68,9 @@ func Connect() *ethclient.Client {
 
 func Init(conf config.Conf) (*api.Api, *ethclient.Client) {
 	client := Connect()
-	auth := GetAccountAuth(client, conf.Blockhain.Secret_key)
 
+	//---------------Uncomment For New Deploy Smart Contract----------//
+	auth := GetAccountAuth(client, conf.Blockhain.Secret_key)
 	address, tx, _, err := api.DeployApi(auth, client)
 	if err != nil {
 		//log.Fatal("Error Deploy API")
@@ -99,7 +100,8 @@ func Init(conf config.Conf) (*api.Api, *ethclient.Client) {
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	//------------End Uncomment For New Deploy Smart Contract----------//
+	//address := common.HexToAddress("0x8101c772c3af62bb3096b5dd9dfd9b53cd50652e")
 	conn, err := api.NewApi(common.HexToAddress(address.Hex()), client)
 	if err != nil {
 		log.Fatal("Error Create New API")

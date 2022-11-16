@@ -64,35 +64,35 @@ func (h *signaturesHandler) SignDocuments(c *gin.Context) {
 		log.Println(err)
 	}
 	input.Name = file.Filename
-	//Saving Image to Directory
-	path := fmt.Sprintf("./public/temp/%s", input.Name)
+	//Saving Document to Directory
+	path := fmt.Sprintf("./public/temp/pdfsign/%s", input.Name)
 	err = c.SaveUploadedFile(file, path)
 	if err != nil {
 		log.Println(err)
 	}
+	//Generate hash document original
+	input.Hash_original = h.signaturesService.GenerateHashDocument(path)
+	//Get Address Creator
+	input.Creator = fmt.Sprintf("%v", session.Get("public_key"))
+	input.Creator_id = fmt.Sprintf("%v", session.Get("sign"))
 	//Get Images signatures
 	mysignatures, _ := h.signaturesService.GetMySignature(fmt.Sprintf("%v", session.Get("sign")), fmt.Sprintf("%v", session.Get("id")), fmt.Sprintf("%v", session.Get("name")))
 	//Resize Images Signatures
 	img := h.signaturesService.ResizeImages(mysignatures, input)
 	//Signing Documents to PDF
 	sign := h.signaturesService.SignDocuments(img, input)
-	//Generate hash document
-	input.Hash_original = h.signaturesService.GenerateHashDocument(path)
-	input.Hash = h.signaturesService.GenerateHashDocument(sign)
-	//Get Address Creator
-	input.Creator = fmt.Sprintf("%v", session.Get("public_key"))
-	input.Creator_id = fmt.Sprintf("%v", session.Get("sign"))
+	input.Hash = input.Hash_original
 	//Input to IPFS
-	err, input.IPFS = h.serviceUser.UploadIPFS(sign)
+	err, IPFS := h.serviceUser.UploadIPFS(sign)
 	if err != nil {
 		log.Println(err)
 	}
 	//Encript IPFS and Get Signatures Data
-	input.IPFS = string(h.serviceUser.Encrypt([]byte(input.IPFS), conf.App.Secret_key))
+	input.IPFS = string(h.serviceUser.Encrypt([]byte(IPFS), conf.App.Secret_key))
 	input.Address, input.IdSignature = h.serviceUser.GetPublicKey(input.Email)
 	//Add Creator for signatures
 	input.Address = append(input.Address, common.HexToAddress(input.Creator))
-	input.IdSignature = append(input.IdSignature, input.Creator)
+	input.IdSignature = append(input.IdSignature, input.Creator_id)
 	//Input to blockchain
 	err = h.signaturesService.AddToBlockhain(input)
 	if err != nil {
@@ -101,7 +101,7 @@ func (h *signaturesHandler) SignDocuments(c *gin.Context) {
 	//Signing Creator in Documents
 	signDocs.Hash_original = input.Hash_original
 	signDocs.Creator = input.Creator
-	signDocs.Hash = input.Hash
+	signDocs.Hash = h.signaturesService.GenerateHashDocument(sign)
 	signDocs.IPFS = input.IPFS
 	h.signaturesService.DocumentSigned(signDocs)
 
@@ -110,6 +110,7 @@ func (h *signaturesHandler) SignDocuments(c *gin.Context) {
 		fmt.Println("Sisa Invite People Via Email Habis itu selesai")
 		//h.signaturesService.InvitePeople(input.Email) //Invite Via Email
 	}
+	input.Hash = signDocs.Hash
 	err = h.signaturesService.AddUserDocs(input)
 	if err != nil {
 		log.Println(err)
@@ -122,7 +123,6 @@ func (h *signaturesHandler) InviteSignatures(c *gin.Context) {
 	conf, _ := config.Init()
 	session := sessions.Default(c)
 	var input models.InviteSignatures
-	var signDocs models.SignDocs
 	var DocData models.SignDocuments
 	//Input Mapping
 	err := c.ShouldBind(&input)
@@ -137,7 +137,7 @@ func (h *signaturesHandler) InviteSignatures(c *gin.Context) {
 	}
 	DocData.Name = file.Filename
 	//Saving Image to Directory
-	path := fmt.Sprintf("./public/temp/%s", DocData.Name)
+	path := fmt.Sprintf("./public/temp/pdfsign/%s", DocData.Name)
 	err = c.SaveUploadedFile(file, path)
 	if err != nil {
 		log.Println(err)
@@ -164,12 +164,6 @@ func (h *signaturesHandler) InviteSignatures(c *gin.Context) {
 	if err != nil {
 		log.Println(err)
 	}
-	//Signing Creator in Documents
-	signDocs.Hash_original = DocData.Hash_original
-	signDocs.Creator = DocData.Creator
-	signDocs.Hash = DocData.Hash
-	signDocs.IPFS = DocData.IPFS
-	h.signaturesService.DocumentSigned(signDocs)
 
 	//invite people
 	fmt.Println("Sisa Invite People Via Email Habis itu selesai")

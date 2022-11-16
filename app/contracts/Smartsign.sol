@@ -12,11 +12,12 @@ contract Smartsign {
     // ------Model data------ //
     //Model Document
     struct Document {
-        bytes32 file; //Hash asli
+        bytes32 file; //Hash asli Bytes (Identifier)
         uint256 document_id; //ID document
         string creator_id;
         address creator; //Pembuat Documents
         string metadata;
+        string hash_ori; //Hash Original
         string hash; //Hash akhir
         string ipfs; //data document di ipfs
         uint256 state; //1 Process Signed, 2 Signed
@@ -72,6 +73,7 @@ contract Smartsign {
         newDocument.creator = creator;
         newDocument.creator_id = _creator_id;
         newDocument.metadata = _metadata;
+        newDocument.hash_ori = _file;
         newDocument.hash = _hash;
         newDocument.ipfs = _ipfs;
         newDocument.state = _state;
@@ -93,13 +95,13 @@ contract Smartsign {
     //Original hash document disimpan didalam file local
     function getDoc(string memory _file) public view returns(
         uint256, address, string memory, string memory, string memory, 
-        string memory, uint256, bool, uint256, uint256, bool
+        string memory, string memory, uint256, bool, uint256, uint256, bool
     ) {
         bytes32 byte_id = stringToBytes32(_file);
         Document storage temp = documents[byte_id];
         require(temp.exist == true, "Document not exist");
         return(temp.document_id, temp.creator, temp.creator_id, 
-        temp.metadata, temp.hash, temp.ipfs, temp.state,
+        temp.metadata, temp.hash_ori, temp.hash, temp.ipfs, temp.state,
         temp.visibility, temp.createdtime, temp.completedtime, 
         temp.exist);
     }
