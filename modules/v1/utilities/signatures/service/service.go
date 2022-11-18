@@ -45,6 +45,7 @@ type Service interface {
 	GetListDocument(publickey string) []models.ListDocument
 	GetDocument(hash string, publickey string) models.DocumentBlockchain
 	GetDocumentAllSign(hash string) (models.DocumentAllSign, bool)
+	GetDocumentNoSigners(hash string) models.DocumentBlockchain
 }
 
 type service struct {
@@ -517,4 +518,10 @@ func (s *service) GetDocumentAllSign(hash string) (models.DocumentAllSign, bool)
 		docSigned.Signers = append(docSigned.Signers, SignersData)
 	}
 	return docSigned, true
+}
+
+func (s *service) GetDocumentNoSigners(hash string) models.DocumentBlockchain {
+	conf, _ := config.Init()
+	doc := s.repository.GetDocument(hash, "0x"+conf.Blockhain.Public)
+	return doc
 }

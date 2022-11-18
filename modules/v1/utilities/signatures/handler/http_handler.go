@@ -224,6 +224,13 @@ func (h *signaturesHandler) Document(c *gin.Context) {
 	signDocs.Hash = input.Hash
 	signDocs.IPFS = input.IPFS
 	h.signaturesService.DocumentSigned(signDocs)
+	//Remove document
+	inputPath := fmt.Sprintf("./public/temp/pdfsign/%s", input.Name)
+	err = os.Remove(inputPath)
+	if err != nil {
+		log.Println(err)
+	}
+
 	c.Redirect(302, "/request-signatures")
 }
 
@@ -262,6 +269,24 @@ func (h *signaturesHandler) Verification(c *gin.Context) {
 		"verif_state": exist,
 		"data":        data,
 	})
+}
+
+//Download Document Signed From Blockchain and IPFS to Client.
+func (h *signaturesHandler) Download(c *gin.Context) {
+	conf, _ := config.Init()
+	hash := c.Param("hash")
+	doc := h.signaturesService.GetDocumentNoSigners(hash)
+	doc.IPFS = string(h.serviceUser.Decrypt([]byte(doc.IPFS), conf.App.Secret_key))
+	//Download File From
+	directory := "./public/temp/pdfdownload/"
+	res, _ := h.serviceUser.GetFileIPFS(doc.IPFS, doc.Metadata+".pdf", directory)
+	//Download Dokumen
+	c.FileAttachment(res, doc.Metadata+".pdf")
+	//Delete File
+	err := os.Remove(res)
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 // Test verification

@@ -64,11 +64,13 @@ func Init(db *mongo.Database, conf config.Conf, router *gin.Engine) *gin.Engine 
 	signature.POST("/document/:hash", signaturesHandlerV1.Document)
 	signature.GET("/verification", signaturesViewV1.Verification)
 	signature.POST("/verification", signaturesHandlerV1.Verification)
+	signature.GET("/download/:hash", signaturesHandlerV1.Download)
 	//Testing and Checking Data
 	//signature.GET("/verification_result", signaturesViewV1.VerificationResult)
 	signature.GET("/docs/:hash/:id", signaturesHandlerV1.GetDocs)
 	signature.GET("/verif/:hash", signaturesHandlerV1.Verif)
 	//user.GET("/list-signature", signaturesViewV1.ListSignature)
+
 	//signatures := router.Group("/", basic.Auth(conf))
 	//Routing API Service
 	//api := router.Group("/api/v1")
