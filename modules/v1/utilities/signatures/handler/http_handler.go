@@ -6,6 +6,7 @@ import (
 	api "e-signature/pkg/api_response"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -64,6 +65,11 @@ func (h *signaturesHandler) SignDocuments(c *gin.Context) {
 	if err != nil {
 		log.Println(err)
 	}
+	if file.Header.Get("Content-Type") != "application/pdf" || file.Filename[len(file.Filename)-4:] != ".pdf" {
+		log.Println("File not pdf")
+		c.Redirect(302, "/verification")
+		return
+	}
 	input.Name = file.Filename
 	//Saving Document to Directory
 	path := fmt.Sprintf("./public/temp/pdfsign/%s", input.Name)
@@ -82,6 +88,7 @@ func (h *signaturesHandler) SignDocuments(c *gin.Context) {
 	img := h.signaturesService.ResizeImages(mysignatures, input)
 	//Signing Documents to PDF
 	sign := h.signaturesService.SignDocuments(img, input)
+	signDocs.Hash = h.signaturesService.GenerateHashDocument(sign)
 	input.Hash = input.Hash_original
 	//Input to IPFS
 	err, IPFS := h.serviceUser.UploadIPFS(sign)
@@ -107,7 +114,6 @@ func (h *signaturesHandler) SignDocuments(c *gin.Context) {
 	//Signing Creator in Documents
 	signDocs.Hash_original = input.Hash_original
 	signDocs.Creator = input.Creator
-	signDocs.Hash = h.signaturesService.GenerateHashDocument(sign)
 	signDocs.IPFS = input.IPFS
 	h.signaturesService.DocumentSigned(signDocs)
 
@@ -140,6 +146,11 @@ func (h *signaturesHandler) InviteSignatures(c *gin.Context) {
 	file, err := c.FormFile("file")
 	if err != nil {
 		log.Println(err)
+	}
+	if file.Header.Get("Content-Type") != "application/pdf" || file.Filename[len(file.Filename)-4:] != ".pdf" {
+		log.Println("File not pdf")
+		c.Redirect(302, "/verification")
+		return
 	}
 	DocData.Name = file.Filename
 	//Saving Image to Directory
@@ -216,6 +227,55 @@ func (h *signaturesHandler) Document(c *gin.Context) {
 	c.Redirect(302, "/request-signatures")
 }
 
+func (h *signaturesHandler) Verification(c *gin.Context) {
+	session := sessions.Default(c)
+	title := "Hasil Verifikasi - SmartSign"
+	file, err := c.FormFile("file")
+	if err != nil {
+		log.Println(err)
+	}
+	//Filter file pdf
+	if file.Header.Get("Content-Type") != "application/pdf" || file.Filename[len(file.Filename)-4:] != ".pdf" {
+		log.Println("File not pdf")
+		c.Redirect(302, "/verification")
+		return
+	}
+	//Saving File to Directory
+	path := fmt.Sprintf("./public/temp/pdfverify/%s", file.Filename)
+	err = c.SaveUploadedFile(file, path)
+	if err != nil {
+		log.Println(err)
+	}
+	//Generate Hash Document
+	hash := h.signaturesService.GenerateHashDocument(path)
+	//Get Data Document
+	data, exist := h.signaturesService.GetDocumentAllSign(hash)
+	if exist {
+		fmt.Println(data)
+	} else {
+		log.Println("Document not signed")
+	}
+	c.HTML(http.StatusOK, "verification_result.html", gin.H{
+		"title":       title,
+		"user":        session.Get("id"),
+		"hash":        hash,
+		"verif_state": exist,
+		"data":        data,
+	})
+}
+
+// Test verification
+func (h *signaturesHandler) Verif(c *gin.Context) {
+	hash := c.Param("hash")
+	data, exist := h.signaturesService.GetDocumentAllSign(hash)
+	if !exist {
+		log.Println("Document not signed")
+		c.JSON(200, "Document not signed")
+	} else {
+		c.JSON(200, data)
+	}
+}
+
 //----- Get Documents and Signatures -----//
 func (h *signaturesHandler) GetDocs(c *gin.Context) {
 	session := sessions.Default(c)
@@ -229,3 +289,5 @@ func (h *signaturesHandler) GetDocs(c *gin.Context) {
 	fmt.Println(docs)
 	c.JSON(200, docs)
 }
+
+//----- End Get Documents and Signatures -----//

@@ -22,13 +22,13 @@ import (
 func GetAccountAuth(client *ethclient.Client, privateKeyAddress string) *bind.TransactOpts {
 	privateKey, err := crypto.HexToECDSA(privateKeyAddress)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	publicKey := privateKey.Public()
 	publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
 	if !ok {
-		log.Fatal("Invalid key")
+		log.Println("Invalid key")
 	}
 	//ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	//defer cancel()
@@ -36,19 +36,19 @@ func GetAccountAuth(client *ethclient.Client, privateKeyAddress string) *bind.Tr
 	//fmt.Println(fromAddress)
 	nonce, err := client.PendingNonceAt(context.Background(), fromAddress)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	//fmt.Println(fromAddress)
 	//fmt.Println("nounce= ", nonce)
 	chainID, err := client.ChainID(context.Background())
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	auth, err := bind.NewKeyedTransactorWithChainID(privateKey, chainID)
 	//auth, err = bind.NewTransactor(privateKey)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	auth.Nonce = big.NewInt(int64(nonce))
 	auth.Value = big.NewInt(0)
@@ -61,7 +61,7 @@ func Connect() *ethclient.Client {
 	//client, err := ethclient.Dial(conf.Blockhain.Host + ":" + conf.Blockhain.Port)
 	client, err := ethclient.Dial(conf.Blockhain.Host + conf.Blockhain.Key)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	return client
 }
@@ -73,8 +73,8 @@ func Init(conf config.Conf) (*api.Api, *ethclient.Client) {
 	auth := GetAccountAuth(client, conf.Blockhain.Secret_key)
 	address, tx, _, err := api.DeployApi(auth, client)
 	if err != nil {
-		//log.Fatal("Error Deploy API")
-		log.Fatal(err)
+		//log.Println("Error Deploy API")
+		log.Println(err)
 	}
 
 	// fmt.Println(address.Hex())
@@ -84,7 +84,7 @@ func Init(conf config.Conf) (*api.Api, *ethclient.Client) {
 	db := database.Init(conf)
 	location, err := time.LoadLocation("Asia/Jakarta")
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	ctx := context.TODO()
 	trans := models.Transac{
@@ -98,14 +98,14 @@ func Init(conf config.Conf) (*api.Api, *ethclient.Client) {
 	c := db.Collection("transactions")
 	_, err = c.InsertOne(ctx, &trans)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	//------------End Uncomment For New Deploy Smart Contract----------//
 	//address := common.HexToAddress("0x8101c772c3af62bb3096b5dd9dfd9b53cd50652e")
 	conn, err := api.NewApi(common.HexToAddress(address.Hex()), client)
 	if err != nil {
-		log.Fatal("Error Create New API")
-		log.Fatal(err)
+		log.Println("Error Create New API")
+		log.Println(err)
 	}
 
 	return conn, client

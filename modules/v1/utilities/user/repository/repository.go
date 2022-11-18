@@ -75,7 +75,7 @@ func (r *repository) SearchFile(path string, info os.FileInfo, err error) error 
 func (r *repository) GetPrivateKey(user models.User) (string, error) {
 	err := filepath.Walk("./app/account", r.SearchFile)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return "", err
 	}
 	var filePrivate string
@@ -89,18 +89,18 @@ func (r *repository) GetPrivateKey(user models.User) (string, error) {
 	outPath := "./app/tmp/hash.hex"
 	keyjson, e := ioutil.ReadFile(filePrivate)
 	if e != nil {
-		log.Fatal(e)
+		log.Println(e)
 		return "", e
 	}
 	key, e := keystore.DecryptKey(keyjson, user.Password)
 	if e != nil {
-		log.Fatal(e)
+		log.Println(e)
 		return "", e
 	}
 	//fmt.Println(key.PrivateKey)
 	e = crypto.SaveECDSA(outPath, key.PrivateKey)
 	if e != nil {
-		log.Fatal(e)
+		log.Println(e)
 		return "", e
 	}
 	z, _ := ioutil.ReadFile(outPath)
@@ -116,7 +116,7 @@ func (r *repository) GeneratePublicKey(user models.User) (models.User, error) {
 
 	account, err := ks.NewAccount(password)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return user, err
 	}
 	user.Publickey = account.Address.Hex()
@@ -124,13 +124,13 @@ func (r *repository) GeneratePublicKey(user models.User) (models.User, error) {
 
 	// jsonBytes, err := ioutil.ReadFile(file)
 	// if err != nil {
-	// 	log.Fatal(err)
+	// 	log.Println(err)
 	// 	return user, err
 	// }
 
 	// account, err = ks.Import(jsonBytes, password, password)
 	// if err != nil {
-	// 	log.Fatal(err)
+	// 	log.Println(err)
 	// 	return user, err
 	// }
 
@@ -141,7 +141,7 @@ func (r *repository) GeneratePublicKey(user models.User) (models.User, error) {
 // func (r *repository) SavetoSystem(auth *bind.TransactOpts, user models.User) error {
 // 	_, err := r.blockchain.AddProfilefirst(auth, user.Idsignature, user.Password, user.Publickey, user.Role)
 // 	if err != nil {
-// 		log.Fatal(err)
+// 		log.Println(err)
 // 		return err
 // 	}
 // 	return nil
@@ -149,7 +149,7 @@ func (r *repository) GeneratePublicKey(user models.User) (models.User, error) {
 func (r *repository) Register(user models.User) (interface{}, error) {
 	location, err := time.LoadLocation("Asia/Jakarta")
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return nil, err
 	}
 	user.Id = primitive.NewObjectID()
@@ -168,7 +168,7 @@ func (r *repository) Register(user models.User) (interface{}, error) {
 	c := r.db.Collection("users")
 	id, err := c.InsertOne(context.Background(), &profile)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return nil, err
 	}
 	return id.InsertedID, err
@@ -179,7 +179,7 @@ func (r *repository) Register(user models.User) (interface{}, error) {
 // 	auth := blockhain.GetAccountAuth(blockhain.Connect(), key)
 // 	rs, err := r.blockchain.AddProfile(auth, user.Name, user.ImageIPFS, user.Email, user.Phone, user.Dateregistered)
 // 	if err != nil {
-// 		log.Fatal(err)
+// 		log.Println(err)
 // 		return err
 // 	}
 
@@ -261,7 +261,7 @@ func (r *repository) TransferBalance(user models.ProfileDB) error {
 	}
 	location, err := time.LoadLocation("Asia/Jakarta")
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return err
 	}
 	ctx := context.TODO()
@@ -276,7 +276,7 @@ func (r *repository) TransferBalance(user models.ProfileDB) error {
 	c := r.db.Collection("transactions")
 	_, err = c.InsertOne(ctx, &trans)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return err
 	}
 	//fmt.Printf("tx has sent to: %s", txs.Hash().Hex())

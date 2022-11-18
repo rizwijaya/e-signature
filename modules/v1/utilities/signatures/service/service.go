@@ -2,11 +2,11 @@ package service
 
 import (
 	"crypto/sha256"
+	"e-signature/app/config"
 	"e-signature/modules/v1/utilities/signatures/models"
 	"e-signature/modules/v1/utilities/signatures/repository"
 	modelsUser "e-signature/modules/v1/utilities/user/models"
 	"encoding/base64"
-	"encoding/hex"
 	"fmt"
 	"image"
 	"image/png"
@@ -14,6 +14,7 @@ import (
 	"log"
 	"math/big"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -25,6 +26,7 @@ import (
 )
 
 type Service interface {
+	TimeFormating(times string) string
 	CreateImgSignature(input models.AddSignature) string
 	CreateImgSignatureData(input models.AddSignature, name string) string
 	CreateLatinSignatures(user modelsUser.User, id string) string
@@ -42,6 +44,7 @@ type Service interface {
 	DocumentSigned(sign models.SignDocs) error
 	GetListDocument(publickey string) []models.ListDocument
 	GetDocument(hash string, publickey string) models.DocumentBlockchain
+	GetDocumentAllSign(hash string) (models.DocumentAllSign, bool)
 }
 
 type service struct {
@@ -85,11 +88,25 @@ func init() {
 	}
 }
 
+func (s *service) TimeFormating(times string) string {
+	if len(times) == 13 {
+		times = "0" + times
+	}
+	h, _ := strconv.Atoi(times[0:2])
+	m, _ := strconv.Atoi(times[2:4])
+	se, _ := strconv.Atoi(times[4:6])
+	d, _ := strconv.Atoi(times[6:8])
+	mo, _ := strconv.Atoi(times[8:10])
+	y, _ := strconv.Atoi(times[10:14])
+	t := time.Date(y, time.Month(mo), d, h, m, se, 0, time.UTC)
+	return TanggalJam(t)
+}
+
 func (s *service) CreateImgSignature(input models.AddSignature) string {
 	reader := base64.NewDecoder(base64.StdEncoding, strings.NewReader(input.Signature))
 	m, formatString, err := image.Decode(reader)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	bounds := m.Bounds()
 	fmt.Println(bounds, formatString)
@@ -98,13 +115,13 @@ func (s *service) CreateImgSignature(input models.AddSignature) string {
 	pngFilename := "public/images/signatures/signatures/signatures-" + input.Id + ".png"
 	f, err := os.OpenFile(pngFilename, os.O_WRONLY|os.O_CREATE, 0777)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return ""
 	}
 
 	err = png.Encode(f, m)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return ""
 	}
 
@@ -119,7 +136,7 @@ func (s *service) CreateImgSignatureData(input models.AddSignature, name string)
 	img := fmt.Sprintf("public/images/signatures/signatures/signatures-%s.png", input.Id)
 	im, err := gg.LoadImage(img)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	dc := gg.NewContext(300, 300)
@@ -127,7 +144,7 @@ func (s *service) CreateImgSignatureData(input models.AddSignature, name string)
 	dc.Clear()
 	dc.SetRGB255(25, 25, 112)
 	if err := dc.LoadFontFace("modules/v1/utilities/signatures/font/detail_data.ttf", 11); err != nil {
-		panic(err)
+		log.Println(err)
 	}
 	//dc.DrawStringAnchored("Hello, world!", 460/4, 180/2, 0.5, 0.5)
 
@@ -162,7 +179,7 @@ func (s *service) CreateLatinSignatures(user modelsUser.User, id string) string 
 	dc.Clear()
 	dc.SetRGB(0, 0, 0)
 	if err := dc.LoadFontFace("modules/v1/utilities/signatures/font/latin.ttf", 75); err != nil {
-		panic(err)
+		log.Println(err)
 	}
 	name := user.Name
 	if len(user.Name) > 12 {
@@ -179,7 +196,7 @@ func (s *service) CreateLatinSignatures(user modelsUser.User, id string) string 
 func (s *service) CreateLatinSignaturesData(user modelsUser.User, latin string, idn string) string {
 	im, err := gg.LoadImage(latin)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	dc := gg.NewContext(300, 300)
@@ -187,7 +204,7 @@ func (s *service) CreateLatinSignaturesData(user modelsUser.User, latin string, 
 	dc.Clear()
 	dc.SetRGB255(25, 25, 112)
 	if err := dc.LoadFontFace("modules/v1/utilities/signatures/font/detail_data.ttf", 11); err != nil {
-		panic(err)
+		log.Println(err)
 	}
 
 	dc.DrawImage(im, 0, 0)
@@ -260,18 +277,18 @@ func (s *service) ResizeImages(mysign models.MySignatures, input models.SignDocu
 	path := fmt.Sprintf("./public/images/signatures/%s", signatures)
 	r, err := os.Open(path)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	defer r.Close()
 	img, err := png.Decode(r)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	m := resize.Resize(uint(input.Width*0.75), uint(input.Height*0.75), img, resize.Lanczos3)
 	path2 := fmt.Sprintf("./public/temp/sizes-%s.png", mysign.Signature_selected)
 	out, err := os.Create(path2)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	defer out.Close()
 	png.Encode(out, m)
@@ -391,13 +408,17 @@ func (s *service) InvitePeople(email []string) error {
 }
 
 func (s *service) GenerateHashDocument(input string) string {
-	file := strings.NewReader(input)
-	hash := sha256.New()
-	if _, err := io.Copy(hash, file); err != nil {
-		log.Fatal(err)
+	f, err := os.Open(input)
+	if err != nil {
+		log.Println(err)
 	}
+	defer f.Close()
 
-	return hex.EncodeToString(hash.Sum(nil))
+	h := sha256.New()
+	if _, err := io.Copy(h, f); err != nil {
+		log.Println(err)
+	}
+	return fmt.Sprintf("%x", h.Sum(nil))
 }
 
 func (s *service) AddToBlockhain(input models.SignDocuments) error {
@@ -451,4 +472,49 @@ func (s *service) GetDocument(hash string, publickey string) models.DocumentBloc
 	doc := s.repository.GetDocument(hash, publickey)
 	doc.Signers = s.repository.GetSigners(hash, publickey)
 	return doc
+}
+
+func (s *service) GetDocumentAllSign(hash string) (models.DocumentAllSign, bool) {
+	conf, _ := config.Init()
+	var docSigned models.DocumentAllSign
+	checkDoc := s.repository.VerifyDoc(hash)
+	if !checkDoc {
+		return docSigned, false
+	}
+	//Get Original Hash from Blockchain with Hash signed
+	hash_ori := s.repository.GetHashOriginal(hash, "0x"+conf.Blockhain.Public)
+	doc := s.repository.GetDocument(hash_ori, "0x"+conf.Blockhain.Public)
+	docSigned.Document_id = doc.Document_id
+	docSigned.Creator = doc.Creator
+	docSigned.Creator_id = doc.Creator_id
+	docSigned.Metadata = doc.Metadata
+	docSigned.Hash_ori = doc.Hash_ori
+	docSigned.Hash = doc.Hash
+	docSigned.IPFS = doc.IPFS
+	docSigned.State = doc.State
+	docSigned.Visibility = doc.Visibility
+	docSigned.Createdtime = s.TimeFormating(doc.Createdtime)
+	docSigned.Completedtime = s.TimeFormating(doc.Completedtime)
+	docSigned.Exist = doc.Exist
+	//Get list sign documents from db
+	signData := s.repository.GetListSign(doc.Hash_ori)
+	for i := range signData {
+		//Get Signer Data in Blockchain
+		signer := s.repository.GetSigners(hash_ori, signData[i].Sign_addr)
+		//Get Signer Data in Database
+		signDB := s.repository.GetUserByIdSignatures(signer.Signers_id)
+		SignersData := models.SignersData{
+			Sign_addr:     signer.Sign_addr.String(),
+			Sign_id:       signer.Sign_id,
+			Signers_id:    signer.Signers_id,
+			Signers_hash:  signer.Signers_hash,
+			Signers_state: signer.Signers_state,
+			Sign_time:     s.TimeFormating(signer.Sign_time),
+			Sign_name:     signDB.Name,
+			Sign_email:    signDB.Email,
+			Sign_id_db:    signDB.Id.String(),
+		}
+		docSigned.Signers = append(docSigned.Signers, SignersData)
+	}
+	return docSigned, true
 }

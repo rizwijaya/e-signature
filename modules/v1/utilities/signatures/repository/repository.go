@@ -33,6 +33,10 @@ type Repository interface {
 	ListDocumentNoSign(publickey string) []models.ListDocument
 	GetDocument(hash string, publickey string) models.DocumentBlockchain
 	GetSigners(hash string, publickey string) models.Signers
+	GetHashOriginal(hash string, publickey string) string
+	GetListSign(hash string) []models.SignersData
+	GetUserByIdSignatures(idsignature string) modelsUser.ProfileDB
+	VerifyDoc(hash string) bool
 }
 
 type repository struct {
@@ -48,7 +52,7 @@ func NewRepository(db *mongo.Database, blockchain *api.Api, client *ethclient.Cl
 func (r *repository) LogTransactions(address string, tx_hash string, nonce string, desc string, prices string) error {
 	location, err := time.LoadLocation("Asia/Jakarta")
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return err
 	}
 	ctx := context.TODO()
@@ -64,7 +68,7 @@ func (r *repository) LogTransactions(address string, tx_hash string, nonce strin
 	c := r.db.Collection("transactions")
 	_, err = c.InsertOne(ctx, &trans)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return err
 	}
 	return nil
@@ -73,7 +77,7 @@ func (r *repository) LogTransactions(address string, tx_hash string, nonce strin
 func (r *repository) DefaultSignatures(user modelsUser.User, id string) error {
 	location, err := time.LoadLocation("Asia/Jakarta")
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return err
 	}
 	signatures := models.Signatures{
@@ -91,7 +95,7 @@ func (r *repository) DefaultSignatures(user modelsUser.User, id string) error {
 	c := r.db.Collection("signatures")
 	_, err = c.InsertOne(context.Background(), &signatures)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return err
 	}
 	return nil
@@ -100,7 +104,7 @@ func (r *repository) DefaultSignatures(user modelsUser.User, id string) error {
 func (r *repository) UpdateMySignatures(signature string, signaturedata string, sign string) error {
 	location, err := time.LoadLocation("Asia/Jakarta")
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return err
 	}
 	filter := map[string]interface{}{"user": sign}
@@ -116,7 +120,7 @@ func (r *repository) UpdateMySignatures(signature string, signaturedata string, 
 	c := r.db.Collection("signatures")
 	_, err = c.UpdateOne(context.Background(), filter, update)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return err
 	}
 	return nil
@@ -128,7 +132,7 @@ func (r *repository) GetMySignature(sign string) (models.Signatures, error) {
 	c := r.db.Collection("signatures")
 	err := c.FindOne(context.Background(), filter).Decode(&signatures)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return signatures, err
 	}
 	return signatures, nil
@@ -137,7 +141,7 @@ func (r *repository) GetMySignature(sign string) (models.Signatures, error) {
 func (r *repository) ChangeSignature(sign_type string, sign string) error {
 	location, err := time.LoadLocation("Asia/Jakarta")
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return err
 	}
 	filter := map[string]interface{}{"user": sign}
@@ -151,7 +155,7 @@ func (r *repository) ChangeSignature(sign_type string, sign string) error {
 	c := r.db.Collection("signatures")
 	_, err = c.UpdateOne(context.Background(), filter, update)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return err
 	}
 	return nil
@@ -178,7 +182,7 @@ func (r *repository) AddUserDocs(input models.SignDocuments) error {
 	}
 	location, err := time.LoadLocation("Asia/Jakarta")
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return err
 	}
 	for _, v := range input.Address {
@@ -203,7 +207,7 @@ func (r *repository) AddUserDocs(input models.SignDocuments) error {
 		c := r.db.Collection("signedDocuments")
 		_, err := c.InsertOne(context.Background(), &signedDocuments)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
 			return err
 		}
 	}
@@ -224,13 +228,13 @@ func (r *repository) ListDocumentNoSign(publickey string) []models.ListDocument 
 	c := r.db.Collection("signedDocuments")
 	cursor, err := c.Find(context.Background(), bson.M{"address": publickey})
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	for cursor.Next(context.Background()) {
 		var document models.ListDocument
 		err := cursor.Decode(&document)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
 		}
 		listDocument = append(listDocument, document)
 	}
@@ -265,4 +269,53 @@ func (r *repository) GetSigners(hash string, publickey string) models.Signers {
 	signers.Sign_time = sign_time.String()
 
 	return signers
+}
+
+func (r *repository) GetHashOriginal(hash string, publickey string) string {
+	hash_ori, err := r.blockchain.GetDocSigned(&bind.CallOpts{From: common.HexToAddress(publickey)}, hash)
+	if err != nil {
+		log.Println(err)
+		log.Println("Error Get Hash Original")
+	}
+	return hash_ori
+}
+
+func (r *repository) GetListSign(hash string) []models.SignersData {
+	var sign []models.SignersData
+	filter := bson.M{"hash_ori": hash}
+	c := r.db.Collection("signedDocuments")
+	cursor, err := c.Find(context.Background(), filter)
+	if err != nil {
+		log.Println(err)
+	}
+	for cursor.Next(context.Background()) {
+		var signer models.SignersData
+		err := cursor.Decode(&signer)
+		if err != nil {
+			log.Println(err)
+		}
+		sign = append(sign, signer)
+	}
+	return sign
+}
+
+func (r *repository) GetUserByIdSignatures(idsignature string) modelsUser.ProfileDB {
+	var user modelsUser.ProfileDB
+	c := r.db.Collection("users")
+	filter := bson.M{"idsignature": idsignature}
+	err := c.FindOne(context.Background(), filter).Decode(&user)
+	if err != nil {
+		log.Println(err)
+	}
+	return user
+}
+
+func (r *repository) VerifyDoc(hash string) bool {
+	conf, _ := config.Init()
+	publickey := "0x" + conf.Blockhain.Public
+	check, err := r.blockchain.VerifyDoc(&bind.CallOpts{From: common.HexToAddress(publickey)}, hash)
+	if err != nil {
+		log.Println(err)
+	}
+	return check
 }

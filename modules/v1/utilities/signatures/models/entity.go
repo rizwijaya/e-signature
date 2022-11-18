@@ -69,11 +69,39 @@ type DocumentBlockchain struct {
 	Signers       Signers
 }
 
+type DocumentAllSign struct {
+	Document_id   string
+	Creator       common.Address
+	Creator_id    string
+	Metadata      string
+	Hash_ori      string
+	Hash          string
+	IPFS          string
+	State         string
+	Visibility    bool
+	Createdtime   string
+	Completedtime string
+	Exist         bool
+	Signers       []SignersData
+}
+
 type Signers struct {
 	Sign_addr     common.Address
 	Sign_id       string
 	Signers_id    string
 	Signers_hash  string
+	Signers_state bool
+	Sign_time     string
+}
+
+type SignersData struct {
+	Sign_addr     string `bson:"address"`
+	Sign_name     string `bson:"name"`
+	Sign_email    string `bson:"email"`
+	Sign_id_db    string `bson:"_id"`
+	Sign_id       string
+	Signers_id    string `bson:"idsignature"`
+	Signers_hash  string `bson:"hash"`
 	Signers_state bool
 	Sign_time     string
 }

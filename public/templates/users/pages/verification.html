@@ -1,0 +1,153 @@
+{{ define "content" }}
+<style>
+  .drop-zone-pdf {
+    /* max-width: 400px; */
+    /* height: 350px; */
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-family: "Quicksand", sans-serif;
+    font-weight: 500;
+    font-size: 20px;
+    cursor: pointer;
+    color: #cccccc;
+    /* border: 4px dashed #5f61e6;
+    border-radius: 10px; */
+  }
+
+  .drop-zone-pdf--over {
+    border-style: solid;
+  }
+
+  .drop-zone-pdf__input {
+    display: none;
+  }
+
+  .drop-zone-pdf__thumb {
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: #cccccc;
+    background-size: cover;
+    position: relative;
+  }
+
+  .drop-zone-pdf__thumb::after {
+    content: attr(data-label);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 5px 0;
+    color: #ffffff;
+    background: rgba(0, 0, 0, 0.75);
+    font-size: 14px;
+    text-align: center;
+  }
+</style>
+
+<!-- main -->
+<main id="main">
+  <section class="breadcrumbs">
+    <div class="container">
+      <ol>
+        <li><a href="/">Home</a></li>
+        <li>Verification</li>
+      </ol>
+      <h2>Verification</h2>
+    </div>
+  </section>
+  <!-- ======= Values Section ======= -->
+  <section id="values" class="values" style="padding: 30px 0 !important;">
+    <div class="container">
+      <form action="/verification" method="POST" enctype="multipart/form-data" id="form-documents">
+        <div class="row ">
+          <!-- Section Changes -->
+          <!-- Upload Documents -->
+          <div class="container text-center" style="width: 85% !important;">
+            <div class="card"
+              style="border-radius: 15px;border: solid 1px blue;padding: 0.5rem;background-color: #F8F9FF;">
+              <div class="card-body">
+                <div class="drop-zone-pdf">
+                  <span class="drop-zone-pdf__prompt img-fluid"><img src="landing/img/signatures/documents.png"
+                      alt="doc" class="img-fluid" style="size: 80%;"></span>
+                  <img id="pdf_preview">
+                  <input type="file" name="file" id="file doc" class="drop-zone-pdf__input" accept="application/pdf"
+                    required>
+                </div>
+                <h5 class="w-100" id="titlenya" style="margin-top: 2rem; font-weight:bold; white-space:normal;">
+                  Silahkan upload dokumen terlebih dahulu
+                  <br>
+                  untuk melakukan tanda tangan terhadap dokumen yang dipilih
+                </h5>
+              </div>
+            </div>
+          </div>
+          <!-- End Upload Documents -->
+          <!-- End Section Changes -->
+
+          <!-- Button Submit -->
+          <div class="container mt-3 mb-4">
+            <div class="row">
+              <div class="col text-center">
+                <button class="btn btn-primary" onclick="submitForm()" id="finish"
+                  style="border-radius: 24px;background-color: #4154F1;padding-left: 2rem;padding-right: 2rem;">verifikasi</button>
+              </div>
+            </div>
+          </div>
+          <!-- End Button Submit -->
+        </div>
+      </form>
+    </div>
+  </section>
+  <!-- End Values Section -->
+  <!-- Modal Konfirmasi Simpan Data -->
+  <div class="modal" tabindex="-1" role="dialog" id="submitform" style="display: none;">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Verifikasi Dokumen</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+            style="border: none; background-color: white;" onclick="exitSubmit()">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>Apakah anda yakin ingin memverifikasi dokumen?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" onclick="exitSubmit()">Tidak</button>
+          <button type="submit" id="submit" name="submit" class="btn btn-primary">Ya</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End Modal Konfirmasi Simpan Data -->
+</main>
+<!-- End main -->
+<!-- Import new PDFJS & Worker -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.min.js"
+  integrity="sha512-Z8CqofpIcnJN80feS2uccz+pXWgZzeKxDsDNMD/dJ6997/LSRY+W4NmEt9acwR+Gt9OHN0kkI1CTianCwoqcjQ=="
+  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script src="/landing/js/uploadPDF.js"></script>
+<script>
+  const submitform = document.getElementById("submitform");
+  function submitForm() {
+      submitform.style.display = "block";
+  }
+
+  function exitSubmit() {
+    submitform.style.display = "none";
+  }
+
+  $('#submit').click(function () {
+    submitform.style.display = "none";
+    $('#form-documents').submit();
+  })
+</script>
+<!-- End main -->
+{{ end }}

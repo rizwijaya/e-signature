@@ -62,8 +62,12 @@ func Init(db *mongo.Database, conf config.Conf, router *gin.Engine) *gin.Engine 
 	signature.GET("/request-signatures", signaturesViewV1.RequestSignatures)
 	signature.GET("/document/:hash", signaturesViewV1.Document)
 	signature.POST("/document/:hash", signaturesHandlerV1.Document)
-
+	signature.GET("/verification", signaturesViewV1.Verification)
+	signature.POST("/verification", signaturesHandlerV1.Verification)
+	//Testing and Checking Data
+	//signature.GET("/verification_result", signaturesViewV1.VerificationResult)
 	signature.GET("/docs/:hash/:id", signaturesHandlerV1.GetDocs)
+	signature.GET("/verif/:hash", signaturesHandlerV1.Verif)
 	//user.GET("/list-signature", signaturesViewV1.ListSignature)
 	//signatures := router.Group("/", basic.Auth(conf))
 	//Routing API Service

@@ -133,12 +133,27 @@ contract Smartsign {
         bytes32 signedfile = stringToBytes32(_signers_hash);
         signedDocs[signedfile] = signDocument.file;
     }
-
-    //Verify Documents
-    function verifyDoc(string memory _hash) public view returns(string memory) {
-        bytes32 signed = stringToBytes32(_hash);
-        return bytes32ToString(signedDocs[signed]);
+    //Get Documents Signed By Hash signed
+    function getDocSigned(string memory _hash) public view returns(string memory) {
+        bytes32 byteFile = stringToBytes32(_hash);
+        bytes32 sign = signedDocs[byteFile];
+        string memory temp = bytes32ToString(sign);
+        return(temp);
     }
+    //verification documents
+    function verifyDoc(string memory _hash) public view returns(bool) {
+        bytes32 signed = stringToBytes32(_hash);
+        if (signedDocs[signed] == bytes32(0)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    //Get signed Documents with hash signed
+    // function GetsignedDoc(string memory _hash) public view returns(string memory) {
+    //     bytes32 signed = stringToBytes32(_hash);
+    //     return bytes32ToString(signedDocs[signed]);
+    // }
      // ------ End Signing Process ------ //
 }
-// Untuk fitur list dokumen user pakai db, jadi db akan menyimpan daftar user dan dokumen_ori di blockchain

@@ -189,11 +189,11 @@ func (s *service) Encrypt(data []byte, passphrase string) []byte {
 	block, _ := aes.NewCipher(key)
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
-		panic(err.Error())
+		log.Println(err.Error())
 	}
 	nonce := make([]byte, gcm.NonceSize())
 	if _, err = io.ReadFull(rand.Reader, nonce); err != nil {
-		panic(err.Error())
+		log.Println(err.Error())
 	}
 	ciphertext := gcm.Seal(nonce, nonce, data, nil)
 
@@ -214,17 +214,17 @@ func (s *service) Decrypt(data []byte, passphrase string) []byte {
 	//fmt.Println("key", key)
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		panic(err.Error())
+		log.Println(err.Error())
 	}
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
-		panic(err.Error())
+		log.Println(err.Error())
 	}
 	nonceSize := gcm.NonceSize()
 	nonce, ciphertext := cipherText[:nonceSize], cipherText[nonceSize:]
 	plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
 	if err != nil {
-		panic(err.Error())
+		log.Println(err.Error())
 	}
 	return plaintext
 }

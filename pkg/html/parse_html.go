@@ -1,6 +1,7 @@
 package html
 
 import (
+	"log"
 	"path/filepath"
 
 	"github.com/gin-contrib/multitemplate"
@@ -11,12 +12,12 @@ func Render(templatesDir string) multitemplate.Renderer {
 
 	layouts, err := filepath.Glob(templatesDir + "/users/layouts/*")
 	if err != nil {
-		panic(err.Error())
+		log.Println(err.Error())
 	}
 
 	includes, err := filepath.Glob(templatesDir + "/users/**/*")
 	if err != nil {
-		panic(err.Error())
+		log.Println(err.Error())
 	}
 
 	for _, include := range includes {
@@ -28,12 +29,12 @@ func Render(templatesDir string) multitemplate.Renderer {
 
 	// layouts2, err := filepath.Glob(templatesDir + "/landing/layouts/*")
 	// if err != nil {
-	// 	panic(err.Error())
+	// 	log.Println(err.Error())
 	// }
 
 	// includes2, err := filepath.Glob(templatesDir + "/landing/**/*")
 	// if err != nil {
-	// 	panic(err.Error())
+	// 	log.Println(err.Error())
 	// }
 
 	// for _, include2 := range includes2 {

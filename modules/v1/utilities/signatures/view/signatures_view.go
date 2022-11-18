@@ -118,3 +118,24 @@ func (h *signaturesView) Document(c *gin.Context) {
 		"file":       getDocument.Hash_ori + ".pdf",
 	})
 }
+
+func (h *signaturesView) Verification(c *gin.Context) {
+	session := sessions.Default(c)
+	title := "Verification - SmartSign"
+	c.HTML(http.StatusOK, "verification.html", gin.H{
+		"title": title,
+		"user":  session.Get("id"),
+	})
+}
+
+// func (h *signaturesView) VerificationResult(c *gin.Context) {
+// 	session := sessions.Default(c)
+// 	title := "Verification - SmartSign"
+// 	c.HTML(http.StatusOK, "verification_result.html", gin.H{
+// 		"title": title,
+// 		"user":  session.Get("id"),
+// 		// "hash":        hash,
+// 		// "verif_state": exist,
+// 		// "data":        data,
+// 	})
+// }

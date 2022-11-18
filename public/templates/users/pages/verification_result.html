@@ -1,0 +1,111 @@
+{{ define "content" }}
+<style>
+  .sidebar {
+    margin: 0 0 40px 20px !important;
+  }
+  .side-data p {
+    margin-bottom: 0px;
+    font-family: 'Roboto', sans-serif;
+    font-size: smaller;
+    margin-left: 0px !important;
+    word-break: break-all;
+  }
+  .side-data h4 {
+    font-size: 13px !important;
+    margin-bottom: 0.5px !important;
+    margin-left: 0px !important;
+  }
+  .sidebar-item {
+    margin-bottom: 15px !important;
+  }
+  .sidebar-title {
+    margin: 0 0 10px 0 !important;
+    font-size: 17px !important;
+  }
+</style>
+<!-- main -->
+<main id="main">
+  <section class="breadcrumbs">
+    <div class="container">
+      <ol>
+        <li><a href="/">Home</a></li>
+        <li>Verifikasi</li>
+      </ol>
+      <h2>Hasil Verifikasi</h2>
+    </div>
+  </section>
+  <!-- ======= Section Custom ======= -->
+  <section id="blog" class="blog">
+    <div class="container aos-init aos-animate" data-aos="fade-up">
+      {{ $doc := .data }}
+      {{ if (eq .verif_state true) }}
+      <!-- Dokumen Terverifikasi -->
+      <div class="row">
+        <div class="col-lg-8 entries">
+          <div class="entry entry-single">
+            <div class="text-center">
+              <h1 style="text-align: center;color: #4154F1;margin-top: 1rem; font-size: x-large;"> <b>Dokumen Terverifikasi</b> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-check-circle-fill" viewBox="0 0 16 16" style="color: rgb(0, 172, 0);">
+                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"></path>
+              </svg></h1>
+              <img src="landing/img/signatures/task-done.png" alt="task-done" class="img-fluid" style="width: 50% !important">
+              <h3 style="text-align: center;color: #4154F1;margin-top: 2rem; font-size: large;">
+                <b>Tanda tangan pada dokumen terverifikasi dan terdaftar <br> dijaringan blockchain dengan nomor {{ $doc.Hash_ori }}</b>
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="sidebar">
+            <h3 class="sidebar-title">Detail Dokumen</h3>
+            <div class="sidebar-item recent-posts ">
+              <div class="post-item clearfix mb-3 side-data">
+                <h4>Nama File: {{ $doc.Metadata }}</h4>
+                <h4>Pembuat: {{ $doc.Creator_id }}</h4>
+                <h4>Waktu Pembuatan: {{ $doc.Createdtime }}</h4>
+              </div>
+            </div>
+            <h3 class="sidebar-title">Penandatangan</h3>
+            <div class="sidebar-item recent-posts">
+              <!-- Tanda Tangan -->
+              {{ range $i, $sign := $doc.Signers }}
+                {{if (eq $sign.Signers_state true)}}
+                    <div class="post-item clearfix mb-3 side-data">
+                      <h4>Tanda Tangan {{ len (printf "a%*s" $i "") }}</h4>
+                      <p>Nama: {{ $sign.Sign_name }}</p>
+                      <p>Email: {{ $sign.Sign_email }}</p>
+                      <p>Nomor tanda tangan: {{ $sign.Signers_hash }}</p>
+                      <p>Tanggal: {{ $sign.Sign_time }}</p>
+                    </div>
+                {{ end }}
+              {{ end }}
+              <!-- End Tanda Tangan -->
+            </div>
+          </div>
+        </div>
+      </div>
+      {{ else }}
+      <!-- End Dokumen Terverifikasi -->
+      <!-- Dokumen Tidak Terverifikasi -->
+      <div class="row">
+        <div class="col-lg-12 entries">
+          <div class="entry entry-single">
+            <div class="text-center">
+              <h1 style="text-align: center;color: #4154F1;margin-top: 1rem; font-size: x-large;"> <b>Dokumen Tidak Terverifikasi</b> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-check-circle-fill" viewBox="0 0 16 16" style="color: rgb(0, 172, 0);">
+                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"></path>
+              </svg></h1>
+              <img src="landing/img/signatures/task-done.png" alt="task-done" class="img-fluid" style="width: 50% !important">
+              <h3 style="text-align: center;color: #4154F1;margin-top: 2rem; font-size: large;">
+                <b>Tanda tangan pada dokumen tidak terdaftar diblockchain.</b>
+              </h3>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- End Dokumen Tidak Terverifikasi -->
+      {{ end }}
+    </div>
+  </section>
+  <!-- End Section Custom -->
+</main>
+<!-- End main -->
+{{ end }}
