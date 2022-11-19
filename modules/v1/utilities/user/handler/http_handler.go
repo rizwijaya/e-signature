@@ -80,6 +80,8 @@ func (h *userHandler) Login(c *gin.Context) {
 	session.Set("passph", string(h.userService.Encrypt([]byte(input.Password), user.PublicKey)))
 	session.Save()
 
+	fm := []byte("Berhasil Login!")
+	notif.SetMessage(c.Writer, "message", fm)
 	c.Redirect(http.StatusFound, "/dashboard")
 }
 

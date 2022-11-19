@@ -7,6 +7,7 @@ import (
 	"e-signature/modules/v1/utilities/signatures/service"
 	repoUser "e-signature/modules/v1/utilities/user/repository"
 	serviceUser "e-signature/modules/v1/utilities/user/service"
+	notif "e-signature/pkg/notification"
 	"fmt"
 	"log"
 	"net/http"
@@ -40,10 +41,15 @@ func (h *signaturesView) Index(c *gin.Context) {
 	session := sessions.Default(c)
 	title := "Dashboard - SmartSign"
 	page := "dashboard"
+	fm, err := notif.GetMessage(c.Writer, c.Request, "message")
+	if err != nil {
+		log.Println(err)
+	}
 	c.HTML(http.StatusOK, "dashboard_index.html", gin.H{
-		"title":  title,
-		"userid": session.Get("id"),
-		"page":   page,
+		"title":   title,
+		"userid":  session.Get("id"),
+		"success": fmt.Sprintf("%s", fm),
+		"page":    page,
 	})
 }
 
@@ -52,11 +58,15 @@ func (h *signaturesView) MySignatures(c *gin.Context) {
 	title := "My Signature - SmartSign"
 	page := "my-signatures"
 	signatures, _ := h.signaturesService.GetMySignature(fmt.Sprintf("%v", session.Get("sign")), fmt.Sprintf("%v", session.Get("id")), fmt.Sprintf("%v", session.Get("name")))
-
+	fm, err := notif.GetMessage(c.Writer, c.Request, "message")
+	if err != nil {
+		log.Println(err)
+	}
 	c.HTML(http.StatusOK, "my_signatures.html", gin.H{
 		"title":      title,
 		"userid":     session.Get("id"),
 		"page":       page,
+		"success":    fmt.Sprintf("%s", fm),
 		"signatures": signatures,
 	})
 }
@@ -69,10 +79,20 @@ func (h *signaturesView) SignDocuments(c *gin.Context) {
 	if err != nil {
 		log.Println(err)
 	}
+	fm, err := notif.GetMessage(c.Writer, c.Request, "failed")
+	if err != nil {
+		log.Println(err)
+	}
+	succes, err := notif.GetMessage(c.Writer, c.Request, "success")
+	if err != nil {
+		log.Println(err)
+	}
 	c.HTML(http.StatusOK, "sign_documents.html", gin.H{
 		"title":      title,
 		"userid":     session.Get("id"),
 		"page":       page,
+		"failed":     fmt.Sprintf("%s", fm),
+		"success":    fmt.Sprintf("%s", succes),
 		"signatures": getSignature,
 	})
 }
@@ -81,10 +101,21 @@ func (h *signaturesView) InviteSignatures(c *gin.Context) {
 	session := sessions.Default(c)
 	title := "Invite Signatures - SmartSign"
 	page := "invite-signatures"
+	failed, err := notif.GetMessage(c.Writer, c.Request, "failed")
+	if err != nil {
+		log.Println(err)
+	}
+	succes, err := notif.GetMessage(c.Writer, c.Request, "success")
+	if err != nil {
+		log.Println(err)
+	}
+
 	c.HTML(http.StatusOK, "invite_signatures.html", gin.H{
-		"title":  title,
-		"userid": session.Get("id"),
-		"page":   page,
+		"title":   title,
+		"userid":  session.Get("id"),
+		"page":    page,
+		"failed":  fmt.Sprintf("%s", failed),
+		"success": fmt.Sprintf("%s", succes),
 	})
 }
 
@@ -93,6 +124,14 @@ func (h *signaturesView) RequestSignatures(c *gin.Context) {
 	title := "Signature Request - SmartSign"
 	page := "request-signatures"
 	listDocument := h.signaturesService.GetListDocument(fmt.Sprintf("%v", session.Get("public_key")))
+	failed, err := notif.GetMessage(c.Writer, c.Request, "failed")
+	if err != nil {
+		log.Println(err)
+	}
+	succes, err := notif.GetMessage(c.Writer, c.Request, "success")
+	if err != nil {
+		log.Println(err)
+	}
 
 	c.HTML(http.StatusOK, "request_signatures.html", gin.H{
 		"title":     title,
@@ -100,6 +139,8 @@ func (h *signaturesView) RequestSignatures(c *gin.Context) {
 		"page":      page,
 		"name":      session.Get("name"),
 		"documents": listDocument,
+		"failed":    fmt.Sprintf("%s", failed),
+		"success":   fmt.Sprintf("%s", succes),
 	})
 }
 
@@ -136,10 +177,20 @@ func (h *signaturesView) Verification(c *gin.Context) {
 	session := sessions.Default(c)
 	title := "Verification - SmartSign"
 	page := "verification"
+	failed, err := notif.GetMessage(c.Writer, c.Request, "failed")
+	if err != nil {
+		log.Println(err)
+	}
+	succes, err := notif.GetMessage(c.Writer, c.Request, "success")
+	if err != nil {
+		log.Println(err)
+	}
 	c.HTML(http.StatusOK, "verification.html", gin.H{
-		"title":  title,
-		"userid": session.Get("id"),
-		"page":   page,
+		"title":   title,
+		"userid":  session.Get("id"),
+		"page":    page,
+		"failed":  fmt.Sprintf("%s", failed),
+		"success": fmt.Sprintf("%s", succes),
 	})
 }
 
@@ -175,8 +226,16 @@ func (h *signaturesView) Transactions(c *gin.Context) {
 func (h *signaturesView) Download(c *gin.Context) {
 	session := sessions.Default(c)
 	title := "Daftar Unduh Dokumen - SmartSign"
-	page := "history"
+	page := "download"
 	listDocument := h.signaturesService.GetListDocument(fmt.Sprintf("%v", session.Get("public_key")))
+	failed, err := notif.GetMessage(c.Writer, c.Request, "failed")
+	if err != nil {
+		log.Println(err)
+	}
+	succes, err := notif.GetMessage(c.Writer, c.Request, "success")
+	if err != nil {
+		log.Println(err)
+	}
 
 	c.HTML(http.StatusOK, "download.html", gin.H{
 		"title":     title,
@@ -184,5 +243,7 @@ func (h *signaturesView) Download(c *gin.Context) {
 		"name":      session.Get("name"),
 		"documents": listDocument,
 		"page":      page,
+		"failed":    fmt.Sprintf("%s", failed),
+		"success":   fmt.Sprintf("%s", succes),
 	})
 }

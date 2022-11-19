@@ -28,7 +28,9 @@
   <link href="/landing/swiper/swiper-bundle.min.css" rel="stylesheet">
   <!-- Custom CSS Form -->
   <!-- <link rel="stylesheet" href="/form/css/custom.css" /> -->
-  <link rel="stylesheet" href="/landing/assets/css/custom.css" />
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <link rel="stylesheet" href="/landing/css/custom.css" />
+  
   <!-- Template Main CSS File -->
   <link href="/landing/assets/css/style.css" rel="stylesheet">
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
@@ -36,31 +38,31 @@
 
 <body>
   <!-- Content -->
-  {{ if .message }}
+  {{ if .failed }}
   <div class="toastDanger">
     <div class="toastDanger-content menu align-items-center">
-      <i class="menu-icon tf-icons bx bx-x menu align-items-center justify-content-center"
-        style="height: 24px; width: 24px;"></i>
       <div class="message menu flex-column">
-        <span class="text text-title">Gagal Masuk!</span>
-        <span class="text text-desc">{{ .message }}</span>
+        <i class="menu-icon tf-icons bx bx-x menu align-items-center justify-content-center"
+          style="height: 20px; width: 20px;"></i>
+        <span class="text text-title">Gagal,</span>
+        <span class="text text-desc">{{ .failed }}</span>
       </div>
       <button type="button" class="btn-close" aria-label="Close" style="color: #666;"></button>
-      <div class="progress"></div>
+      <div class="progressToast"></div>
     </div>
   </div>
   {{ end }}
   {{ if .success }}
   <div class="toastSuccess">
     <div class="toastSuccess-content menu align-items-center">
-      <i class="menu-icon tf-icons bx bx-check menu align-items-center justify-content-center"
-        style="height: 24px; width: 24px;"></i>
       <div class="message menu flex-column">
-        <span class="text text-title">Sukses</span>
+        <i class="menu-icon tf-icons bx bx-check menu align-items-center justify-content-center"
+          style="height: 20px; width: 20px;"></i>
+        <span class="text text-title">Sukses,</span>
         <span class="text text-desc">{{ .success }}</span>
       </div>
       <button type="button" class="btn-close" aria-label="Close" style="color: #666;"></button>
-      <div class="progress"></div>
+      <div class="progressToast"></div>
     </div>
   </div>
   {{ end }}
@@ -203,6 +205,7 @@
   <script src='https://cdnjs.cloudflare.com/ajax/libs/interact.js/1.10.17/interact.min.js'></script>
   <!-- <script src="/form/js/custom.js"></script> -->
   <script src="/landing/js/signature.js"></script>
+  <script src="/landing/js/toast.js"></script>
 </body>
 
 </html>

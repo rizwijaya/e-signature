@@ -46,8 +46,8 @@
     text-align: center;
 }
 
-       /* Toast Success */
-       .toastSuccess {
+    /* Toast Success */
+    .toastSuccess {
         background: #fff;
         border-left: 6px solid #77c66e;
         border-radius: 10px;

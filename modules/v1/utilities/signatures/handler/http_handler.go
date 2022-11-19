@@ -4,6 +4,7 @@ import (
 	"e-signature/app/config"
 	"e-signature/modules/v1/utilities/signatures/models"
 	api "e-signature/pkg/api_response"
+	notif "e-signature/pkg/notification"
 	"fmt"
 	"log"
 	"net/http"
@@ -46,6 +47,9 @@ func (h *signaturesHandler) ChangeSignatures(c *gin.Context) {
 	}
 	user := fmt.Sprintf("%v", session.Get("sign"))
 	h.signaturesService.ChangeSignatures(signing, user)
+	fm := []byte("Mengganti Tanda Tangan!")
+	notif.SetMessage(c.Writer, "message", fm)
+
 	c.Redirect(302, "/my-signatures")
 }
 
@@ -58,16 +62,24 @@ func (h *signaturesHandler) SignDocuments(c *gin.Context) {
 	err := c.ShouldBind(&input)
 	if err != nil {
 		log.Println(err)
+		fm := []byte("melakukan tanda tangan")
+		notif.SetMessage(c.Writer, "failed", fm)
 		c.Redirect(302, "/sign-documents")
 		return
 	}
 	file, err := c.FormFile("file")
 	if err != nil {
+		fm := []byte("melakukan tanda tangan")
+		notif.SetMessage(c.Writer, "failed", fm)
 		log.Println(err)
+		c.Redirect(302, "/sign-documents")
+		return
 	}
 	if file.Header.Get("Content-Type") != "application/pdf" || file.Filename[len(file.Filename)-4:] != ".pdf" {
 		log.Println("File not pdf")
-		c.Redirect(302, "/verification")
+		fm := []byte("melakukan tanda tangan")
+		notif.SetMessage(c.Writer, "failed", fm)
+		c.Redirect(302, "/sign-documents")
 		return
 	}
 	input.Name = file.Filename
@@ -76,6 +88,10 @@ func (h *signaturesHandler) SignDocuments(c *gin.Context) {
 	err = c.SaveUploadedFile(file, path)
 	if err != nil {
 		log.Println(err)
+		fm := []byte("melakukan tanda tangan")
+		notif.SetMessage(c.Writer, "failed", fm)
+		c.Redirect(302, "/sign-documents")
+		return
 	}
 	//Generate hash document original
 	input.Hash_original = h.signaturesService.GenerateHashDocument(path)
@@ -93,12 +109,20 @@ func (h *signaturesHandler) SignDocuments(c *gin.Context) {
 	//Input to IPFS
 	err, IPFS := h.serviceUser.UploadIPFS(sign)
 	if err != nil {
+		fm := []byte("melakukan tanda tangan")
+		notif.SetMessage(c.Writer, "failed", fm)
 		log.Println(err)
+		c.Redirect(302, "/sign-documents")
+		return
 	}
 	//Delete file uploaded sign
 	err = os.Remove(path)
 	if err != nil {
+		fm := []byte("melakukan tanda tangan")
+		notif.SetMessage(c.Writer, "failed", fm)
 		log.Println(err)
+		c.Redirect(302, "/sign-documents")
+		return
 	}
 	//Encript IPFS and Get Signatures Data
 	input.IPFS = string(h.serviceUser.Encrypt([]byte(IPFS), conf.App.Secret_key))
@@ -109,7 +133,11 @@ func (h *signaturesHandler) SignDocuments(c *gin.Context) {
 	//Input to blockchain
 	err = h.signaturesService.AddToBlockhain(input)
 	if err != nil {
+		fm := []byte("melakukan tanda tangan")
+		notif.SetMessage(c.Writer, "failed", fm)
 		log.Println(err)
+		c.Redirect(302, "/sign-documents")
+		return
 	}
 	//Signing Creator in Documents
 	signDocs.Hash_original = input.Hash_original
@@ -126,10 +154,16 @@ func (h *signaturesHandler) SignDocuments(c *gin.Context) {
 	input.Hash = signDocs.Hash
 	err = h.signaturesService.AddUserDocs(input)
 	if err != nil {
+		fm := []byte("melakukan tanda tangan")
+		notif.SetMessage(c.Writer, "failed", fm)
 		log.Println(err)
+		c.Redirect(302, "/sign-documents")
+		return
 	}
+	fm := []byte("melakukan tanda tangan")
+	notif.SetMessage(c.Writer, "success", fm)
 	//fmt.Println(input)
-	c.Redirect(302, "/sign-documents")
+	c.Redirect(302, "/download")
 }
 
 func (h *signaturesHandler) InviteSignatures(c *gin.Context) {
@@ -141,16 +175,24 @@ func (h *signaturesHandler) InviteSignatures(c *gin.Context) {
 	err := c.ShouldBind(&input)
 	if err != nil {
 		log.Println(err)
+		fm := []byte("mengundang orang lain untuk tanda tangan")
+		notif.SetMessage(c.Writer, "failed", fm)
 		c.Redirect(302, "/invite-signatures")
 		return
 	}
 	file, err := c.FormFile("file")
 	if err != nil {
 		log.Println(err)
+		fm := []byte("mengundang orang lain untuk tanda tangan")
+		notif.SetMessage(c.Writer, "failed", fm)
+		c.Redirect(302, "/invite-signatures")
+		return
 	}
 	if file.Header.Get("Content-Type") != "application/pdf" || file.Filename[len(file.Filename)-4:] != ".pdf" {
 		log.Println("File not pdf")
-		c.Redirect(302, "/verification")
+		fm := []byte("mengundang orang lain untuk tanda tangan")
+		notif.SetMessage(c.Writer, "failed", fm)
+		c.Redirect(302, "/invite-signatures")
 		return
 	}
 	DocData.Name = file.Filename
@@ -159,6 +201,10 @@ func (h *signaturesHandler) InviteSignatures(c *gin.Context) {
 	err = c.SaveUploadedFile(file, path)
 	if err != nil {
 		log.Println(err)
+		fm := []byte("mengundang orang lain untuk tanda tangan")
+		notif.SetMessage(c.Writer, "failed", fm)
+		c.Redirect(302, "/invite-signatures")
+		return
 	}
 	DocData.Email = input.Email
 	DocData.Judul = input.Judul
@@ -173,6 +219,10 @@ func (h *signaturesHandler) InviteSignatures(c *gin.Context) {
 	err, DocData.IPFS = h.serviceUser.UploadIPFS(path)
 	if err != nil {
 		log.Println(err)
+		fm := []byte("mengundang orang lain untuk tanda tangan")
+		notif.SetMessage(c.Writer, "failed", fm)
+		c.Redirect(302, "/invite-signatures")
+		return
 	}
 	//Encript IPFS and Get Signatures Data
 	DocData.IPFS = string(h.serviceUser.Encrypt([]byte(DocData.IPFS), conf.App.Secret_key))
@@ -181,6 +231,10 @@ func (h *signaturesHandler) InviteSignatures(c *gin.Context) {
 	err = h.signaturesService.AddToBlockhain(DocData)
 	if err != nil {
 		log.Println(err)
+		fm := []byte("mengundang orang lain untuk tanda tangan")
+		notif.SetMessage(c.Writer, "failed", fm)
+		c.Redirect(302, "/invite-signatures")
+		return
 	}
 
 	//Invite Via Email
@@ -190,8 +244,14 @@ func (h *signaturesHandler) InviteSignatures(c *gin.Context) {
 	err = h.signaturesService.AddUserDocs(DocData)
 	if err != nil {
 		log.Println(err)
+		fm := []byte("mengundang orang lain untuk tanda tangan")
+		notif.SetMessage(c.Writer, "failed", fm)
+		c.Redirect(302, "/invite-signatures")
+		return
 	}
-	c.Redirect(302, "/invite-signatures")
+	fm := []byte("mengundang orang lain untuk tanda tangan")
+	notif.SetMessage(c.Writer, "success", fm)
+	c.Redirect(302, "/download")
 }
 
 func (h *signaturesHandler) Document(c *gin.Context) {
@@ -203,6 +263,10 @@ func (h *signaturesHandler) Document(c *gin.Context) {
 	err := c.ShouldBind(&input)
 	if err != nil {
 		log.Println(err)
+		fm := []byte("melakukan tanda tangan")
+		notif.SetMessage(c.Writer, "failed", fm)
+		c.Redirect(302, "/request-signatures")
+		return
 	}
 	input.Hash_original = c.Param("hash")
 	input.Name = input.Hash_original + ".pdf"
@@ -217,6 +281,10 @@ func (h *signaturesHandler) Document(c *gin.Context) {
 	err, input.IPFS = h.serviceUser.UploadIPFS(signing)
 	if err != nil {
 		log.Println(err)
+		fm := []byte("melakukan tanda tangan")
+		notif.SetMessage(c.Writer, "failed", fm)
+		c.Redirect(302, "/request-signatures")
+		return
 	}
 	input.IPFS = string(h.serviceUser.Encrypt([]byte(input.IPFS), conf.App.Secret_key))
 	//Signing Documents in Blockchain
@@ -230,9 +298,14 @@ func (h *signaturesHandler) Document(c *gin.Context) {
 	err = os.Remove(inputPath)
 	if err != nil {
 		log.Println(err)
+		fm := []byte("melakukan tanda tangan")
+		notif.SetMessage(c.Writer, "failed", fm)
+		c.Redirect(302, "/request-signatures")
+		return
 	}
-
-	c.Redirect(302, "/request-signatures")
+	fm := []byte("melakukan tanda tangan")
+	notif.SetMessage(c.Writer, "success", fm)
+	c.Redirect(302, "/download")
 }
 
 func (h *signaturesHandler) Verification(c *gin.Context) {
@@ -242,10 +315,16 @@ func (h *signaturesHandler) Verification(c *gin.Context) {
 	file, err := c.FormFile("file")
 	if err != nil {
 		log.Println(err)
+		fm := []byte("melakukan verifikasi")
+		notif.SetMessage(c.Writer, "failed", fm)
+		c.Redirect(302, "/verification")
+		return
 	}
 	//Filter file pdf
 	if file.Header.Get("Content-Type") != "application/pdf" || file.Filename[len(file.Filename)-4:] != ".pdf" {
 		log.Println("File not pdf")
+		fm := []byte("melakukan verifikasi")
+		notif.SetMessage(c.Writer, "failed", fm)
 		c.Redirect(302, "/verification")
 		return
 	}
@@ -254,16 +333,19 @@ func (h *signaturesHandler) Verification(c *gin.Context) {
 	err = c.SaveUploadedFile(file, path)
 	if err != nil {
 		log.Println(err)
+		fm := []byte("melakukan verifikasi")
+		notif.SetMessage(c.Writer, "failed", fm)
+		c.Redirect(302, "/verification")
+		return
 	}
 	//Generate Hash Document
 	hash := h.signaturesService.GenerateHashDocument(path)
 	//Get Data Document
 	data, exist := h.signaturesService.GetDocumentAllSign(hash)
-	if exist {
-		fmt.Println(data)
-	} else {
+	if !exist {
 		log.Println("Document not signed")
 	}
+
 	c.HTML(http.StatusOK, "verification_result.html", gin.H{
 		"title":       title,
 		"userid":      session.Get("id"),
@@ -289,7 +371,14 @@ func (h *signaturesHandler) Download(c *gin.Context) {
 	err := os.Remove(res)
 	if err != nil {
 		log.Println(err)
+		failed := []byte("mengunduh dokumen")
+		notif.SetMessage(c.Writer, "failed", failed)
+		c.Redirect(302, "/download")
 	}
+	sucess := []byte("mengunduh dokumen")
+	notif.SetMessage(c.Writer, "success", sucess)
+
+	c.Redirect(302, "/download")
 }
 
 // Test verification

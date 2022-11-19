@@ -7,6 +7,7 @@ import (
 	error "e-signature/pkg/http-error"
 	notif "e-signature/pkg/notification"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -33,10 +34,17 @@ func (h *userView) Index(c *gin.Context) {
 	session := sessions.Default(c)
 	title := "SmartSign - Smart Digital Signatures"
 	page := "index"
+
+	fm, err := notif.GetMessage(c.Writer, c.Request, "message")
+	if err != nil {
+		log.Println(err)
+	}
+
 	c.HTML(http.StatusOK, "landing_index.html", gin.H{
-		"title":  title,
-		"page":   page,
-		"userid": session.Get("id"),
+		"title":   title,
+		"page":    page,
+		"success": fmt.Sprintf("%s", fm),
+		"userid":  session.Get("id"),
 	})
 }
 
@@ -44,10 +52,17 @@ func (h *userView) Dashboard(c *gin.Context) {
 	session := sessions.Default(c)
 	title := "Dashboard - SmartSign"
 	page := "dashboard"
+
+	fm, err := notif.GetMessage(c.Writer, c.Request, "message")
+	if err != nil {
+		log.Println(err)
+	}
+
 	c.HTML(http.StatusOK, "dashboard_index.html", gin.H{
-		"title":  title,
-		"page":   page,
-		"userid": session.Get("id"),
+		"title":   title,
+		"page":    page,
+		"success": fmt.Sprintf("%s", fm),
+		"userid":  session.Get("id"),
 	})
 }
 

@@ -22,6 +22,7 @@ func ParseTmpl(router *gin.Engine) *gin.Engine { //Load HTML Template
 	router.Static("/landing/swiper", "./public/assets/landing/vendor/swiper")
 	router.Static("/landing/purecounter", "./public/assets/landing/vendor/purecounter")
 	router.Static("/landing/img", "./public/assets/landing/img")
+	router.Static("/landing/css", "./public/assets/landing/css")
 	router.Static("/landing/js", "./public/assets/landing/js")
 	router.Static("/form/vendor", "./public/assets/form/vendor")
 	router.Static("/form/css", "./public/assets/form/css")
