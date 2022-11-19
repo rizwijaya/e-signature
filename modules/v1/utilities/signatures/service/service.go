@@ -388,8 +388,8 @@ func calcImagePos(img *creator.Image, page *model.PdfPage, input models.SignDocu
 	return img
 }
 
-//Kurang notifikasi dan fix redirect after sukses ttd
 func (s *service) InvitePeople(email string, input models.SignDocuments) error {
+	conf, _ := config.Init()
 	// Parse the html file.
 	dir := "./public/templates/users/pages/email.html"
 	t := template.New("email.html")
@@ -410,12 +410,12 @@ func (s *service) InvitePeople(email string, input models.SignDocuments) error {
 
 	// Set up authentication information for send email.
 	m := gomail.NewMessage()
-	m.SetHeader("From", "smartsign@rizwijaya.com")
+	m.SetHeader("From", conf.Email.User)
 	m.SetHeader("To", email)
 	m.SetHeader("Subject", "Permintaan Tanda Tangan Digital - SmartSign")
 	m.SetBody("text/html", result)
-
-	d := gomail.NewDialer("mail.rizwijaya.com", 465, "smartsign@rizwijaya.com", "rizwijaya123#smartsign")
+	port, _ := strconv.Atoi(conf.Email.Port)
+	d := gomail.NewDialer(conf.Email.Host, port, conf.Email.User, conf.Email.Pass)
 
 	// Send the email.
 	if err := d.DialAndSend(m); err != nil {

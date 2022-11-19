@@ -34,4 +34,10 @@ type Conf struct {
 		Host string `env:"IPFS_HOST"`
 		Port string `env:"IPFS_PORT"`
 	}
+	Email struct {
+		Host string `env:"EMAIL_HOST"`
+		Port string `env:"EMAIL_PORT"`
+		User string `env:"EMAIL_USER"`
+		Pass string `env:"EMAIL_PASSWORD"`
+	}
 }
