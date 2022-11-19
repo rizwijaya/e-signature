@@ -237,6 +237,7 @@ func (h *signaturesHandler) Document(c *gin.Context) {
 func (h *signaturesHandler) Verification(c *gin.Context) {
 	session := sessions.Default(c)
 	title := "Hasil Verifikasi - SmartSign"
+	page := "verification"
 	file, err := c.FormFile("file")
 	if err != nil {
 		log.Println(err)
@@ -264,7 +265,8 @@ func (h *signaturesHandler) Verification(c *gin.Context) {
 	}
 	c.HTML(http.StatusOK, "verification_result.html", gin.H{
 		"title":       title,
-		"user":        session.Get("id"),
+		"userid":      session.Get("id"),
+		"page":        page,
 		"hash":        hash,
 		"verif_state": exist,
 		"data":        data,
@@ -290,29 +292,28 @@ func (h *signaturesHandler) Download(c *gin.Context) {
 }
 
 // Test verification
-func (h *signaturesHandler) Verif(c *gin.Context) {
-	hash := c.Param("hash")
-	data, exist := h.signaturesService.GetDocumentAllSign(hash)
-	if !exist {
-		log.Println("Document not signed")
-		c.JSON(200, "Document not signed")
-	} else {
-		c.JSON(200, data)
-	}
-}
+// func (h *signaturesHandler) Verif(c *gin.Context) {
+// 	hash := c.Param("hash")
+// 	data, exist := h.signaturesService.GetDocumentAllSign(hash)
+// 	if !exist {
+// 		log.Println("Document not signed")
+// 		c.JSON(200, "Document not signed")
+// 	} else {
+// 		c.JSON(200, data)
+// 	}
+// }
 
 //----- Get Documents and Signatures -----//
-func (h *signaturesHandler) GetDocs(c *gin.Context) {
-	session := sessions.Default(c)
-	hash := c.Param("hash")
-	id := c.Param("id")
-	if id == "" {
-		id = fmt.Sprintf("%v", session.Get("id"))
-	}
-	fmt.Println(hash)
-	docs := h.signaturesService.GetDocument(hash, id)
-	fmt.Println(docs)
-	c.JSON(200, docs)
-}
-
+// func (h *signaturesHandler) GetDocs(c *gin.Context) {
+// 	session := sessions.Default(c)
+// 	hash := c.Param("hash")
+// 	id := c.Param("id")
+// 	if id == "" {
+// 		id = fmt.Sprintf("%v", session.Get("id"))
+// 	}
+// 	fmt.Println(hash)
+// 	docs := h.signaturesService.GetDocument(hash, id)
+// 	fmt.Println(docs)
+// 	c.JSON(200, docs)
+// }
 //----- End Get Documents and Signatures -----//

@@ -33,40 +33,21 @@ func (h *userView) Index(c *gin.Context) {
 	session := sessions.Default(c)
 	title := "SmartSign - Smart Digital Signatures"
 	page := "index"
-	id := fmt.Sprintf("%v", session.Get("id"))
-	fmt.Println(id)
-	if id == "<nil>" {
-		c.HTML(http.StatusOK, "landing_index.html", gin.H{
-			"title":  title,
-			"page":   page,
-			"userid": "nil",
-		})
-	} else {
-		c.HTML(http.StatusOK, "landing_index.html", gin.H{
-			"title":  title,
-			"page":   page,
-			"userid": session.Get("id"),
-		})
-	}
+	c.HTML(http.StatusOK, "landing_index.html", gin.H{
+		"title":  title,
+		"page":   page,
+		"userid": session.Get("id"),
+	})
 }
 
 func (h *userView) Dashboard(c *gin.Context) {
 	session := sessions.Default(c)
 	title := "Dashboard - SmartSign"
 	page := "dashboard"
-	//fm, _ := notif.GetMessage(c.Writer, c.Request, "success")
-	// if fm == nil {
-	// 	c.HTML(http.StatusOK, "dashboard_index.html",
-	// 		gin.H{
-	// 			"title": title,
-	// 			"page":  page,
-	// 		})
-	// }
 	c.HTML(http.StatusOK, "dashboard_index.html", gin.H{
 		"title":  title,
 		"page":   page,
 		"userid": session.Get("id"),
-		//"success": fmt.Sprintf("%s", fm),
 	})
 }
 
@@ -85,10 +66,6 @@ func (h *userView) Register(c *gin.Context) {
 			"errorVal": out,
 		},
 	)
-
-	//Algoritma Register
-	//Register in record system
-	//After Success register in record user
 }
 
 func (h *userView) Login(c *gin.Context) {

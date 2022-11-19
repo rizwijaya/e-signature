@@ -80,9 +80,6 @@ func (h *userHandler) Login(c *gin.Context) {
 	session.Set("passph", string(h.userService.Encrypt([]byte(input.Password), user.PublicKey)))
 	session.Save()
 
-	// fm := []byte("Berhasil Masuk, Selamat Datang " + user.Name)
-	// notif.SetMessage(c.Writer, "success", fm)
-	//fmt.Println(session.Get("id"))
 	c.Redirect(http.StatusFound, "/dashboard")
 }
 
@@ -197,7 +194,6 @@ func (h *userHandler) Register(c *gin.Context) {
 		})
 		return
 	}
-	//fmt.Println(idn)
 	//Create Default Latin Signatures
 	latin := h.signatureService.CreateLatinSignatures(user, idn)
 	h.signatureService.CreateLatinSignaturesData(user, latin, idn)

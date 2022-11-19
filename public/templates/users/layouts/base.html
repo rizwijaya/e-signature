@@ -75,31 +75,34 @@
 
       <nav id="navbar" class="navbar">
         <ul>
-          <li><a class="nav-link scrollto active" href="#hero">Home</a></li>
-          <li><a class="nav-link scrollto" href="#about">Tentang Kami</a></li>
-          <li><a class="nav-link scrollto" href="/verification">Verifikasi</a></li>
-          <!-- <li><a class="nav-link scrollto" href="#portfolio">Portfolio</a></li>
-          <li><a class="nav-link scrollto" href="#team">Team</a></li>
-          <li><a href="blog.html">Blog</a></li>
-          -->
-          {{ if (ne .userid "nil") }}
+          {{ if or (eq .page "index") (eq .page "verification") (eq .page "transactions") }}
+          <li><a class="nav-link scrollto active" href="/">Home</a></li>
+          <li><a class="nav-link scrollto" href="/#about">Tentang Kami</a></li>
+          {{ else }}
+          <li><a class="nav-link scrollto" href="/dashboard">Dashboard</a></li>
+          {{ end }}
+          {{ if (ne .userid nil) }}
           <li class="dropdown"><a href="#"><span>Tanda Tangan</span> <i class="bi bi-chevron-down"></i></a>
             <ul>
-              <li><a href="/dashboard">Dashboard Saya</a></li>
               <li><a href="/my-signatures">Tanda Tangan Saya</a></li>
-              <li class="dropdown"><a href="#"><span>Tanda Tangan Dokumen</span> <i class="bi bi-chevron-right"></i></a>
+              <li class="dropdown"><a href="/sign-documents"><span>Tanda Tangan Dokumen</span> <i
+                    class="bi bi-chevron-right"></i></a>
                 <ul>
-                  <li><a href="/sign-documents">Tanda tangan dan permintaan kepihak lain</a></li>
-                  <li><a href="/invite-signatures">Permintaan Tanda Tangan keorang lain</a></li>
+                  <li><a href="/sign-documents">Tanda tangan Sekarang</a></li>
+                  <li><a href="/invite-signatures">Minta Tanda Tangan</a></li>
                 </ul>
               </li>
               <li><a href="/request-signatures">Permintaan Tanda Tangan</a></li>
+              <li><a href="/history">Riwayat Tanda Tangan</a></li>
             </ul>
           </li>
           {{ end }}
-          <li><a class="nav-link scrollto" href="/history">Riwayat Tanda Tangan</a></li>
-          <!-- <li><a class="nav-link scrollto" href="/login">Masuk</a></li> -->
-          {{ if (ne .userid "nil") }}
+          <li><a class="nav-link scrollto" href="/verification">Verifikasi</a></li>
+          <li><a class="nav-link scrollto" href="/transactions">Transaksi</a></li>
+          {{ if (ne .userid nil) }}
+          <li><a class="nav-link scrollto" href="/download">Unduh Dokumen</a></li>
+          {{ end }}
+          {{ if (ne .userid nil) }}
           <li><a class="getstarted scrollto" href="/logout">Keluar</a></li>
           {{ else }}
           <li><a class="getstarted scrollto" href="/login">Masuk</a></li>
@@ -113,23 +116,6 @@
   {{ template "content" .}}
   <!-- ======= Footer ======= -->
   <footer id="footer" class="footer">
-
-    <!-- <div class="footer-newsletter">
-      <div class="container">
-        <div class="row justify-content-center">
-          <div class="col-lg-12 text-center">
-            <h4>Our Newsletter</h4>
-            <p>Tamen quem nulla quae legam multos aute sint culpa legam noster magna</p>
-          </div>
-          <div class="col-lg-6">
-            <form action="" method="post">
-              <input type="email" name="email"><input type="submit" value="Subscribe">
-            </form>
-          </div>
-        </div>
-      </div>
-    </div> -->
-
     <div class="footer-top">
       <div class="container">
         <div class="row gy-4">
@@ -151,25 +137,22 @@
           <div class="col-lg-2 col-6 footer-links">
             <h4>Daftar Link</h4>
             <ul>
-              <li><i class="bi bi-chevron-right"></i> <a href="#">Home</a></li>
-              <li><i class="bi bi-chevron-right"></i> <a href="#">Tentang Kami</a></li>
-              <li><i class="bi bi-chevron-right"></i> <a href="#">Masuk</a></li>
-              <li><i class="bi bi-chevron-right"></i> <a href="#">Tanda Tangan</a></li>
-              <li><i class="bi bi-chevron-right"></i> <a href="#">Verifikasi Tanda Tangan</a></li>
+              <li><i class="bi bi-chevron-right"></i> <a href="/">Home</a></li>
+              <li><i class="bi bi-chevron-right"></i> <a href="/#about">Tentang Kami</a></li>
+              <li><i class="bi bi-chevron-right"></i> <a href="/login">Masuk</a></li>
+              <li><i class="bi bi-chevron-right"></i> <a href="/sign-documents">Tanda Tangan</a></li>
+              <li><i class="bi bi-chevron-right"></i> <a href="/verification">Verifikasi Tanda Tangan</a></li>
             </ul>
           </div>
-
           <div class="col-lg-2 col-6 footer-links">
             <h4>Layanan Kami</h4>
             <ul>
-              <li><i class="bi bi-chevron-right"></i> <a href="#">Home</a></li>
-              <li><i class="bi bi-chevron-right"></i> <a href="#">Tentang Kami</a></li>
-              <li><i class="bi bi-chevron-right"></i> <a href="#">Masuk</a></li>
-              <li><i class="bi bi-chevron-right"></i> <a href="#">Tanda Tangan</a></li>
-              <li><i class="bi bi-chevron-right"></i> <a href="#">Verifikasi Tanda Tangan</a></li>
+              <li><i class="bi bi-chevron-right"></i> <a href="/">Tanda Tangan</a></li>
+              <li><i class="bi bi-chevron-right"></i> <a href="/sign-documents">Verifikasi Tanda Tangan</a></li>
+              <li><i class="bi bi-chevron-right"></i> <a href="/sign-documents">Riwayat Tanda Tangan</a></li>
+              <li><i class="bi bi-chevron-right"></i> <a href="/sign-documents">Lacak Transaksi</a></li>
             </ul>
           </div>
-
           <div class="col-lg-3 col-md-12 footer-contact text-center text-md-start">
             <h4>Hubungi Kami</h4>
             <p>
@@ -219,7 +202,6 @@
   <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js'></script>
   <script src='https://cdnjs.cloudflare.com/ajax/libs/interact.js/1.10.17/interact.min.js'></script>
   <!-- <script src="/form/js/custom.js"></script> -->
-  <script src="/landing/js/mysignatures.js"></script>
   <script src="/landing/js/signature.js"></script>
 </body>
 
