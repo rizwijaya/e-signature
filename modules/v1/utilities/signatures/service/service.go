@@ -1,6 +1,7 @@
 package service
 
 import (
+	"bytes"
 	"crypto/sha256"
 	"e-signature/app/config"
 	"e-signature/modules/v1/utilities/signatures/models"
@@ -8,6 +9,7 @@ import (
 	modelsUser "e-signature/modules/v1/utilities/user/models"
 	"encoding/base64"
 	"fmt"
+	"html/template"
 	"image"
 	"image/png"
 	"io"
@@ -23,6 +25,7 @@ import (
 	"github.com/unidoc/unipdf/v3/common/license"
 	"github.com/unidoc/unipdf/v3/creator"
 	"github.com/unidoc/unipdf/v3/model"
+	gomail "gopkg.in/gomail.v2"
 )
 
 type Service interface {
@@ -37,7 +40,7 @@ type Service interface {
 	ChangeSignatures(sign_type string, idsignature string) error
 	ResizeImages(mysign models.MySignatures, input models.SignDocuments) string
 	SignDocuments(imgpath string, input models.SignDocuments) string
-	InvitePeople(email []string) error
+	InvitePeople(email string, input models.SignDocuments) error
 	GenerateHashDocument(input string) string
 	AddToBlockhain(input models.SignDocuments) error
 	AddUserDocs(input models.SignDocuments) error
@@ -385,27 +388,40 @@ func calcImagePos(img *creator.Image, page *model.PdfPage, input models.SignDocu
 	return img
 }
 
-func (s *service) InvitePeople(email []string) error {
-	// Email : smartsign@rizwijaya.com
-	// Password : rizwijaya123#smartsign
-	// const CONFIG_SMTP_HOST = "smtp.gmail.com"
-	// const CONFIG_SMTP_PORT = 587
-	// const CONFIG_SENDER_NAME = "PT. Telkom Indonesia <contact@tamaska.id>"
-	// const CONFIG_AUTH_EMAIL = "contact@tamaska.id"
-	// const CONFIG_AUTH_PASSWORD = "uyhiqdzkcknojmfh"
-	// to := []string{"contact@tamaska.id"}
-	// cc := []string{}
+//Kurang notifikasi dan fix redirect after sukses ttd
+func (s *service) InvitePeople(email string, input models.SignDocuments) error {
+	// Parse the html file.
+	dir := "./public/templates/users/pages/email.html"
+	t := template.New("email.html")
+	var err error
+	t, err = t.ParseFiles(dir)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
 
-	// body := "Subject: " + formHubungiKami.SenderSubject + "\n\n" + "Nama: " + formHubungiKami.SenderName + "\n\n" + "Nama Instansi: " + formHubungiKami.SenderInstution + "\n\n" + "Nomor HP: " + formHubungiKami.SenderPhone + "\n\n" + "Email: " + formHubungiKami.SenderEmail + "\n\n" + "Pesan: " + formHubungiKami.SenderMsg + "\n\n"
+	var tpl bytes.Buffer
+	if err := t.Execute(&tpl, input); err != nil {
+		log.Println(err)
+		return err
+	}
 
-	// auth := smtp.PlainAuth("", CONFIG_AUTH_EMAIL, CONFIG_AUTH_PASSWORD, CONFIG_SMTP_HOST)
-	// smtpAddr := fmt.Sprintf("%s:%d", CONFIG_SMTP_HOST, CONFIG_SMTP_PORT)
+	result := tpl.String()
 
-	// err := smtp.SendMail(smtpAddr, auth, CONFIG_AUTH_EMAIL, append(to, cc...), []byte(body))
-	// if err != nil {
-	// 	return err
-	// }
+	// Set up authentication information for send email.
+	m := gomail.NewMessage()
+	m.SetHeader("From", "smartsign@rizwijaya.com")
+	m.SetHeader("To", email)
+	m.SetHeader("Subject", "Permintaan Tanda Tangan Digital - SmartSign")
+	m.SetBody("text/html", result)
 
+	d := gomail.NewDialer("mail.rizwijaya.com", 465, "smartsign@rizwijaya.com", "rizwijaya123#smartsign")
+
+	// Send the email.
+	if err := d.DialAndSend(m); err != nil {
+		log.Println(err)
+		return err
+	}
 	return nil
 }
 

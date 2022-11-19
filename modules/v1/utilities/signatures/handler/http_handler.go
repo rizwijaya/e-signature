@@ -119,8 +119,9 @@ func (h *signaturesHandler) SignDocuments(c *gin.Context) {
 
 	//invite people
 	if input.Invite_sts { //Check invite or not
-		fmt.Println("Sisa Invite People Via Email Habis itu selesai")
-		//h.signaturesService.InvitePeople(input.Email) //Invite Via Email
+		for _, email := range input.Email { //Invite Via Email
+			h.signaturesService.InvitePeople(email, input)
+		}
 	}
 	input.Hash = signDocs.Hash
 	err = h.signaturesService.AddUserDocs(input)
@@ -182,10 +183,10 @@ func (h *signaturesHandler) InviteSignatures(c *gin.Context) {
 		log.Println(err)
 	}
 
-	//invite people
-	fmt.Println("Sisa Invite People Via Email Habis itu selesai")
-	//h.signaturesService.InvitePeople(DocData.Email) //Invite Via Email
-
+	//Invite Via Email
+	for _, email := range input.Email {
+		h.signaturesService.InvitePeople(email, DocData)
+	}
 	err = h.signaturesService.AddUserDocs(DocData)
 	if err != nil {
 		log.Println(err)
