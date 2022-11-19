@@ -128,6 +128,19 @@ func (h *signaturesView) Verification(c *gin.Context) {
 	})
 }
 
+func (h *signaturesView) History(c *gin.Context) {
+	session := sessions.Default(c)
+	title := "History Signatures - SmartSign"
+	listDocument := h.signaturesService.GetListDocument(fmt.Sprintf("%v", session.Get("public_key")))
+
+	c.HTML(http.StatusOK, "history.html", gin.H{
+		"title":     title,
+		"user":      session.Get("id"),
+		"name":      session.Get("name"),
+		"documents": listDocument,
+	})
+}
+
 // func (h *signaturesView) VerificationResult(c *gin.Context) {
 // 	session := sessions.Default(c)
 // 	title := "Verification - SmartSign"

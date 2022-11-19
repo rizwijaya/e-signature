@@ -65,6 +65,8 @@ func Init(db *mongo.Database, conf config.Conf, router *gin.Engine) *gin.Engine 
 	signature.GET("/verification", signaturesViewV1.Verification)
 	signature.POST("/verification", signaturesHandlerV1.Verification)
 	signature.GET("/download/:hash", signaturesHandlerV1.Download)
+	signature.GET("/history", signaturesViewV1.History)
+	//signature.GET("/transaction", signaturesViewV1.Transactions)
 	//Testing and Checking Data
 	//signature.GET("/verification_result", signaturesViewV1.VerificationResult)
 	signature.GET("/docs/:hash/:id", signaturesHandlerV1.GetDocs)

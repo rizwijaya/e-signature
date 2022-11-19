@@ -1,0 +1,78 @@
+{{ define "content" }}
+<!-- main -->
+<main id="main">
+  <section class="breadcrumbs">
+    <div class="container">
+      <ol>
+        <li><a href="/">Home</a></li>
+        <li>Riwayat Tanda Tangan</li>
+      </ol>
+      <h2>Riwayat Tanda Tangan</h2>
+    </div>
+  </section>
+  <!-- ======= Values Section ======= -->
+  <section id="blog" class="blog">
+    <div class="container aos-init aos-animate" data-aos="fade-up">
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="entries wrapper">
+              {{ $name := .name }}
+              {{ range $doc := .documents }}
+                  <!-- List Documents -->
+                  <article class="entry item">
+                    <h2 class="entry-title">
+                      <a {{ if(eq $doc.Documents.State "2") }} href="/download/{{ $doc.Hash_original }}" {{ end }}>{{ $doc.Judul }}</a>
+                    </h2>
+
+                    <div class="entry-meta">
+                      <ul>
+                        <li class="d-flex align-items-center"><i class="bi bi-person"></i> <a {{ if(eq $doc.Documents.State "2") }} href="/download/{{ $doc.Hash_original }}" {{ end }}>{{ $doc.Documents.Creator_id }}</a></li>
+                        <li class="d-flex align-items-center"><i class="bi bi-clock"></i> <a {{ if(eq $doc.Documents.State "2") }} href="/download/{{ $doc.Hash_original }}" {{ end }}><time datetime="2020-01-01">{{ $doc.Date_created_WIB }}</time></a></li>
+                        <li class="d-flex align-items-center"><i class="bi bi-chat-dots"></i> <a {{ if(eq $doc.Documents.State "2") }} href="/download/{{ $doc.Hash_original }}" {{ end }}>{{ $doc.Documents.Metadata }}</a></li>
+                      </ul>
+                    </div>
+
+                    <div class="entry-content">
+                      <p>
+                        Permintaan tanda tangan dokumen dilakukan oleh {{ $doc.Documents.Creator_id }} kepada {{ $name }} 
+                        {{ if eq $doc.Note ""}}
+                        . Tidak ada catatan tambahan.
+                        {{ else }}
+                          dengan catatan yaitu {{ $doc.Note }}.
+                        {{ end }}
+                      </p>
+                      <div class="read-more">
+                      {{ if(eq $doc.Documents.State "2") }}
+                        <a href="/download/{{ $doc.Hash_original }}">Unduh Dokumen</a>
+                      {{ else if(eq $doc.Documents.Signers.Signers_state false) }}
+                        <a href="/document/{{ $doc.Hash_original }}">Tanda Tangan Sekarang</a>
+                      {{ else }}
+                        <a href="#">Proses Tanda Tangan</a>
+                      {{ end }}
+                      </div>
+                    </div>
+
+                  </article>
+                  <!-- List Documents -->
+            {{ end }}
+          </div>
+          <div class="blog-pagination pagination flex justify-content-center my-5"></div>
+          <!-- <div class="blog-pagination">
+            <ul class="justify-content-center">
+              <li><a href="#">1</a></li>
+              <li class="active"><a href="#">2</a></li>
+              <li><a href="#">3</a></li>
+            </ul>
+          </div> -->
+        </div>
+        <!-- End blog entries list -->
+
+      </div>
+
+    </div>
+  </section>
+  <!-- End Values Section -->
+</main>
+<!-- End main -->
+<script src="/landing/js/pagination_listsign.js"> </script>
+{{ end }}

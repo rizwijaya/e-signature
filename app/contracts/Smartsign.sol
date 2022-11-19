@@ -25,6 +25,7 @@ contract Smartsign {
         uint256 createdtime; //tgl request ttd
         uint256 completedtime;
         bool exist; //check apakah dokument
+        uint256 sign_reminder;
         mapping(address => Signers) signers; //Data alamat penandatangan
     }
 
@@ -81,6 +82,7 @@ contract Smartsign {
         newDocument.createdtime = _time;
         newDocument.completedtime = _time;
         newDocument.exist = true;
+        newDocument.sign_reminder = _signers.length;
         for (uint256 i=0; i<_signers.length; i++) {
             newDocument.signers[_signers[i]].sign_addr = _signers[i];
             newDocument.signers[_signers[i]].sign_id = i;
@@ -124,6 +126,7 @@ contract Smartsign {
         require(signDocument.exist == true, "Document not exist");
         require(signDocument.signers[_signers_id].sign_time > 1, "Document not exist");
         require(signDocument.signers[_signers_id].signers_state == false, "You are signed this document");
+        signDocument.sign_reminder--;
         signDocument.ipfs = _ipfs;
         signDocument.completedtime = _time;
         signDocument.hash = _signers_hash; //Update last hash
@@ -132,6 +135,9 @@ contract Smartsign {
         signDocument.signers[_signers_id].sign_time = _time;
         bytes32 signedfile = stringToBytes32(_signers_hash);
         signedDocs[signedfile] = signDocument.file;
+        if (signDocument.sign_reminder < 1) {
+            signDocument.state = 2;
+        }
     }
     //Get Documents Signed By Hash signed
     function getDocSigned(string memory _hash) public view returns(string memory) {
