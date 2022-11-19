@@ -1,0 +1,91 @@
+{{ define "content" }}
+<!-- main -->
+<main id="main">
+  <section class="breadcrumbs">
+    <div class="container">
+      <ol>
+        <li><a href="/">Home</a></li>
+        <li>Riwayat Transaksi</li>
+      </ol>
+      <h2>Riwayat Transaksi</h2>
+    </div>
+  </section>
+  <!-- ======= Values Section ======= -->
+  <section id="blog" class="blog">
+    <div class="container aos-init aos-animate" data-aos="fade-up">
+      <div class="row">
+        <div class="col-lg-9">
+          <div class="entries wrapper">
+            {{ range $transac := .transac }}
+                <!-- List Transactions -->
+                <article class="entry item" style="margin-bottom: 15px !important;">
+                  <!-- <h2 class="entry-title">
+                    <a href="https://sepolia.etherscan.io/tx/{{ $transac.Tx_hash }}">{{ $transac.Id }}</a>
+                  </h2> -->
+
+                  <div class="entry-meta">
+                    <ul>
+                      <li class="d-flex align-items-center"><i class="bi bi-person"></i> <a href="https://sepolia.etherscan.io/tx/{{ $transac.Tx_hash }}" >{{ $transac.Address }}</a></li>
+                      <li class="d-flex align-items-center"><i class="bi bi-clock"></i> <a href="https://sepolia.etherscan.io/tx/{{ $transac.Tx_hash }}" ><time datetime="2020-01-01">{{ $transac.Nonce }}</time></a></li>
+                      <li class="d-flex align-items-center"><i class="bi bi-chat-dots"></i> <a href="https://sepolia.etherscan.io/tx/{{ $transac.Tx_hash }}" >{{ $transac.Prices }}</a></li>
+                    </ul>
+                  </div>
+
+                  <div class="entry-content">
+                    <p>
+                      Transaksi {{ $transac.Ids }} nomor {{ $transac.Nonce }} dilakukan oleh {{ $transac.Address }} dengan detail adalah {{ $transac.Description }} pada tanggal {{ $transac.Date_created_wib }}.
+                    </p>
+                    <div class="read-more">
+                      <a href="https://sepolia.etherscan.io/tx/{{ $transac.Tx_hash }}">Lihat Detail</a>
+                    </div>
+                  </div>
+
+                </article>
+                <!-- List Transactions -->
+            {{ end }}
+          </div>
+          <div class="blog-pagination pagination flex justify-content-center my-5"></div>
+        </div>
+        <div class="col-lg-3">
+          <!-- sidebar -->
+          <div class="sidebar">
+            <!-- sidebar categories-->
+            <h3 class="sidebar-title">Tanda Tangan</h3>
+            <div class="sidebar-item categories">
+              <ul>
+                <li><a href="#">Tanda Tangan Saya</a></li>
+                <li><a href="#">Verifikasi Tanda Tangan</a></li>
+                <li><a href="#">Minta Tanda Tangan</a></li>
+                <li><a href="#">Tanda Tangan Sekarang</a></li>
+                <li><a href="#">Permintaan Tanda Tangan</a></li>
+                <li><a href="#">Riwayat Tanda Tangan</a></li>
+              </ul>
+            </div>
+            <!-- End sidebar categories-->
+            <!-- sidebar tags-->
+            <h3 class="sidebar-title">Tags</h3>
+            <div class="sidebar-item tags">
+              <ul>
+                <li><a href="#">Tanda Tangan Saya</a></li>
+                <li><a href="#">Verifikasi Tanda Tangan</a></li>
+                <li><a href="#">Minta Tanda Tangan</a></li>
+                <li><a href="#">Tanda Tangan Sekarang</a></li>
+                <li><a href="#">Permintaan Tanda Tangan</a></li>
+                <li><a href="#">Riwayat Tanda Tangan</a></li>
+              </ul>
+            </div>
+            <!-- End sidebar tags-->
+          </div>
+          <!-- End sidebar -->
+        </div>
+        <!-- End blog entries list -->
+
+      </div>
+
+    </div>
+  </section>
+  <!-- End Values Section -->
+</main>
+<!-- End main -->
+<script src="/landing/js/pagination_listtransac.js"> </script>
+{{ end }}

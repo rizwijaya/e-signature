@@ -32,13 +32,15 @@ type SignDocs struct {
 }
 
 type Transac struct {
-	Id           primitive.ObjectID `bson:"_id"`
-	Address      string             `bson:"address"`
-	Tx_hash      string             `bson:"tx_hash"`
-	Nonce        string             `bson:"nonce"`
-	Prices       string             `bson:"prices"`
-	Description  string             `bson:"description"`
-	Date_created time.Time          `bson:"date_created"`
+	Id               primitive.ObjectID `bson:"_id"`
+	Ids              string
+	Address          string    `bson:"address"`
+	Tx_hash          string    `bson:"tx_hash"`
+	Nonce            string    `bson:"nonce"`
+	Prices           string    `bson:"prices"`
+	Description      string    `bson:"description"`
+	Date_created     time.Time `bson:"date_created"`
+	Date_created_wib string
 }
 
 type ListDocument struct {

@@ -141,6 +141,18 @@ func (h *signaturesView) History(c *gin.Context) {
 	})
 }
 
+func (h *signaturesView) Transactions(c *gin.Context) {
+	session := sessions.Default(c)
+	title := "Transactions - SmartSign"
+	transac := h.signaturesService.GetTransactions()
+
+	c.HTML(http.StatusOK, "transactions.html", gin.H{
+		"title":   title,
+		"user":    session.Get("id"),
+		"transac": transac,
+	})
+}
+
 // func (h *signaturesView) VerificationResult(c *gin.Context) {
 // 	session := sessions.Default(c)
 // 	title := "Verification - SmartSign"

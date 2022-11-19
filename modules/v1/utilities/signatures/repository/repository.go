@@ -37,6 +37,7 @@ type Repository interface {
 	GetListSign(hash string) []models.SignersData
 	GetUserByIdSignatures(idsignature string) modelsUser.ProfileDB
 	VerifyDoc(hash string) bool
+	GetTransactions() []models.Transac
 }
 
 type repository struct {
@@ -318,4 +319,22 @@ func (r *repository) VerifyDoc(hash string) bool {
 		log.Println(err)
 	}
 	return check
+}
+
+func (r *repository) GetTransactions() []models.Transac {
+	var transac []models.Transac
+	c := r.db.Collection("transactions")
+	cursor, err := c.Find(context.Background(), bson.M{})
+	if err != nil {
+		log.Println(err)
+	}
+	for cursor.Next(context.Background()) {
+		var model models.Transac
+		err := cursor.Decode(&model)
+		if err != nil {
+			log.Println(err)
+		}
+		transac = append(transac, model)
+	}
+	return transac
 }

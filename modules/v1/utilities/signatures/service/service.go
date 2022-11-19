@@ -46,6 +46,7 @@ type Service interface {
 	GetDocument(hash string, publickey string) models.DocumentBlockchain
 	GetDocumentAllSign(hash string) (models.DocumentAllSign, bool)
 	GetDocumentNoSigners(hash string) models.DocumentBlockchain
+	GetTransactions() []models.Transac
 }
 
 type service struct {
@@ -524,4 +525,13 @@ func (s *service) GetDocumentNoSigners(hash string) models.DocumentBlockchain {
 	conf, _ := config.Init()
 	doc := s.repository.GetDocument(hash, "0x"+conf.Blockhain.Public)
 	return doc
+}
+
+func (s *service) GetTransactions() []models.Transac {
+	transac := s.repository.GetTransactions()
+	for i := range transac {
+		transac[i].Date_created_wib = TanggalJam(transac[i].Date_created)
+		transac[i].Ids = transac[i].Id.Hex()
+	}
+	return transac
 }
