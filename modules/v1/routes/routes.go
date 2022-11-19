@@ -3,6 +3,7 @@ package routes
 import (
 	"e-signature/app/blockhain"
 	"e-signature/app/config"
+	mid "e-signature/app/middlewares"
 
 	//basic "e-signature/pkg/basic_auth"
 
@@ -44,7 +45,7 @@ func Init(db *mongo.Database, conf config.Conf, router *gin.Engine) *gin.Engine 
 	// Routing Website Service
 	user := router.Group("")
 	user.GET("/", userViewV1.Index)
-	user.GET("/dashboard", userViewV1.Dashboard)
+	user.GET("/dashboard", mid.Permission(), userViewV1.Dashboard)
 	user.GET("/register", userViewV1.Register)
 	user.POST("/register", userHandlerV1.Register)
 	user.GET("/login", userViewV1.Login)
@@ -52,31 +53,26 @@ func Init(db *mongo.Database, conf config.Conf, router *gin.Engine) *gin.Engine 
 	user.GET("/logout", userHandlerV1.Logout)
 
 	signature := router.Group("")
-	signature.GET("/my-signatures", signaturesViewV1.MySignatures)
-	signature.POST("/add-signatures", signaturesHandlerV1.AddSignatures)
-	signature.GET("/change-signatures/:sign_type", signaturesHandlerV1.ChangeSignatures)
-	signature.GET("/sign-documents", signaturesViewV1.SignDocuments)
-	signature.POST("/sign-documents", signaturesHandlerV1.SignDocuments)
-	signature.GET("/invite-signatures", signaturesViewV1.InviteSignatures)
-	signature.POST("/invite-signatures", signaturesHandlerV1.InviteSignatures)
-	signature.GET("/request-signatures", signaturesViewV1.RequestSignatures)
-	signature.GET("/document/:hash", signaturesViewV1.Document)
-	signature.POST("/document/:hash", signaturesHandlerV1.Document)
+	signature.GET("/my-signatures", mid.Permission(), signaturesViewV1.MySignatures)
+	signature.POST("/add-signatures", mid.Permission(), signaturesHandlerV1.AddSignatures)
+	signature.GET("/change-signatures/:sign_type", mid.Permission(), signaturesHandlerV1.ChangeSignatures)
+	signature.GET("/sign-documents", mid.Permission(), signaturesViewV1.SignDocuments)
+	signature.POST("/sign-documents", mid.Permission(), signaturesHandlerV1.SignDocuments)
+	signature.GET("/invite-signatures", mid.Permission(), signaturesViewV1.InviteSignatures)
+	signature.POST("/invite-signatures", mid.Permission(), signaturesHandlerV1.InviteSignatures)
+	signature.GET("/request-signatures", mid.Permission(), signaturesViewV1.RequestSignatures)
+	signature.GET("/document/:hash", mid.Permission(), signaturesViewV1.Document)
+	signature.POST("/document/:hash", mid.Permission(), signaturesHandlerV1.Document)
 	signature.GET("/verification", signaturesViewV1.Verification)
 	signature.POST("/verification", signaturesHandlerV1.Verification)
-	signature.GET("/download/:hash", signaturesHandlerV1.Download)
-	signature.GET("/history", signaturesViewV1.History)
-	signature.GET("/transaction", signaturesViewV1.Transactions)
+	signature.GET("/download", mid.Permission(), signaturesViewV1.Download)
+	signature.GET("/download/:hash", mid.Permission(), signaturesHandlerV1.Download)
+	signature.GET("/history", mid.Permission(), signaturesViewV1.History)
+	signature.GET("/transactions", signaturesViewV1.Transactions)
 	//Testing and Checking Data
 	//signature.GET("/verification_result", signaturesViewV1.VerificationResult)
-	signature.GET("/docs/:hash/:id", signaturesHandlerV1.GetDocs)
-	signature.GET("/verif/:hash", signaturesHandlerV1.Verif)
-	//user.GET("/list-signature", signaturesViewV1.ListSignature)
-
-	//signatures := router.Group("/", basic.Auth(conf))
-	//Routing API Service
-	//api := router.Group("/api/v1")
-	//api.GET("/dashboard", signaturesHandlerV1.ListDashboard)
+	//signature.GET("/docs/:hash/:id", signaturesHandlerV1.GetDocs)
+	//signature.GET("/verif/:hash", signaturesHandlerV1.Verif)
 
 	router = ParseTmpl(router)
 	return router
