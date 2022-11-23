@@ -18,6 +18,7 @@
           <div class="entries wrapper">
               {{ $name := .name }}
               {{ range $doc := .documents }}
+              {{ if(eq $doc.Documents.Exist true) }}
                 {{ if(eq $doc.Documents.Signers.Signers_state false) }}
                   <!-- List Documents -->
                   <article class="entry item">
@@ -50,6 +51,7 @@
                   </article>
                   <!-- List Documents -->
                 {{ end }}
+              {{ end }}
             {{ end }}
           </div>
           <div class="blog-pagination pagination flex justify-content-center my-5"></div>

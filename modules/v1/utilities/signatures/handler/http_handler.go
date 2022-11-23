@@ -130,6 +130,11 @@ func (h *signaturesHandler) SignDocuments(c *gin.Context) {
 	//Add Creator for signatures
 	input.Address = append(input.Address, common.HexToAddress(input.Creator))
 	input.IdSignature = append(input.IdSignature, input.Creator_id)
+	if input.Invite_sts { //Mode ttd with Invite
+		input.Mode = "1"
+	} else { //Mode ttd without Invite
+		input.Mode = "3"
+	}
 	//Input to blockchain
 	err = h.signaturesService.AddToBlockhain(input)
 	if err != nil {
@@ -227,6 +232,7 @@ func (h *signaturesHandler) InviteSignatures(c *gin.Context) {
 	//Encript IPFS and Get Signatures Data
 	DocData.IPFS = string(h.serviceUser.Encrypt([]byte(DocData.IPFS), conf.App.Secret_key))
 	DocData.Address, DocData.IdSignature = h.serviceUser.GetPublicKey(DocData.Email)
+	DocData.Mode = "2"
 	//Input to blockchain
 	err = h.signaturesService.AddToBlockhain(DocData)
 	if err != nil {
@@ -241,6 +247,10 @@ func (h *signaturesHandler) InviteSignatures(c *gin.Context) {
 	for _, email := range input.Email {
 		h.signaturesService.InvitePeople(email, DocData)
 	}
+	//Add Creator for view signatures documents
+	DocData.Address = append(DocData.Address, common.HexToAddress(DocData.Creator))
+	DocData.IdSignature = append(DocData.IdSignature, DocData.Creator_id)
+
 	err = h.signaturesService.AddUserDocs(DocData)
 	if err != nil {
 		log.Println(err)

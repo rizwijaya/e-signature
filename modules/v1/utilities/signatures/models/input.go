@@ -36,6 +36,7 @@ type SignDocuments struct {
 	Email         []string `json:"email[]" form:"email[]"`
 	Note          string   `json:"note" form:"note"`
 	Judul         string   `json:"judul" form:"judul"`
+	Mode          string
 	IPFS          string
 	Hash          string
 	Hash_original string

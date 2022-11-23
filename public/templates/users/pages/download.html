@@ -5,9 +5,9 @@
     <div class="container">
       <ol>
         <li><a href="/">Home</a></li>
-        <li>Riwayat Tanda Tangan</li>
+        <li>Unduh Dokumen</li>
       </ol>
-      <h2>Riwayat Tanda Tangan</h2>
+      <h2>Unduh Dokumen</h2>
     </div>
   </section>
   <!-- ======= Values Section ======= -->
@@ -18,6 +18,7 @@
           <div class="entries wrapper">
               {{ $name := .name }}
               {{ range $doc := .documents }}
+              {{ if(eq $doc.Documents.Exist true) }}
                 {{ if(eq $doc.Documents.State "2") }}
                   <!-- List Documents -->
                   <article class="entry item">
@@ -35,7 +36,10 @@
 
                     <div class="entry-content">
                       <p>
-                        Permintaan tanda tangan dokumen dilakukan oleh {{ $doc.Documents.Creator_id }} kepada {{ $name }} 
+                        Permintaan tanda tangan dokumen dilakukan oleh {{ $doc.Documents.Creator_id }} 
+                        {{ if (ne $doc.Documents.Creator_string $doc.Address ) }}
+                        kepada {{ $name }} 
+                        {{ end }} 
                         {{ if eq $doc.Note ""}}
                         . Tidak ada catatan tambahan.
                         {{ else }}
@@ -50,6 +54,7 @@
                   </article>
                   <!-- List Documents -->
                 {{ end }}
+              {{ end }}
             {{ end }}
           </div>
           <div class="blog-pagination pagination flex justify-content-center my-5"></div>

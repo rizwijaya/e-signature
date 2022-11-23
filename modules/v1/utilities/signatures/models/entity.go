@@ -56,19 +56,20 @@ type ListDocument struct {
 }
 
 type DocumentBlockchain struct {
-	Document_id   string
-	Creator       common.Address
-	Creator_id    string
-	Metadata      string
-	Hash_ori      string
-	Hash          string
-	IPFS          string
-	State         string
-	Visibility    bool
-	Createdtime   string
-	Completedtime string
-	Exist         bool
-	Signers       Signers
+	Document_id    string
+	Creator        common.Address
+	Creator_string string
+	Creator_id     string
+	Metadata       string
+	Hash_ori       string
+	Hash           string
+	IPFS           string
+	State          string
+	Mode           string
+	Createdtime    string
+	Completedtime  string
+	Exist          bool
+	Signers        Signers
 }
 
 type DocumentAllSign struct {
@@ -80,7 +81,7 @@ type DocumentAllSign struct {
 	Hash          string
 	IPFS          string
 	State         string
-	Visibility    bool
+	Mode          string
 	Createdtime   string
 	Completedtime string
 	Exist         bool

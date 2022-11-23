@@ -21,7 +21,7 @@ contract Smartsign {
         string hash; //Hash akhir
         string ipfs; //data document di ipfs
         uint256 state; //1 Process Signed, 2 Signed
-        bool visibility; //ditampilkan atau tidak
+        uint256 mode; //mode ttd: 1 Permintaan ttd, 2 minta ttd (invite orang lain), 3 Single ttd
         uint256 createdtime; //tgl request ttd
         uint256 completedtime;
         bool exist; //check apakah dokument
@@ -64,7 +64,7 @@ contract Smartsign {
     function create(
         string memory _file, address creator, string memory _creator_id, 
         string memory _metadata, string memory _hash, 
-        string memory _ipfs, uint256 _state, bool _visibility, 
+        string memory _ipfs, uint256 _state, uint256 _mode, 
         uint256 _time, address[] memory _signers, string[] memory _signers_id
     ) public {
         bytes32 byte_id = stringToBytes32(_file);
@@ -78,7 +78,7 @@ contract Smartsign {
         newDocument.hash = _hash;
         newDocument.ipfs = _ipfs;
         newDocument.state = _state;
-        newDocument.visibility = _visibility;
+        newDocument.mode = _mode;
         newDocument.createdtime = _time;
         newDocument.completedtime = _time;
         newDocument.exist = true;
@@ -97,14 +97,14 @@ contract Smartsign {
     //Original hash document disimpan didalam file local
     function getDoc(string memory _file) public view returns(
         uint256, address, string memory, string memory, string memory, 
-        string memory, string memory, uint256, bool, uint256, uint256, bool
+        string memory, string memory, uint256, uint256, uint256, uint256, bool
     ) {
         bytes32 byte_id = stringToBytes32(_file);
         Document storage temp = documents[byte_id];
         require(temp.exist == true, "Document not exist");
         return(temp.document_id, temp.creator, temp.creator_id, 
         temp.metadata, temp.hash_ori, temp.hash, temp.ipfs, temp.state,
-        temp.visibility, temp.createdtime, temp.completedtime, 
+        temp.mode, temp.createdtime, temp.completedtime, 
         temp.exist);
     }
     //Get Signatures Data in Documents
@@ -155,11 +155,5 @@ contract Smartsign {
             return true;
         }
     }
-
-    //Get signed Documents with hash signed
-    // function GetsignedDoc(string memory _hash) public view returns(string memory) {
-    //     bytes32 signed = stringToBytes32(_hash);
-    //     return bytes32ToString(signedDocs[signed]);
-    // }
      // ------ End Signing Process ------ //
 }

@@ -85,9 +85,9 @@ func Clock(t time.Time) string {
 }
 
 func init() {
-	//Demo: 58f9d9cb8ba964ee240d04196ee9b1e9406107505e36d553fc2c057002de766a
+	//Demo: cd2cdbac33884071a5bf4302345089ad9de96ef7e1d5a582742404058b83e90b
 	//Develop:345b46cc6941c36f6d4528a304c7b6ceb1855e56a2c76ca0db93f3f4b3586904
-	err := license.SetMeteredKey("58f9d9cb8ba964ee240d04196ee9b1e9406107505e36d553fc2c057002de766a")
+	err := license.SetMeteredKey("345b46cc6941c36f6d4528a304c7b6ceb1855e56a2c76ca0db93f3f4b3586904")
 	if err != nil {
 		log.Println(err)
 	}
@@ -481,6 +481,9 @@ func (s *service) GetListDocument(publickey string) []models.ListDocument {
 		listDoc[i].Date_created_WIB = TanggalJam(listDoc[i].Date_created)
 		listDoc[i].Documents = s.repository.GetDocument(listDoc[i].Hash_original, publickey)
 		listDoc[i].Documents.Signers = s.repository.GetSigners(listDoc[i].Hash_original, publickey)
+		// if(listDoc[i].Documents.Mode == "2") {
+
+		// }
 	}
 	// fmt.Println(publickey)
 	return listDoc
@@ -510,7 +513,7 @@ func (s *service) GetDocumentAllSign(hash string) (models.DocumentAllSign, bool)
 	docSigned.Hash = doc.Hash
 	docSigned.IPFS = doc.IPFS
 	docSigned.State = doc.State
-	docSigned.Visibility = doc.Visibility
+	docSigned.Mode = doc.Mode
 	docSigned.Createdtime = s.TimeFormating(doc.Createdtime)
 	docSigned.Completedtime = s.TimeFormating(doc.Completedtime)
 	docSigned.Exist = doc.Exist
@@ -519,20 +522,22 @@ func (s *service) GetDocumentAllSign(hash string) (models.DocumentAllSign, bool)
 	for i := range signData {
 		//Get Signer Data in Blockchain
 		signer := s.repository.GetSigners(hash_ori, signData[i].Sign_addr)
-		//Get Signer Data in Database
-		signDB := s.repository.GetUserByIdSignatures(signer.Signers_id)
-		SignersData := models.SignersData{
-			Sign_addr:     signer.Sign_addr.String(),
-			Sign_id:       signer.Sign_id,
-			Signers_id:    signer.Signers_id,
-			Signers_hash:  signer.Signers_hash,
-			Signers_state: signer.Signers_state,
-			Sign_time:     s.TimeFormating(signer.Sign_time),
-			Sign_name:     signDB.Name,
-			Sign_email:    signDB.Email,
-			Sign_id_db:    signDB.Id.String(),
+		if signer.Signers_state {
+			//Get Signer Data in Database
+			signDB := s.repository.GetUserByIdSignatures(signer.Signers_id)
+			SignersData := models.SignersData{
+				Sign_addr:     signer.Sign_addr.String(),
+				Sign_id:       signer.Sign_id,
+				Signers_id:    signer.Signers_id,
+				Signers_hash:  signer.Signers_hash,
+				Signers_state: signer.Signers_state,
+				Sign_time:     s.TimeFormating(signer.Sign_time),
+				Sign_name:     signDB.Name,
+				Sign_email:    signDB.Email,
+				Sign_id_db:    signDB.Id.String(),
+			}
+			docSigned.Signers = append(docSigned.Signers, SignersData)
 		}
-		docSigned.Signers = append(docSigned.Signers, SignersData)
 	}
 	return docSigned, true
 }

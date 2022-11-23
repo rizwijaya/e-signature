@@ -164,8 +164,10 @@ func (r *repository) ChangeSignature(sign_type string, sign string) error {
 
 func (r *repository) AddToBlockhain(input models.SignDocuments, times *big.Int) error {
 	conf, _ := config.Init()
+	mode := new(big.Int)
+	mode.SetString(input.Mode, 10)
 	auth := blockhainAuth.GetAccountAuth(blockhainAuth.Connect(), conf.Blockhain.Secret_key)
-	document, err := r.blockchain.Create(auth, input.Hash_original, common.HexToAddress(input.Creator), input.Creator_id, input.Name, input.Hash, input.IPFS, big.NewInt(1), false, times, input.Address, input.IdSignature)
+	document, err := r.blockchain.Create(auth, input.Hash_original, common.HexToAddress(input.Creator), input.Creator_id, input.Name, input.Hash, input.IPFS, big.NewInt(1), mode, times, input.Address, input.IdSignature)
 	if err != nil {
 		log.Println(err)
 	}
@@ -245,8 +247,8 @@ func (r *repository) ListDocumentNoSign(publickey string) []models.ListDocument 
 func (r *repository) GetDocument(hash string, publickey string) models.DocumentBlockchain {
 	var doc models.DocumentBlockchain
 	var err error
-	var document_id, state, Createdtime, Completedtime *big.Int
-	document_id, doc.Creator, doc.Creator_id, doc.Metadata, doc.Hash_ori, doc.Hash, doc.IPFS, state, doc.Visibility, Createdtime, Completedtime, doc.Exist, err = r.blockchain.GetDoc(&bind.CallOpts{From: common.HexToAddress(publickey)}, hash)
+	var document_id, state, Createdtime, Completedtime, Mode *big.Int
+	document_id, doc.Creator, doc.Creator_id, doc.Metadata, doc.Hash_ori, doc.Hash, doc.IPFS, state, Mode, Createdtime, Completedtime, doc.Exist, err = r.blockchain.GetDoc(&bind.CallOpts{From: common.HexToAddress(publickey)}, hash)
 	if err != nil {
 		log.Println("Error Get Document")
 	}
@@ -254,6 +256,8 @@ func (r *repository) GetDocument(hash string, publickey string) models.DocumentB
 	doc.State = state.String()
 	doc.Createdtime = Createdtime.String()
 	doc.Completedtime = Completedtime.String()
+	doc.Mode = Mode.String()
+	doc.Creator_string = doc.Creator.String()
 
 	return doc
 }
