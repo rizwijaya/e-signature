@@ -18,6 +18,7 @@
           <div class="entries wrapper">
               {{ $name := .name }}
               {{ range $doc := .documents }}
+                {{ if(eq $doc.Documents.Exist true) }}
                   <!-- List Documents -->
                   <article class="entry item">
                     <h2 class="entry-title">
@@ -34,7 +35,10 @@
 
                     <div class="entry-content">
                       <p>
-                        Permintaan tanda tangan dokumen dilakukan oleh {{ $doc.Documents.Creator_id }} kepada {{ $name }} 
+                        Permintaan tanda tangan dokumen dilakukan oleh {{ $doc.Documents.Creator_id }} 
+                        {{ if (ne $doc.Documents.Creator_string $doc.Address ) }}
+                        kepada {{ $name }} 
+                        {{ end }}
                         {{ if eq $doc.Note ""}}
                         . Tidak ada catatan tambahan.
                         {{ else }}
@@ -44,7 +48,9 @@
                       <div class="read-more">
                       {{ if(eq $doc.Documents.State "2") }}
                         <a href="/download/{{ $doc.Hash_original }}">Unduh Dokumen</a>
-                      {{ else if(eq $doc.Documents.Signers.Signers_state false) }}
+                      {{ else if and (eq $doc.Documents.Mode "2") (eq $doc.Documents.Creator_string $doc.Address ) }}
+                        <a href="#">Proses Tanda Tangan</a>
+                      {{ else if or (eq $doc.Documents.Signers.Signers_state false) }}
                         <a href="/document/{{ $doc.Hash_original }}">Tanda Tangan Sekarang</a>
                       {{ else }}
                         <a href="#">Proses Tanda Tangan</a>
@@ -54,6 +60,7 @@
 
                   </article>
                   <!-- List Documents -->
+                {{ end }}
             {{ end }}
           </div>
           <div class="blog-pagination pagination flex justify-content-center my-5"></div>
