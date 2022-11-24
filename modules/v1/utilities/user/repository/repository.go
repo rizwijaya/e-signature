@@ -37,6 +37,8 @@ type Repository interface {
 	TransferBalance(user models.ProfileDB) error
 	GetBalance(user models.ProfileDB, pw string) (string, error)
 	GetUserByEmail(email string) (models.User, error)
+	GetTotal(db string) int
+	GetTotalRequestUser(sign_id string) int
 }
 
 type repository struct {
@@ -307,4 +309,24 @@ func (r *repository) GetUserByEmail(email string) (models.User, error) {
 		return user, err
 	}
 	return user, nil
+}
+
+func (r *repository) GetTotal(db string) int {
+	c := r.db.Collection(db)
+	total, err := c.CountDocuments(context.Background(), bson.M{})
+	if err != nil {
+		log.Println(err)
+		return 0
+	}
+	return int(total)
+}
+
+func (r *repository) GetTotalRequestUser(sign_id string) int {
+	c := r.db.Collection("users")
+	total, err := c.CountDocuments(context.Background(), bson.M{"idsignature": sign_id})
+	if err != nil {
+		log.Println(err)
+		return 0
+	}
+	return int(total)
 }

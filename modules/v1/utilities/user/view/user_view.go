@@ -57,12 +57,14 @@ func (h *userView) Dashboard(c *gin.Context) {
 	if err != nil {
 		log.Println(err)
 	}
+	cardDashboard := h.userService.GetCardDashboard(session.Get("sign").(string))
 
 	c.HTML(http.StatusOK, "dashboard_index.html", gin.H{
 		"title":   title,
 		"page":    page,
 		"success": fmt.Sprintf("%s", fm),
 		"userid":  session.Get("id"),
+		"card":    cardDashboard,
 	})
 }
 

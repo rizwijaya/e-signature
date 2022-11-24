@@ -40,6 +40,7 @@ type Service interface {
 	GetBalance(user models.ProfileDB, pw string) (string, error)
 	TransferBalance(user models.ProfileDB) error
 	GetPublicKey(email []string) ([]common.Address, []string)
+	GetCardDashboard(sign_id string) models.CardDashboard
 }
 
 type service struct {
@@ -318,6 +319,15 @@ func (s *service) GetPublicKey(email []string) ([]common.Address, []string) {
 	}
 
 	return addr, idSignature
+}
+
+func (s *service) GetCardDashboard(sign_id string) models.CardDashboard {
+	var card models.CardDashboard
+	card.TotalRequest = s.repository.GetTotal("signedDocuments")
+	card.TotalUser = s.repository.GetTotal("users")
+	card.TotalTx = s.repository.GetTotal("transactions")
+	card.TotalRequestUser = s.repository.GetTotalRequestUser(sign_id)
+	return card
 }
 
 // func (s *service) SavetoSystem(user models.User) error {

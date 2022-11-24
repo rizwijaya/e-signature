@@ -42,3 +42,10 @@ type Transac struct {
 	Description  string             `bson:"description"`
 	Date_created time.Time          `bson:"date_created"`
 }
+
+type CardDashboard struct {
+	TotalUser        int
+	TotalTx          int
+	TotalRequest     int
+	TotalRequestUser int
+}

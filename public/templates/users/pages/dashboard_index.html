@@ -65,7 +65,7 @@
           <div class="count-box">
             <i class="bi bi-emoji-smile"></i>
             <div>
-              <span data-purecounter-start="0" data-purecounter-end="232" data-purecounter-duration="1"
+              <span data-purecounter-start="0" data-purecounter-end="{{ .card.TotalUser }}" data-purecounter-duration="1"
                 class="purecounter"></span>
               <p>Total Pengguna</p>
             </div>
@@ -76,9 +76,9 @@
           <div class="count-box">
             <i class="bi bi-journal-richtext" style="color: #ee6c20;"></i>
             <div>
-              <span data-purecounter-start="0" data-purecounter-end="521" data-purecounter-duration="1"
+              <span data-purecounter-start="0" data-purecounter-end="{{ .card.TotalTx }}" data-purecounter-duration="1"
                 class="purecounter"></span>
-              <p>Dokumen terverifikasi</p>
+              <p>Total Transaksi</p>
             </div>
           </div>
         </div>
@@ -87,9 +87,9 @@
           <div class="count-box">
             <i class="bi bi-pen" style="color: #bb0852;"></i>
             <div>
-              <span data-purecounter-start="0" data-purecounter-end="15" data-purecounter-duration="1"
+              <span data-purecounter-start="0" data-purecounter-end="{{ .card.TotalRequest }}" data-purecounter-duration="1"
                 class="purecounter"></span>
-              <p>Dokumen Saya</p>
+              <p>Tanda Tangan</p>
             </div>
           </div>
         </div>
@@ -98,9 +98,9 @@
           <div class="count-box">
             <i class="bi bi-pen" style="color: #15be56;"></i>
             <div>
-              <span data-purecounter-start="0" data-purecounter-end="1463" data-purecounter-duration="1"
+              <span data-purecounter-start="0" data-purecounter-end="{{ .card.TotalRequestUser }}" data-purecounter-duration="1"
                 class="purecounter"></span>
-              <p>Total Permintaan</p>
+              <p>Permintaan Saya</p>
             </div>
           </div>
         </div>
