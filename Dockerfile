@@ -1,19 +1,18 @@
-FROM golang:1.16.3
+FROM golang:alpine
 
-WORKDIR /usr/src/app
+RUN apk add -U tzdata
+ENV GO111MODULE=on
+ENV APP_HOME /root/go/src/e-signature
+ENV TZ=Asia/Jakarta
+RUN cp /usr/share/zoneinfo/Asia/Jakarta /etc/localtime
 
-# Update package
-# RUN apk add --update --no-cache --virtual .build-dev build-base git
-RUN apt-get update \
-  && apt-get install git
+ADD . "$APP_HOME"
+WORKDIR "$APP_HOME"
 
-COPY . .
+RUN go mod tidy
+RUN go build main.go
 
-RUN make install \
-  && make build
+EXPOSE 443
 
-# Expose port
-EXPOSE 9000
-
-# Run application
-CMD ["make", "start"]
+#CMD ["make", "start"]
+ENTRYPOINT [ "./main" ]
