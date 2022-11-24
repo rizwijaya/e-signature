@@ -92,7 +92,7 @@ func Init(conf config.Conf) (*api.Api, *ethclient.Client) {
 		Address:      fmt.Sprintf("%v", address.Hex()),
 		Tx_hash:      fmt.Sprintf("%v", tx.Hash().Hex()),
 		Nonce:        auth.Nonce.String(),
-		Description:  "Membuat Kontrak",
+		Description:  "Aplikasi Berjalan, Membuat Kontrak",
 		Date_created: time.Now().In(location),
 	}
 	c := db.Collection("transactions")
