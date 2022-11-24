@@ -1795,10 +1795,12 @@ section {
   font-size: 14px;
   display: inline-block;
   line-height: 1;
+  word-break: break-all;
 }
 
 .blog .entry .entry-content p {
   line-height: 24px;
+  word-break: break-all;
 }
 
 .blog .entry .entry-content .read-more {

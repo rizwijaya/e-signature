@@ -85,9 +85,8 @@ func Clock(t time.Time) string {
 }
 
 func init() {
-	//Demo: cd2cdbac33884071a5bf4302345089ad9de96ef7e1d5a582742404058b83e90b
-	//Develop:345b46cc6941c36f6d4528a304c7b6ceb1855e56a2c76ca0db93f3f4b3586904
-	err := license.SetMeteredKey("345b46cc6941c36f6d4528a304c7b6ceb1855e56a2c76ca0db93f3f4b3586904")
+	conf, _ := config.Init()
+	err := license.SetMeteredKey(conf.Signature.Key)
 	if err != nil {
 		log.Println(err)
 	}
@@ -164,8 +163,8 @@ func (s *service) CreateImgSignatureData(input models.AddSignature, name string)
 		nam = name[0:12]
 	}
 	//dc.DrawStringAnchored(id, 145, 242, 0, 0.5)
-	dc.DrawStringAnchored("Sign-"+nam, 145, 254, 0, 0.5)
-	dc.DrawStringAnchored("rizwijaya.smartsign.com", 145, 266, 0, 0.5)
+	dc.DrawStringAnchored("Sign by "+nam, 145, 254, 0, 0.5)
+	dc.DrawStringAnchored("smartsign.rizwijaya.com", 145, 266, 0, 0.5)
 	dc.DrawStringAnchored("Integrate in Blockchain", 145, 278, 0, 0.5)
 	dc.Clip()
 	//dc.SavePNG("out.png")

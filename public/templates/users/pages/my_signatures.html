@@ -3,10 +3,11 @@
   #signature-pad {
     display: block;
     min-height: 200px;
+    text-align: center;
   }
 
   #signature-pad canvas {
-    position: absolute;
+    /* position: absolute; */
     border: 1px dashed black;
     /* left: 20px;
     top: 20px;
@@ -65,45 +66,47 @@
                 <a href="/change-signatures/signature_data" style="color: black !important;">
                   <div class="btn-accent px-2"
                     style="height: 20px; width: 30px !important; border-radius: 0 20px 20px 0; box-shadow: 2px 7px 4px rgba(0, 0, 0, 0.25);">
-                    <img src="/landing/assets/img/signatures/lock-black.svg" alt="" style="padding: 0px 0px !important;">
+                    <img src="/landing/assets/img/signatures/lock-black.svg" alt=""
+                      style="padding: 0px 0px !important;">
                   </div>
                 </a>
                 {{ end }}
                 {{ end }}
                 <!-- End Signature data change -->
-                
-                  <!-- Latin data change left -->
-                  {{ if or (eq .signatures.Signature_selected "latin") (eq .signatures.Signature_selected
-                  "latin_data") }}
-                  {{ if eq .signatures.Signature_selected "latin_data" }}
-                  <a href="/change-signatures/latin" style="color: black !important;">
-                    <div class="btn-accent px-2"
-                      style="height: 20px; width: 30px !important; border-radius: 20px 0 0 20px; box-shadow: 2px 7px 4px rgba(0, 0, 0, 0.25);">
-                      <img src="/landing/assets/img/signatures/unlock-black.svg" alt=""
-                        style="padding: 0px 0px !important;">
-                    </div>
-                  </a>
-                  <!-- Latin data change right  -->
+
+                <!-- Latin data change left -->
+                {{ if or (eq .signatures.Signature_selected "latin") (eq .signatures.Signature_selected
+                "latin_data") }}
+                {{ if eq .signatures.Signature_selected "latin_data" }}
+                <a href="/change-signatures/latin" style="color: black !important;">
                   <div class="btn-accent px-2"
-                    style="height: 20px; width: 30px !important; border-radius: 0 20px 20px 0; background-color: #8491FF; box-shadow: 2px 7px 4px rgba(0, 0, 0, 0.25);">
-                    <img src="/landing/assets/img/signatures/lock-white.svg" alt="" style="padding: 0px 0px !important;">
-                  </div>
-                  {{ else }}
-                  <div class="btn-accent px-2"
-                    style="height: 20px; width: 30px !important; border-radius: 20px 0 0 20px; background-color: #8491FF; box-shadow: 2px 7px 4px rgba(0, 0, 0, 0.25);">
-                    <img src="/landing/assets/img/signatures/unlock-white.svg" alt=""
+                    style="height: 20px; width: 30px !important; border-radius: 20px 0 0 20px; box-shadow: 2px 7px 4px rgba(0, 0, 0, 0.25);">
+                    <img src="/landing/assets/img/signatures/unlock-black.svg" alt=""
                       style="padding: 0px 0px !important;">
                   </div>
-                  <!-- Latin data change right  -->
-                  <a href="/change-signatures/latin_data" style="color: black !important;">
-                    <div class="btn-accent px-2"
-                      style="height: 20px; width: 30px !important; border-radius: 0 20px 20px 0; box-shadow: 2px 7px 4px rgba(0, 0, 0, 0.25);">
-                      <img src="/landing/assets/img/signatures/lock-black.svg" alt="" style="padding: 0px 0px !important;">
-                    </div>
-                  </a>
-                  {{ end }}
-                  {{ end }}
-                  <!-- End Latin data change -->
+                </a>
+                <!-- Latin data change right  -->
+                <div class="btn-accent px-2"
+                  style="height: 20px; width: 30px !important; border-radius: 0 20px 20px 0; background-color: #8491FF; box-shadow: 2px 7px 4px rgba(0, 0, 0, 0.25);">
+                  <img src="/landing/assets/img/signatures/lock-white.svg" alt="" style="padding: 0px 0px !important;">
+                </div>
+                {{ else }}
+                <div class="btn-accent px-2"
+                  style="height: 20px; width: 30px !important; border-radius: 20px 0 0 20px; background-color: #8491FF; box-shadow: 2px 7px 4px rgba(0, 0, 0, 0.25);">
+                  <img src="/landing/assets/img/signatures/unlock-white.svg" alt=""
+                    style="padding: 0px 0px !important;">
+                </div>
+                <!-- Latin data change right  -->
+                <a href="/change-signatures/latin_data" style="color: black !important;">
+                  <div class="btn-accent px-2"
+                    style="height: 20px; width: 30px !important; border-radius: 0 20px 20px 0; box-shadow: 2px 7px 4px rgba(0, 0, 0, 0.25);">
+                    <img src="/landing/assets/img/signatures/lock-black.svg" alt=""
+                      style="padding: 0px 0px !important;">
+                  </div>
+                </a>
+                {{ end }}
+                {{ end }}
+                <!-- End Latin data change -->
               </div>
               <div class="row g-0">
                 <div class="col-md-5">
@@ -157,14 +160,14 @@
           <div class="container">
             {{ if or (eq .signatures.Signature_selected "signature") (eq .signatures.Signature_selected
             "signature_data") }}
-            <div class="box border border-primary" style="padding: 12px !important;">
+            <div class="box mt-4 mt-md-0 border border-primary" style="padding: 12px !important;">
               {{ else }}
               <div class="box" style="padding: 12px !important;">
                 <a href="/change-signatures/signature" style="color: black !important;">
                   {{ end }}
                   <div class="card-body">
                     <img src="/signatures/{{ .signatures.Signature }}" alt="square"
-                      style="height: 100px; padding: 0.5px 0.5px !important;">
+                      style="height: 150px; padding: 0.5px 0.5px !important;">
                     <h5 class="card-title" style="margin-top: 0.05rem; font-size: 1rem !important;"><b>{{
                         .signatures.Signature_id }}</b></h5>
                     <small style="color: #ADB4F3;">Dibuat {{ .signatures.Date_created }}</small>
@@ -182,7 +185,7 @@
                     {{ end }}
                     <div class="card-body">
                       <img src="/signatures/{{ .signatures.Latin }}" alt="square"
-                        style="height: 100px; padding: 0.5px 0.5px !important;">
+                        style="height: 150px; padding: 0.5px 0.5px !important;">
                       <h5 class="card-title" style="margin-top: 0.05rem; font-size: 1rem !important;"><b>{{
                           .signatures.Latin_id }}</b></h5>
                       <small style="color: #ADB4F3;">Dibuat {{ .signatures.Date_created }}</small>
@@ -213,16 +216,17 @@
   </section>
 
   <!-- Modal -->
-  <div class="modal fade" id="signmodal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal modal-sm" id="signmodal" role="dialog" tabindex="-1" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content" style="width: 350px; height: 520px !important;">
-        <div class="modal-header">
+      <div class="modal-content">
+        <div class="modal-header border-0">
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body justify-content-md-center mb-4">
           <h5 style="text-align: center;"><b>Silahkan Masukkan Tanda Tangan!</b></h5>
           <div id="signature-pad">
-            <canvas id="signbox" width="300" height="300" class="canvas rounded">
+            <canvas id="signbox" width="250" height="250" class="canvas rounded">
             </canvas>
           </div>
         </div>
@@ -236,7 +240,6 @@
         </div>
       </div>
     </div>
-  </div>
   </div>
   <!-- End Values Section -->
 
