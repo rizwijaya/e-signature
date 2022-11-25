@@ -171,6 +171,11 @@ func (h *signaturesHandler) SignDocuments(c *gin.Context) {
 	fm := []byte("melakukan tanda tangan")
 	notif.SetMessage(c.Writer, "success", fm)
 	//fmt.Println(input)
+	//Delete Image Sign Resize
+	err = os.Remove(img)
+	if err != nil {
+		log.Println(err)
+	}
 	//Logging Access
 	h.serviceUser.Logging("Menandatangani dokumen "+input.Name, session.Get("sign").(string), c.ClientIP(), c.Request.UserAgent())
 	c.Redirect(302, "/download")
@@ -319,6 +324,11 @@ func (h *signaturesHandler) Document(c *gin.Context) {
 		c.Redirect(302, "/request-signatures")
 		return
 	}
+	//Delete Image Sign Resize
+	err = os.Remove(img)
+	if err != nil {
+		log.Println(err)
+	}
 	fm := []byte("melakukan tanda tangan")
 	notif.SetMessage(c.Writer, "success", fm)
 	h.serviceUser.Logging("Melakukan tanda tangan dari permintaan tanda tangan", session.Get("sign").(string), c.ClientIP(), c.Request.UserAgent())
@@ -362,7 +372,11 @@ func (h *signaturesHandler) Verification(c *gin.Context) {
 	if !exist {
 		log.Println("Document not signed")
 	}
-
+	//remove Document
+	err = os.Remove(path)
+	if err != nil {
+		log.Println(err)
+	}
 	c.HTML(http.StatusOK, "verification_result.html", gin.H{
 		"title":       title,
 		"userid":      session.Get("id"),
