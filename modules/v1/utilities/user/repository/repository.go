@@ -40,6 +40,7 @@ type Repository interface {
 	GetTotal(db string) int
 	GetTotalRequestUser(sign_id string) int
 	Logging(logg models.UserLog) error
+	GetLogUser(idsignature string) ([]models.UserLog, error)
 }
 
 type repository struct {
@@ -341,4 +342,29 @@ func (r *repository) Logging(logg models.UserLog) error {
 		return err
 	}
 	return nil
+}
+
+func (r *repository) GetLogUser(idsignature string) ([]models.UserLog, error) {
+	var logg []models.UserLog
+	c := r.db.Collection("user_log")
+	cur, err := c.Find(context.Background(), bson.M{"idsignature": idsignature})
+	if err != nil {
+		log.Println(err)
+		return logg, err
+	}
+	defer cur.Close(context.Background())
+	for cur.Next(context.Background()) {
+		var result models.UserLog
+		err := cur.Decode(&result)
+		if err != nil {
+			log.Println(err)
+			return logg, err
+		}
+		logg = append(logg, result)
+	}
+	if err := cur.Err(); err != nil {
+		log.Println(err)
+		return logg, err
+	}
+	return logg, nil
 }

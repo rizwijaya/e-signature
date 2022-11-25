@@ -1,0 +1,67 @@
+{{ define "content" }}
+<!-- main -->
+<main id="main">
+  <section class="breadcrumbs">
+    <div class="container">
+      <ol>
+        <li><a href="/">Home</a></li>
+        <li>Log Akses User</li>
+      </ol>
+      <h2>Log Akses User</h2>
+    </div>
+  </section>
+  <!-- ======= Values Section ======= -->
+  <section id="blog" class="blog">
+    <div class="container aos-init aos-animate" data-aos="fade-up">
+      <div class="row">
+        <div class="col-lg-9">
+          <div class="entries wrapper">
+            {{ range $log := .log }}
+                <!-- List Transactions -->
+                <article class="entry item" style="margin-bottom: 15px !important;">
+                  <div class="entry-meta">
+                    <ul>
+                      <li class="d-flex align-items-center"><i class="bi bi-person"></i> <a>{{ $log.Idsignature }}</a></li>
+                      <li class="d-flex align-items-center d-none d-lg-block"><i class="bi bi-chat-dots"></i> <a>{{ $log.Ip_address }}</a></li>
+                    </ul>
+                  </div>
+
+                  <div class="entry-content">
+                    <p>
+                      {{ $log.Idsignature }} dengan IP Address {{ $log.Ip_address }} telah melakukan akses pada tanggal {{ $log.Date_access_wib }} yaitu {{ $log.Action }} menggunakan browser {{ $log.User_agent }} .
+                    </p>
+                  </div>
+
+                </article>
+                <!-- List Transactions -->
+            {{ end }}
+          </div>
+          <div class="blog-pagination pagination flex justify-content-center my-5"></div>
+        </div>
+        <div class="col-lg-3">
+          <!-- sidebar -->
+          <div class="sidebar">
+            <!-- sidebar tags-->
+            <h3 class="sidebar-title">Tags</h3>
+            <div class="sidebar-item tags">
+              <ul>
+                <li><a href="#">Tanda Tangan Saya</a></li>
+                <li><a href="#">Verifikasi</a></li>
+                <li><a href="#">Blockchain</a></li>
+              </ul>
+            </div>
+            <!-- End sidebar tags-->
+          </div>
+          <!-- End sidebar -->
+        </div>
+        <!-- End blog entries list -->
+
+      </div>
+
+    </div>
+  </section>
+  <!-- End Values Section -->
+</main>
+<!-- End main -->
+<script src="/landing/js/pagination_listtransac.js"> </script>
+{{ end }}

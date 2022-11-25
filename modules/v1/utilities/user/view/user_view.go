@@ -111,3 +111,19 @@ func (h *userView) Login(c *gin.Context) {
 		},
 	)
 }
+
+func (h *userView) Logg(c *gin.Context) {
+	session := sessions.Default(c)
+	title := "Log Akses User - SmartSign"
+	page := "log-user"
+	logg, _ := h.userService.GetLogUser(session.Get("sign").(string))
+
+	h.userService.Logging("Mengakses halaman log akses user", session.Get("sign").(string), c.ClientIP(), c.Request.UserAgent())
+	c.HTML(http.StatusOK, "log.html", gin.H{
+		"title":  title,
+		"userid": session.Get("id"),
+		"page":   page,
+		"name":   session.Get("name"),
+		"log":    logg,
+	})
+}

@@ -43,6 +43,7 @@ type Service interface {
 	GetPublicKey(email []string) ([]common.Address, []string)
 	GetCardDashboard(sign_id string) models.CardDashboard
 	Logging(action string, idsignature string, ip string, user_agent string) error
+	GetLogUser(idsignature string) ([]models.UserLog, error)
 }
 
 type service struct {
@@ -58,6 +59,20 @@ func (s *service) ConnectIPFS() *shell.Shell {
 	conf, _ := config.Init()
 	sh = shell.NewShell(conf.IPFS.Host + ":" + conf.IPFS.Port)
 	return sh
+}
+
+var hari = [...]string{
+	"Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"}
+
+var bulan = [...]string{
+	"Januari", "Februari", "Maret", "April", "Mei", "Juni",
+	"Juli", "Agustus", "September", "Oktober", "Nopember", "Desember",
+}
+
+func TanggalJam(t time.Time) string {
+	return fmt.Sprintf("%s, %02d %s %d | %02d:%02d WIB",
+		hari[t.Weekday()], t.Day(), bulan[t.Month()-1][:3], t.Year(), t.Hour(), int(t.Minute()),
+	)
 }
 
 func (s *service) UploadIPFS(path string) (error, string) {
@@ -342,6 +357,14 @@ func (s *service) Logging(action string, idsignature string, ip string, user_age
 	logg.Date_access = time.Now().In(location)
 	err := s.repository.Logging(logg)
 	return err
+}
+
+func (s *service) GetLogUser(idsignature string) ([]models.UserLog, error) {
+	log, err := s.repository.GetLogUser(idsignature)
+	for i, v := range log {
+		log[i].Date_access_wib = TanggalJam(v.Date_access)
+	}
+	return log, err
 }
 
 // func (s *service) SavetoSystem(user models.User) error {
