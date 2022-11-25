@@ -82,11 +82,15 @@ func (h *userHandler) Login(c *gin.Context) {
 
 	fm := []byte("Berhasil Login!")
 	notif.SetMessage(c.Writer, "message", fm)
+	//Logging Access
+	h.userService.Logging("Masuk ke SmartSign", session.Get("sign").(string), c.ClientIP(), c.Request.UserAgent())
 	c.Redirect(http.StatusFound, "/dashboard")
 }
 
 func (h *userHandler) Logout(c *gin.Context) {
 	session := sessions.Default(c)
+	//Logging Access
+	h.userService.Logging("Keluar dari SmartSign", session.Get("sign").(string), c.ClientIP(), c.Request.UserAgent())
 	session.Clear()
 	session.Save()
 

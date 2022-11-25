@@ -15,6 +15,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 	shell "github.com/ipfs/go-ipfs-api"
@@ -41,6 +42,7 @@ type Service interface {
 	TransferBalance(user models.ProfileDB) error
 	GetPublicKey(email []string) ([]common.Address, []string)
 	GetCardDashboard(sign_id string) models.CardDashboard
+	Logging(action string, idsignature string, ip string, user_agent string) error
 }
 
 type service struct {
@@ -328,6 +330,18 @@ func (s *service) GetCardDashboard(sign_id string) models.CardDashboard {
 	card.TotalTx = s.repository.GetTotal("transactions")
 	card.TotalRequestUser = s.repository.GetTotalRequestUser(sign_id)
 	return card
+}
+
+func (s *service) Logging(action string, idsignature string, ip string, user_agent string) error {
+	var logg models.UserLog
+	logg.Action = action
+	logg.Idsignature = idsignature
+	logg.Ip_address = ip
+	logg.User_agent = user_agent
+	location, _ := time.LoadLocation("Asia/Jakarta")
+	logg.Date_access = time.Now().In(location)
+	err := s.repository.Logging(logg)
+	return err
 }
 
 // func (s *service) SavetoSystem(user models.User) error {

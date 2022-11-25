@@ -33,6 +33,8 @@ func (h *signaturesHandler) AddSignatures(c *gin.Context) {
 
 	//Return Response API
 	response := api.APIRespon("Success Add Signatures", 200, "success", nil)
+	//Logging Access
+	h.serviceUser.Logging("Menambakan tanda tangan baru", sessions.Get("sign").(string), c.ClientIP(), c.Request.UserAgent())
 	c.JSON(200, response)
 }
 
@@ -49,7 +51,8 @@ func (h *signaturesHandler) ChangeSignatures(c *gin.Context) {
 	h.signaturesService.ChangeSignatures(signing, user)
 	fm := []byte("Mengganti Tanda Tangan!")
 	notif.SetMessage(c.Writer, "message", fm)
-
+	//Logging Access
+	h.serviceUser.Logging("Mengganti tanda tangan ke "+sign_type, session.Get("sign").(string), c.ClientIP(), c.Request.UserAgent())
 	c.Redirect(302, "/my-signatures")
 }
 
@@ -168,6 +171,8 @@ func (h *signaturesHandler) SignDocuments(c *gin.Context) {
 	fm := []byte("melakukan tanda tangan")
 	notif.SetMessage(c.Writer, "success", fm)
 	//fmt.Println(input)
+	//Logging Access
+	h.serviceUser.Logging("Menandatangani dokumen "+input.Name, session.Get("sign").(string), c.ClientIP(), c.Request.UserAgent())
 	c.Redirect(302, "/download")
 }
 
@@ -261,6 +266,7 @@ func (h *signaturesHandler) InviteSignatures(c *gin.Context) {
 	}
 	fm := []byte("mengundang orang lain untuk tanda tangan")
 	notif.SetMessage(c.Writer, "success", fm)
+	h.serviceUser.Logging("Mengundang orang lain untuk tanda tangan", session.Get("sign").(string), c.ClientIP(), c.Request.UserAgent())
 	c.Redirect(302, "/download")
 }
 
@@ -315,6 +321,7 @@ func (h *signaturesHandler) Document(c *gin.Context) {
 	}
 	fm := []byte("melakukan tanda tangan")
 	notif.SetMessage(c.Writer, "success", fm)
+	h.serviceUser.Logging("Melakukan tanda tangan dari permintaan tanda tangan", session.Get("sign").(string), c.ClientIP(), c.Request.UserAgent())
 	c.Redirect(302, "/download")
 }
 
@@ -369,6 +376,7 @@ func (h *signaturesHandler) Verification(c *gin.Context) {
 //Download Document Signed From Blockchain and IPFS to Client.
 func (h *signaturesHandler) Download(c *gin.Context) {
 	conf, _ := config.Init()
+	session := sessions.Default(c)
 	hash := c.Param("hash")
 	doc := h.signaturesService.GetDocumentNoSigners(hash)
 	doc.IPFS = string(h.serviceUser.Decrypt([]byte(doc.IPFS), conf.App.Secret_key))
@@ -387,7 +395,7 @@ func (h *signaturesHandler) Download(c *gin.Context) {
 	}
 	sucess := []byte("mengunduh dokumen")
 	notif.SetMessage(c.Writer, "success", sucess)
-
+	h.serviceUser.Logging("Mengunduh dokumen "+doc.Metadata+".pdf", session.Get("sign").(string), c.ClientIP(), c.Request.UserAgent())
 	c.Redirect(302, "/download")
 }
 

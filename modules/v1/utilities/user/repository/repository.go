@@ -39,6 +39,7 @@ type Repository interface {
 	GetUserByEmail(email string) (models.User, error)
 	GetTotal(db string) int
 	GetTotalRequestUser(sign_id string) int
+	Logging(logg models.UserLog) error
 }
 
 type repository struct {
@@ -329,4 +330,15 @@ func (r *repository) GetTotalRequestUser(sign_id string) int {
 		return 0
 	}
 	return int(total)
+}
+
+func (r *repository) Logging(logg models.UserLog) error {
+	logg.Id = primitive.NewObjectID()
+	c := r.db.Collection("user_log")
+	_, err := c.InsertOne(context.Background(), logg)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
 }

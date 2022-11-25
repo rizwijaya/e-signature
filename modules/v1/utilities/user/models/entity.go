@@ -49,3 +49,12 @@ type CardDashboard struct {
 	TotalRequest     int
 	TotalRequestUser int
 }
+
+type UserLog struct {
+	Id          primitive.ObjectID `bson:"_id"`
+	Idsignature string             `bson:"idsignature"`
+	User_agent  string             `bson:"user_agent"`
+	Ip_address  string             `bson:"ip_address"`
+	Action      string             `bson:"action"`
+	Date_access time.Time          `bson:"date_accessed"`
+}

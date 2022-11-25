@@ -39,7 +39,6 @@ func (h *userView) Index(c *gin.Context) {
 	if err != nil {
 		log.Println(err)
 	}
-
 	c.HTML(http.StatusOK, "landing_index.html", gin.H{
 		"title":   title,
 		"page":    page,
@@ -58,7 +57,8 @@ func (h *userView) Dashboard(c *gin.Context) {
 		log.Println(err)
 	}
 	cardDashboard := h.userService.GetCardDashboard(session.Get("sign").(string))
-
+	//Logging Access
+	h.userService.Logging("Mengakses Halaman Dashboard", session.Get("sign").(string), c.ClientIP(), c.Request.UserAgent())
 	c.HTML(http.StatusOK, "dashboard_index.html", gin.H{
 		"title":   title,
 		"page":    page,
