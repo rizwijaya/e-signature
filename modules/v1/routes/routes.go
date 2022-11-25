@@ -53,7 +53,7 @@ func Init(db *mongo.Database, conf config.Conf, router *gin.Engine) *gin.Engine 
 	user.POST("/login", userHandlerV1.Login)
 	user.GET("/logout", userHandlerV1.Logout)
 	user.GET("/log-user", userViewV1.Logg)
-
+	//Routing Signature Service
 	signature := router.Group("")
 	signature.GET("/my-signatures", mid.Permission(), signaturesViewV1.MySignatures)
 	signature.POST("/add-signatures", mid.Permission(), signaturesHandlerV1.AddSignatures)
