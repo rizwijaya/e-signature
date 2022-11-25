@@ -40,13 +40,16 @@
     padding: 15px 30px 15px 20px;
     position: absolute;
     overflow: hidden;
-    transform: translateX(calc(100% + 35px));
+    visibility: hidden;
+    /* transform: translateX(calc(100% + 35px)); */
+    transform: translateX(0%);
     transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.35);
     z-index: 1000;
 }
 
 .toastSuccess.active {
     transform: translateX(0%);
+    visibility: inherit;
 }
 
 .toastSuccess-content .bx-check {
@@ -105,12 +108,15 @@
     padding: 15px 30px 15px 20px;
     position: absolute;
     overflow: hidden;
-    transform: translateX(calc(100% + 35px));
+    visibility: hidden;
+    /* transform: translateX(calc(100% + 35px)); */
+    transform: translateX(0%);
     transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.35);
-        z-index: 1000;
+    z-index: 1000;
 }
 
 .toastDanger.active {
+    visibility: inherit;
     transform: translateX(0%);
 }
 

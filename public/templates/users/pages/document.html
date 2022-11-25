@@ -31,7 +31,13 @@
     background: #fff;
   }
 </style>
-
+<style>
+  @media (min-width: 850px) {
+    .signBos {
+      width: 60% !important;
+    }
+  }
+</style>
 <!-- main -->
 <main id="main">
   <section class="breadcrumbs">
@@ -49,7 +55,7 @@
       <form action="/document/{{ .hash }}" method="POST" enctype="multipart/form-data" id="form-documents">
         <div class="row ">
           <!-- Section Changes --> 
-          <div class="container text-center" style="width: 60% !important;">
+          <div class="container text-center signBos">
             <div class="card"
               style="border-radius: 15px;border: solid 1px blue;padding: 0.5rem;background-color: #F8F9FF;">
               <div class="card-body">

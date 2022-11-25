@@ -81,32 +81,37 @@
       <nav id="navbar" class="navbar">
         <ul>
           {{ if or (eq .page "index") (eq .page "verification") (eq .page "transactions") }}
-          <li><a class="nav-link scrollto active" href="/">Home</a></li>
+          <li><a class="nav-link scrollto {{ if (eq .page "index") }} active {{ end }}" href="/">Home</a></li>
           <li><a class="nav-link scrollto" href="/#about">Tentang Kami</a></li>
           {{ else }}
-          <li><a class="nav-link scrollto" href="/dashboard">Dashboard</a></li>
+          <li><a class="nav-link scrollto {{ if (eq .page "dashboard") }} active {{ end }}" href="/dashboard">Dashboard</a></li>
           {{ end }}
           {{ if (ne .userid nil) }}
-          <li class="dropdown"><a href="#"><span>Tanda Tangan</span> <i class="bi bi-chevron-down"></i></a>
+          <li class="dropdown 
+          {{ if or (eq .page "my-signatures") (
+            or (eq .page "sign-documents") (
+              or (eq .page "invite-signatures") (
+                or (eq .page "request-signatures") (
+                  or (eq .page "history") (eq .page "log-user") ) ) ) ) }} active {{ end }}"><a href="#"><span>Tanda Tangan</span> <i class="bi bi-chevron-down"></i></a>
             <ul>
-              <li><a href="/my-signatures">Tanda Tangan Saya</a></li>
-              <li class="dropdown"><a href="/sign-documents"><span>Tanda Tangan Dokumen</span> <i
+              <li {{ if (eq .page "my-signatures") }} class="active" {{ end }}><a href="/my-signatures">Tanda Tangan Saya</a></li>
+              <li class="dropdown {{ if (eq .page "sign-documents") }} active {{ end }}"><a href="/sign-documents"><span>Tanda Tangan Dokumen</span> <i
                     class="bi bi-chevron-right"></i></a>
                 <ul>
-                  <li><a href="/sign-documents">Tanda tangan Sekarang</a></li>
-                  <li><a href="/invite-signatures">Minta Tanda Tangan</a></li>
+                  <li {{ if (eq .page "sign-documents") }} class="active" {{ end }}><a href="/sign-documents">Tanda tangan Sekarang</a></li>
+                  <li {{ if (eq .page "invite-signatures") }} class="active" {{ end }}><a href="/invite-signatures">Minta Tanda Tangan</a></li>
                 </ul>
               </li>
-              <li><a href="/request-signatures">Permintaan Tanda Tangan</a></li>
-              <li><a href="/history">Riwayat Tanda Tangan</a></li>
-              <li><a href="/log-user">Log Akses User</a></li>
+              <li {{ if (eq .page "request-signatures") }} class="active" {{ end }}><a href="/request-signatures">Permintaan Tanda Tangan</a></li>
+              <li {{ if (eq .page "history") }} class="active" {{ end }}><a href="/history">Riwayat Tanda Tangan</a></li>
+              <li {{ if (eq .page "log-user") }} class="active" {{ end }}><a href="/log-user">Log Akses User</a></li>
             </ul>
           </li>
           {{ end }}
-          <li><a class="nav-link scrollto" href="/verification">Verifikasi</a></li>
-          <li><a class="nav-link scrollto" href="/transactions">Transaksi</a></li>
+          <li><a class="nav-link scrollto {{ if (eq .page "verification") }} active {{ end }}" href="/verification">Verifikasi</a></li>
+          <li><a class="nav-link scrollto {{ if (eq .page "transactions") }} active {{ end }}" href="/transactions">Transaksi</a></li>
           {{ if (ne .userid nil) }}
-          <li><a class="nav-link scrollto" href="/download">Unduh Dokumen</a></li>
+          <li><a class="nav-link scrollto {{ if (eq .page "download") }} active {{ end }}" href="/download">Unduh Dokumen</a></li>
           {{ end }}
           {{ if (ne .userid nil) }}
           <li><a class="getstarted scrollto" href="/logout">Keluar</a></li>
