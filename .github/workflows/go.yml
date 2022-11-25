@@ -7,44 +7,31 @@ on:
     branches: [ main ]
 
 jobs:
-  continuous-integration:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
+  # continuous-integration:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - uses: actions/checkout@v3
 
-    - name: Set up Go
-      uses: actions/setup-go@v3
-      with:
-        go-version: 1.18
+  #   - name: Set up Go
+  #     uses: actions/setup-go@v3
+  #     with:
+  #       go-version: 1.18
 
-    - name: Build
-      run: go build -v ./...
+  #   - name: Build
+  #     run: go build -v ./...
 
-    - name: Test
-      run: go test -v ./...
-  continuous-deployment-Application:
+  #   - name: Test
+  #     run: go test -v ./...
+  continuous-deployment:
     runs-on: ubuntu-latest
     needs: [ continuous-integration ]
     steps: 
     - uses: actions/checkout@v3
-    - name: Deployment Application to Server
+    - name: Deployment to Server
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.APPS_HOSTNAME }}
         username: ${{ secrets.APPS_USERNAME }}
         password: ${{ secrets.APPS_PASSWORD }}
         port: ${{ secrets.APPS_PORT }}
-        script: cd /root/go/src/TamaskaPortal && systemctl stop tamaska-portal && git pull && systemctl start tamaska-portal
-  continuos-deployment-Database:
-    runs-on: ubuntu-latest
-    needs: [ continuous-deployment-Application ]
-    steps:
-    - uses: actions/checkout@v3
-    - name: Deployment Database to Server
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.DB_HOSTNAME }}
-        username: ${{ secrets.DB_USERNAME }}
-        password: ${{ secrets.DB_PASSWORD }}
-        port: ${{ secrets.DB_PORT }}
-        script:  cd /root/TamaskaPortal/sql && git pull && mysql -u root --password=riz123tmk -D tamaskaportal -e "DROP DATABASE tamaskaportal" && mysql -u root --password=riz123tmk -e "CREATE DATABASE tamaskaportal" && mysql -u root --password=riz123tmk tamaskaportal < tamaskaportal.sql
+        script: cd /root/go/src/e-signatures && ./deploy.sh
