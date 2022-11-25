@@ -24,7 +24,7 @@ jobs:
   #     run: go test -v ./...
   continuous-deployment:
     runs-on: ubuntu-latest
-    needs: [ continuous-integration ]
+    #needs: [ continuous-integration ]
     steps: 
     - uses: actions/checkout@v3
     - name: Deployment to Server
