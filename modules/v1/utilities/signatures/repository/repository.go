@@ -2,16 +2,16 @@ package repository
 
 import (
 	"context"
+	blockhainAuth "e-signature/app/blockhain"
+	"e-signature/app/config"
+	api "e-signature/app/contracts"
 	"e-signature/modules/v1/utilities/signatures/models"
 	modelsUser "e-signature/modules/v1/utilities/user/models"
+	tm "e-signature/pkg/time"
 	"fmt"
 	"log"
 	"math/big"
 	"time"
-
-	blockhainAuth "e-signature/app/blockhain"
-	"e-signature/app/config"
-	api "e-signature/app/contracts"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
@@ -56,15 +56,17 @@ func (r *repository) LogTransactions(address string, tx_hash string, nonce strin
 		log.Println(err)
 		return err
 	}
+	tim := time.Now().In(location)
 	ctx := context.TODO()
 	trans := models.Transac{
-		Id:           primitive.NewObjectID(),
-		Address:      fmt.Sprintf("%v", address),
-		Tx_hash:      fmt.Sprintf("%v", tx_hash),
-		Nonce:        nonce,
-		Prices:       prices,
-		Description:  desc,
-		Date_created: time.Now().In(location),
+		Id:               primitive.NewObjectID(),
+		Address:          fmt.Sprintf("%v", address),
+		Tx_hash:          fmt.Sprintf("%v", tx_hash),
+		Nonce:            nonce,
+		Prices:           prices,
+		Description:      desc,
+		Date_created:     tim,
+		Date_created_wib: tm.TanggalJam(tim),
 	}
 	c := r.db.Collection("transactions")
 	_, err = c.InsertOne(ctx, &trans)

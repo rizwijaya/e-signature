@@ -17,6 +17,8 @@ import (
 	"os"
 	"time"
 
+	tm "e-signature/pkg/time"
+
 	"github.com/ethereum/go-ethereum/common"
 	shell "github.com/ipfs/go-ipfs-api"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -59,20 +61,6 @@ func (s *service) ConnectIPFS() *shell.Shell {
 	conf, _ := config.Init()
 	sh = shell.NewShell(conf.IPFS.Host + ":" + conf.IPFS.Port)
 	return sh
-}
-
-var hari = [...]string{
-	"Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"}
-
-var bulan = [...]string{
-	"Januari", "Februari", "Maret", "April", "Mei", "Juni",
-	"Juli", "Agustus", "September", "Oktober", "Nopember", "Desember",
-}
-
-func TanggalJam(t time.Time) string {
-	return fmt.Sprintf("%s, %02d %s %d | %02d:%02d WIB",
-		hari[t.Weekday()], t.Day(), bulan[t.Month()-1][:3], t.Year(), t.Hour(), int(t.Minute()),
-	)
 }
 
 func (s *service) UploadIPFS(path string) (error, string) {
@@ -355,15 +343,13 @@ func (s *service) Logging(action string, idsignature string, ip string, user_age
 	logg.User_agent = user_agent
 	location, _ := time.LoadLocation("Asia/Jakarta")
 	logg.Date_access = time.Now().In(location)
+	logg.Date_access_wib = tm.TanggalJam(time.Now().In(location))
 	err := s.repository.Logging(logg)
 	return err
 }
 
 func (s *service) GetLogUser(idsignature string) ([]models.UserLog, error) {
 	log, err := s.repository.GetLogUser(idsignature)
-	for i, v := range log {
-		log[i].Date_access_wib = TanggalJam(v.Date_access)
-	}
 	return log, err
 }
 

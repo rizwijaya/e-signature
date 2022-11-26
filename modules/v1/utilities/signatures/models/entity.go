@@ -40,7 +40,7 @@ type Transac struct {
 	Prices           string    `bson:"prices"`
 	Description      string    `bson:"description"`
 	Date_created     time.Time `bson:"date_created"`
-	Date_created_wib string
+	Date_created_wib string    `bson:"date_created_wib"`
 }
 
 type ListDocument struct {

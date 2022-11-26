@@ -7,6 +7,7 @@ import (
 	"e-signature/modules/v1/utilities/signatures/models"
 	"e-signature/modules/v1/utilities/signatures/repository"
 	modelsUser "e-signature/modules/v1/utilities/user/models"
+	tm "e-signature/pkg/time"
 	"encoding/base64"
 	"fmt"
 	"html/template"
@@ -60,30 +61,6 @@ func NewService(repository repository.Repository) *service {
 	return &service{repository}
 }
 
-var hari = [...]string{
-	"Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"}
-
-var bulan = [...]string{
-	"Januari", "Februari", "Maret", "April", "Mei", "Juni",
-	"Juli", "Agustus", "September", "Oktober", "Nopember", "Desember",
-}
-
-func TanggalJam(t time.Time) string {
-	return fmt.Sprintf("%s, %02d %s %d | %02d:%02d WIB",
-		hari[t.Weekday()], t.Day(), bulan[t.Month()-1][:3], t.Year(), t.Hour(), int(t.Minute()),
-	)
-}
-
-func Tanggal(t time.Time) string {
-	return fmt.Sprintf("%02d %s %d",
-		t.Day(), bulan[t.Month()-1], t.Year())
-}
-
-func Clock(t time.Time) string {
-	return fmt.Sprintf("%02d:%02d",
-		t.Hour(), t.Minute())
-}
-
 func init() {
 	conf, _ := config.Init()
 	err := license.SetMeteredKey(conf.Signature.Key)
@@ -103,7 +80,7 @@ func (s *service) TimeFormating(times string) string {
 	mo, _ := strconv.Atoi(times[8:10])
 	y, _ := strconv.Atoi(times[10:14])
 	t := time.Date(y, time.Month(mo), d, h, m, se, 0, time.UTC)
-	return TanggalJam(t)
+	return tm.TanggalJam(t)
 }
 
 func (s *service) CreateImgSignature(input models.AddSignature) string {
@@ -256,8 +233,8 @@ func (s *service) GetMySignature(sign string, id string, name string) (models.My
 		Latin_data:         fmt.Sprintf("latin_data/%s", signature.Latin_data),
 		Latin_data_id:      fmt.Sprintf("latin_data-%s", signature.Id.Hex()),
 		Signature_selected: signature.Signature_selected,
-		Date_update:        fmt.Sprintf("%s | %s WIB", Tanggal(signature.Date_update), Clock(signature.Date_update)),
-		Date_created:       fmt.Sprintf("%s | %s WIB", Tanggal(signature.Date_created), Clock(signature.Date_created)),
+		Date_update:        fmt.Sprintf("%s | %s WIB", tm.Tanggal(signature.Date_update), tm.Jam(signature.Date_update)),
+		Date_created:       fmt.Sprintf("%s | %s WIB", tm.Tanggal(signature.Date_created), tm.Jam(signature.Date_created)),
 	}
 	return mysign, err
 }
@@ -477,7 +454,7 @@ func (s *service) DocumentSigned(sign models.SignDocs) error {
 func (s *service) GetListDocument(publickey string) []models.ListDocument {
 	listDoc := s.repository.ListDocumentNoSign(publickey)
 	for i := range listDoc {
-		listDoc[i].Date_created_WIB = TanggalJam(listDoc[i].Date_created)
+		listDoc[i].Date_created_WIB = tm.TanggalJam(listDoc[i].Date_created)
 		listDoc[i].Documents = s.repository.GetDocument(listDoc[i].Hash_original, publickey)
 		listDoc[i].Documents.Signers = s.repository.GetSigners(listDoc[i].Hash_original, publickey)
 		// if(listDoc[i].Documents.Mode == "2") {
@@ -550,7 +527,6 @@ func (s *service) GetDocumentNoSigners(hash string) models.DocumentBlockchain {
 func (s *service) GetTransactions() []models.Transac {
 	transac := s.repository.GetTransactions()
 	for i := range transac {
-		transac[i].Date_created_wib = TanggalJam(transac[i].Date_created)
 		transac[i].Ids = transac[i].Id.Hex()
 	}
 	return transac

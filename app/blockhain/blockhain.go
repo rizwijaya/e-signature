@@ -7,6 +7,7 @@ import (
 	api "e-signature/app/contracts"
 	database "e-signature/app/databases"
 	"e-signature/modules/v1/utilities/user/models"
+	tm "e-signature/pkg/time"
 	"fmt"
 	"log"
 	"math/big"
@@ -88,12 +89,13 @@ func Init(conf config.Conf) (*api.Api, *ethclient.Client) {
 	}
 	ctx := context.TODO()
 	trans := models.Transac{
-		Id:           primitive.NewObjectID(),
-		Address:      fmt.Sprintf("%v", address.Hex()),
-		Tx_hash:      fmt.Sprintf("%v", tx.Hash().Hex()),
-		Nonce:        auth.Nonce.String(),
-		Description:  "Aplikasi Berjalan, Membuat Kontrak",
-		Date_created: time.Now().In(location),
+		Id:               primitive.NewObjectID(),
+		Address:          fmt.Sprintf("%v", address.Hex()),
+		Tx_hash:          fmt.Sprintf("%v", tx.Hash().Hex()),
+		Nonce:            auth.Nonce.String(),
+		Description:      "Aplikasi Berjalan, Membuat Kontrak",
+		Date_created:     time.Now().In(location),
+		Date_created_wib: tm.TanggalJam(time.Now().In(location)),
 	}
 	c := db.Collection("transactions")
 	_, err = c.InsertOne(ctx, &trans)
