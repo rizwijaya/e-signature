@@ -7,7 +7,6 @@ import (
 	error "e-signature/pkg/http-error"
 	notif "e-signature/pkg/notification"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -16,21 +15,21 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type userView struct {
+type userview struct {
 	userService service.Service
 }
 
-func NewUserView(userService service.Service) *userView {
-	return &userView{userService}
+func NewUserView(userService service.Service) *userview {
+	return &userview{userService}
 }
 
-func View(db *mongo.Database, blockhain *api.Api, client *ethclient.Client) *userView {
+func View(db *mongo.Database, blockhain *api.Api, client *ethclient.Client) *userview {
 	Repository := repository.NewRepository(db, blockhain, client)
 	Service := service.NewService(Repository)
 	return NewUserView(Service)
 }
 
-func (h *userView) Index(c *gin.Context) {
+func (h *userview) Index(c *gin.Context) {
 	session := sessions.Default(c)
 	title := "SmartSign - Smart Digital Signatures"
 	page := "index"
@@ -44,15 +43,12 @@ func (h *userView) Index(c *gin.Context) {
 	})
 }
 
-func (h *userView) Dashboard(c *gin.Context) {
+func (h *userview) Dashboard(c *gin.Context) {
 	session := sessions.Default(c)
 	title := "Dashboard - SmartSign"
 	page := "dashboard"
 
-	fm, err := notif.GetMessage(c.Writer, c.Request, "message")
-	if err != nil {
-		log.Println(err)
-	}
+	fm, _ := notif.GetMessage(c.Writer, c.Request, "message")
 	cardDashboard := h.userService.GetCardDashboard(session.Get("sign").(string))
 	//Logging Access
 	h.userService.Logging("Mengakses Halaman Dashboard", session.Get("sign").(string), c.ClientIP(), c.Request.UserAgent())
@@ -65,7 +61,7 @@ func (h *userView) Dashboard(c *gin.Context) {
 	})
 }
 
-func (h *userView) Register(c *gin.Context) {
+func (h *userview) Register(c *gin.Context) {
 	title := "Pendaftaran - SmartSign"
 	out := []error.Form{
 		{
@@ -82,7 +78,7 @@ func (h *userView) Register(c *gin.Context) {
 	)
 }
 
-func (h *userView) Login(c *gin.Context) {
+func (h *userview) Login(c *gin.Context) {
 	title := "Masuk - SmartSign"
 	fm, _ := notif.GetMessage(c.Writer, c.Request, "registered")
 	out := []error.Form{
@@ -109,7 +105,7 @@ func (h *userView) Login(c *gin.Context) {
 	)
 }
 
-func (h *userView) Logg(c *gin.Context) {
+func (h *userview) Logg(c *gin.Context) {
 	session := sessions.Default(c)
 	title := "Log Akses User - SmartSign"
 	page := "log-user"
