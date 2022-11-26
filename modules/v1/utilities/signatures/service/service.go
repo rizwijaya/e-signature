@@ -454,14 +454,9 @@ func (s *service) DocumentSigned(sign models.SignDocs) error {
 func (s *service) GetListDocument(publickey string) []models.ListDocument {
 	listDoc := s.repository.ListDocumentNoSign(publickey)
 	for i := range listDoc {
-		listDoc[i].Date_created_WIB = tm.TanggalJam(listDoc[i].Date_created)
 		listDoc[i].Documents = s.repository.GetDocument(listDoc[i].Hash_original, publickey)
 		listDoc[i].Documents.Signers = s.repository.GetSigners(listDoc[i].Hash_original, publickey)
-		// if(listDoc[i].Documents.Mode == "2") {
-
-		// }
 	}
-	// fmt.Println(publickey)
 	return listDoc
 }
 

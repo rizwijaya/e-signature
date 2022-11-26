@@ -192,21 +192,23 @@ func (r *repository) AddUserDocs(input models.SignDocuments) error {
 	}
 	for _, v := range input.Address {
 		signedDocuments := struct {
-			Id           primitive.ObjectID `bson:"_id,omitempty"`
-			Address      string             `bson:"address"`
-			Hash_Ori     string             `bson:"hash_ori"`
-			Hash         string             `bson:"hash"`
-			Judul        string             `bson:"judul"`
-			Note         string             `bson:"note"`
-			Date_Created time.Time          `bson:"date_created"`
+			Id               primitive.ObjectID `bson:"_id,omitempty"`
+			Address          string             `bson:"address"`
+			Hash_Ori         string             `bson:"hash_ori"`
+			Hash             string             `bson:"hash"`
+			Judul            string             `bson:"judul"`
+			Note             string             `bson:"note"`
+			Date_Created     time.Time          `bson:"date_created"`
+			Date_Created_wib string             `bson:"date_created_wib"`
 		}{
-			Id:           primitive.NewObjectID(),
-			Address:      v.String(),
-			Hash_Ori:     input.Hash_original,
-			Hash:         input.Hash,
-			Judul:        input.Judul,
-			Note:         input.Note,
-			Date_Created: time.Now().In(location),
+			Id:               primitive.NewObjectID(),
+			Address:          v.String(),
+			Hash_Ori:         input.Hash_original,
+			Hash:             input.Hash,
+			Judul:            input.Judul,
+			Note:             input.Note,
+			Date_Created:     time.Now().In(location),
+			Date_Created_wib: tm.TanggalJam(time.Now().In(location)),
 		}
 
 		c := r.db.Collection("signedDocuments")

@@ -51,7 +51,7 @@ type ListDocument struct {
 	Judul            string             `bson:"judul"`
 	Note             string             `bson:"note"`
 	Date_created     time.Time          `bson:"date_created"`
-	Date_created_WIB string
+	Date_created_WIB string             `bson:"date_created_wib"`
 	Documents        DocumentBlockchain `bson:"documents"`
 }
 
