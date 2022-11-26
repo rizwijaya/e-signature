@@ -178,3 +178,54 @@ func Test_userview_Login(t *testing.T) {
 		})
 	}
 }
+
+func Test_userview_Logg(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	serviceUser := m_serviceUser.NewMockService(ctrl)
+	cookies := "smartsign=MTY2OTQ3NDEyOHxEdi1CQkFFQ180SUFBUkFCRUFBQV9nRXdfNElBQmdaemRISnBibWNNQkFBQ2FXUUdjM1J5YVc1bkRCb0FHRFl6T0RCaU5XTmlaR001TXpoak5XWmtaamhsTm1KbVpRWnpkSEpwYm1jTUJnQUVjMmxuYmdaemRISnBibWNNQ3dBSmNtbDZkMmxxWVhsaEJuTjBjbWx1Wnd3R0FBUnVZVzFsQm5OMGNtbHVad3dPQUF4U2FYcHhhU0JYYVdwaGVXRUdjM1J5YVc1bkRBd0FDbkIxWW14cFkxOXJaWGtHYzNSeWFXNW5EQ3dBS2pCNFJFSkZOREUwTmpVeE0yTTVPVFEwTTJOR016SkRZVGhCTkRRNVpqVXlPRGRoWVVRMlpqa3hZUVp6ZEhKcGJtY01CZ0FFY205c1pRTnBiblFFQWdBRUJuTjBjbWx1Wnd3SUFBWndZWE56Y0dnR2MzUnlhVzVuRERnQU5rWkNTQ3RMYkZwd1dHOHhlVTFSUTNnMU9VVTBNRnAxYlROWVVHa3dSbmxWT1c1TFVsTkRNbWR4UkhVNGJteFNSMHM0TTJkRlp3PT189RnNnJPqyThKonDOKwf4QeHI-7SwOwzto9OciAktNLw="
+	test := []struct {
+		name       string
+		sign_id    string
+		beforeTest func(userview *m_serviceUser.MockService)
+	}{
+		{
+			name:    "Test userView Log Success",
+			sign_id: "rizwijaya",
+			beforeTest: func(userview *m_serviceUser.MockService) {
+				serviceUser.EXPECT().GetLogUser("rizwijaya")
+				serviceUser.EXPECT().Logging("Mengakses halaman log akses user", "rizwijaya", gomock.Any(), gomock.Any()).Times(1)
+			},
+		},
+	}
+	for _, tt := range test {
+		t.Run(tt.name, func(t *testing.T) {
+			w := &userview{
+				userService: serviceUser,
+			}
+			if tt.beforeTest != nil {
+				tt.beforeTest(serviceUser)
+			}
+
+			got := w.Logg
+
+			router := NewRouter()
+			router.GET("/log-user", got)
+			req, err := http.NewRequest("GET", "/log-user", nil)
+			req.Header.Set("Cookie", cookies)
+			assert.NoError(t, err)
+			resp := httptest.NewRecorder()
+			router.ServeHTTP(resp, req)
+			responseData, err := ioutil.ReadAll(resp.Body)
+			assert.NoError(t, err)
+
+			assert.Equal(t, http.StatusOK, resp.Code)
+			assert.Contains(t, string(responseData), "Log Akses User - SmartSign")
+		})
+	}
+}
+
+func TestView(t *testing.T) {
+	user := View(nil, nil, nil)
+	assert.NotNil(t, user)
+}
