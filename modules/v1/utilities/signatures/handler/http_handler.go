@@ -102,7 +102,7 @@ func (h *signaturesHandler) SignDocuments(c *gin.Context) {
 	input.Creator = fmt.Sprintf("%v", session.Get("public_key"))
 	input.Creator_id = fmt.Sprintf("%v", session.Get("sign"))
 	//Get Images signatures
-	mysignatures, _ := h.signaturesService.GetMySignature(fmt.Sprintf("%v", session.Get("sign")), fmt.Sprintf("%v", session.Get("id")), fmt.Sprintf("%v", session.Get("name")))
+	mysignatures := h.signaturesService.GetMySignature(fmt.Sprintf("%v", session.Get("sign")), fmt.Sprintf("%v", session.Get("id")), fmt.Sprintf("%v", session.Get("name")))
 	//Resize Images Signatures
 	img := h.signaturesService.ResizeImages(mysignatures, input)
 	//Signing Documents to PDF
@@ -298,7 +298,7 @@ func (h *signaturesHandler) Document(c *gin.Context) {
 	input.Hash_original = c.Param("hash")
 	input.Name = input.Hash_original + ".pdf"
 	//Get Images signatures
-	mysignatures, _ := h.signaturesService.GetMySignature(fmt.Sprintf("%v", session.Get("sign")), fmt.Sprintf("%v", session.Get("id")), fmt.Sprintf("%v", session.Get("name")))
+	mysignatures := h.signaturesService.GetMySignature(fmt.Sprintf("%v", session.Get("sign")), fmt.Sprintf("%v", session.Get("id")), fmt.Sprintf("%v", session.Get("name")))
 	//Resize Images Signatures
 	img := h.signaturesService.ResizeImages(mysignatures, input)
 	//Signing Document to PDF

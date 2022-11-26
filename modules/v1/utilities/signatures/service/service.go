@@ -37,7 +37,7 @@ type Service interface {
 	CreateLatinSignaturesData(user modelsUser.User, latin string, idn string) string
 	DefaultSignatures(user modelsUser.User, id string) error
 	UpdateMySignatures(signature string, signaturedata string, sign string) error
-	GetMySignature(sign string, id string, name string) (models.MySignatures, error)
+	GetMySignature(sign string, id string, name string) models.MySignatures
 	ChangeSignatures(sign_type string, idsignature string) error
 	ResizeImages(mysign models.MySignatures, input models.SignDocuments) string
 	SignDocuments(imgpath string, input models.SignDocuments) string
@@ -219,8 +219,11 @@ func (s *service) UpdateMySignatures(signature string, signaturedata string, sig
 	return err
 }
 
-func (s *service) GetMySignature(sign string, id string, name string) (models.MySignatures, error) {
+func (s *service) GetMySignature(sign string, id string, name string) models.MySignatures {
 	signature, err := s.repository.GetMySignature(sign)
+	if err != nil {
+		log.Println(err)
+	}
 	mysign := models.MySignatures{
 		Id:                 signature.Id.Hex(),
 		Name:               name,
@@ -237,7 +240,7 @@ func (s *service) GetMySignature(sign string, id string, name string) (models.My
 		Date_update:        fmt.Sprintf("%s | %s WIB", tm.Tanggal(signature.Date_update), tm.Jam(signature.Date_update)),
 		Date_created:       fmt.Sprintf("%s | %s WIB", tm.Tanggal(signature.Date_created), tm.Jam(signature.Date_created)),
 	}
-	return mysign, err
+	return mysign
 }
 
 func (s *service) ChangeSignatures(sign_type string, idsignature string) error {

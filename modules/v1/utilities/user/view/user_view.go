@@ -6,7 +6,6 @@ import (
 	"e-signature/modules/v1/utilities/user/service"
 	error "e-signature/pkg/http-error"
 	notif "e-signature/pkg/notification"
-	"fmt"
 	"net/http"
 
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -38,7 +37,7 @@ func (h *userview) Index(c *gin.Context) {
 	c.HTML(http.StatusOK, "landing_index.html", gin.H{
 		"title":   title,
 		"page":    page,
-		"success": fmt.Sprintf("%s", fm),
+		"success": string(fm),
 		"userid":  session.Get("id"),
 	})
 }
@@ -55,7 +54,7 @@ func (h *userview) Dashboard(c *gin.Context) {
 	c.HTML(http.StatusOK, "dashboard_index.html", gin.H{
 		"title":   title,
 		"page":    page,
-		"success": fmt.Sprintf("%s", fm),
+		"success": string(fm),
 		"userid":  session.Get("id"),
 		"card":    cardDashboard,
 	})
@@ -100,7 +99,7 @@ func (h *userview) Login(c *gin.Context) {
 		gin.H{
 			"title":      title,
 			"errorVal":   out,
-			"registered": fmt.Sprintf("%s", fm),
+			"registered": string(fm),
 		},
 	)
 }

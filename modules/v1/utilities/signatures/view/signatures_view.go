@@ -18,16 +18,16 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type signaturesView struct {
-	signaturesService service.Service
-	serviceUser       serviceUser.Service
+type signaturesview struct {
+	serviceSignature service.Service
+	serviceUser      serviceUser.Service
 }
 
-func NewSignaturesView(signaturesService service.Service, userService serviceUser.Service) *signaturesView {
-	return &signaturesView{signaturesService, userService}
+func NewSignaturesView(serviceSignature service.Service, userService serviceUser.Service) *signaturesview {
+	return &signaturesview{serviceSignature, userService}
 }
 
-func View(db *mongo.Database, blockhain *api.Api, client *ethclient.Client) *signaturesView {
+func View(db *mongo.Database, blockhain *api.Api, client *ethclient.Client) *signaturesview {
 	//Signatures
 	Repository := repository.NewRepository(db, blockhain, client)
 	Service := service.NewService(Repository)
@@ -37,70 +37,42 @@ func View(db *mongo.Database, blockhain *api.Api, client *ethclient.Client) *sig
 	return NewSignaturesView(Service, serviceUser)
 }
 
-func (h *signaturesView) Index(c *gin.Context) {
-	session := sessions.Default(c)
-	title := "Dashboard - SmartSign"
-	page := "dashboard"
-	fm, err := notif.GetMessage(c.Writer, c.Request, "message")
-	if err != nil {
-		log.Println(err)
-	}
-	h.serviceUser.Logging("Mengakses dashboard smartsign", session.Get("sign").(string), c.ClientIP(), c.Request.UserAgent())
-	c.HTML(http.StatusOK, "dashboard_index.html", gin.H{
-		"title":   title,
-		"userid":  session.Get("id"),
-		"success": fmt.Sprintf("%s", fm),
-		"page":    page,
-	})
-}
-
-func (h *signaturesView) MySignatures(c *gin.Context) {
+func (h *signaturesview) MySignatures(c *gin.Context) {
 	session := sessions.Default(c)
 	title := "Tanda Tangan Saya - SmartSign"
 	page := "my-signatures"
-	signatures, _ := h.signaturesService.GetMySignature(fmt.Sprintf("%v", session.Get("sign")), fmt.Sprintf("%v", session.Get("id")), fmt.Sprintf("%v", session.Get("name")))
-	fm, err := notif.GetMessage(c.Writer, c.Request, "message")
-	if err != nil {
-		log.Println(err)
-	}
+	signatures := h.serviceSignature.GetMySignature(fmt.Sprintf("%v", session.Get("sign")), fmt.Sprintf("%v", session.Get("id")), fmt.Sprintf("%v", session.Get("name")))
+	fm, _ := notif.GetMessage(c.Writer, c.Request, "message")
 	h.serviceUser.Logging("Mengakses tanda tangan saya", session.Get("sign").(string), c.ClientIP(), c.Request.UserAgent())
 	c.HTML(http.StatusOK, "my_signatures.html", gin.H{
 		"title":      title,
 		"userid":     session.Get("id"),
 		"page":       page,
-		"success":    fmt.Sprintf("%s", fm),
+		"success":    string(fm),
 		"signatures": signatures,
 	})
 }
 
-func (h *signaturesView) SignDocuments(c *gin.Context) {
+func (h *signaturesview) SignDocuments(c *gin.Context) {
 	session := sessions.Default(c)
 	title := "Tanda Tangan Dokumen - SmartSign"
 	page := "sign-documents"
-	getSignature, err := h.signaturesService.GetMySignature(fmt.Sprintf("%v", session.Get("sign")), fmt.Sprintf("%v", session.Get("id")), fmt.Sprintf("%v", session.Get("name")))
-	if err != nil {
-		log.Println(err)
-	}
-	fm, err := notif.GetMessage(c.Writer, c.Request, "failed")
-	if err != nil {
-		log.Println(err)
-	}
-	succes, err := notif.GetMessage(c.Writer, c.Request, "success")
-	if err != nil {
-		log.Println(err)
-	}
+	getSignature := h.serviceSignature.GetMySignature(fmt.Sprintf("%v", session.Get("sign")), fmt.Sprintf("%v", session.Get("id")), fmt.Sprintf("%v", session.Get("name")))
+	fm, _ := notif.GetMessage(c.Writer, c.Request, "failed")
+	succes, _ := notif.GetMessage(c.Writer, c.Request, "success")
+
 	h.serviceUser.Logging("Mengakses tanda tangan dan minta tanda tangan", session.Get("sign").(string), c.ClientIP(), c.Request.UserAgent())
 	c.HTML(http.StatusOK, "sign_documents.html", gin.H{
 		"title":      title,
 		"userid":     session.Get("id"),
 		"page":       page,
-		"failed":     fmt.Sprintf("%s", fm),
-		"success":    fmt.Sprintf("%s", succes),
+		"failed":     string(fm),
+		"success":    string(succes),
 		"signatures": getSignature,
 	})
 }
 
-func (h *signaturesView) InviteSignatures(c *gin.Context) {
+func (h *signaturesview) InviteSignatures(c *gin.Context) {
 	session := sessions.Default(c)
 	title := "Undang untuk Tanda tangan - SmartSign"
 	page := "invite-signatures"
@@ -118,15 +90,15 @@ func (h *signaturesView) InviteSignatures(c *gin.Context) {
 		"userid":  session.Get("id"),
 		"page":    page,
 		"failed":  fmt.Sprintf("%s", failed),
-		"success": fmt.Sprintf("%s", succes),
+		"success": string(succes),
 	})
 }
 
-func (h *signaturesView) RequestSignatures(c *gin.Context) {
+func (h *signaturesview) RequestSignatures(c *gin.Context) {
 	session := sessions.Default(c)
 	title := "Daftar Permintaan Tanda Tangan - SmartSign"
 	page := "request-signatures"
-	listDocument := h.signaturesService.GetListDocument(fmt.Sprintf("%v", session.Get("public_key")))
+	listDocument := h.serviceSignature.GetListDocument(fmt.Sprintf("%v", session.Get("public_key")))
 	failed, err := notif.GetMessage(c.Writer, c.Request, "failed")
 	if err != nil {
 		log.Println(err)
@@ -143,35 +115,31 @@ func (h *signaturesView) RequestSignatures(c *gin.Context) {
 		"name":      session.Get("name"),
 		"documents": listDocument,
 		"failed":    fmt.Sprintf("%s", failed),
-		"success":   fmt.Sprintf("%s", succes),
+		"success":   string(succes),
 	})
 }
 
-func (h *signaturesView) Document(c *gin.Context) {
+func (h *signaturesview) Document(c *gin.Context) {
 	conf, _ := config.Init()
 	session := sessions.Default(c)
 	hash := c.Param("hash")
 	title := "Tanda Tangan Dokumen - SmartSign"
 	page := "document"
 	publickey := session.Get("public_key").(string)
-	check := h.signaturesService.CheckSignature(hash, publickey)
+	check := h.serviceSignature.CheckSignature(hash, publickey)
 	if !check {
 		c.Redirect(http.StatusMovedPermanently, "/")
 	}
 	//Check creator if not sign access
-	getCreator := h.signaturesService.GetDocument(hash, publickey)
+	getCreator := h.serviceSignature.GetDocument(hash, publickey)
 	if getCreator.Creator_string == fmt.Sprintf("%v", session.Get("public_key")) {
 		c.Redirect(http.StatusMovedPermanently, "/")
 	}
-	getSignature, err := h.signaturesService.GetMySignature(fmt.Sprintf("%v", session.Get("sign")), fmt.Sprintf("%v", session.Get("id")), fmt.Sprintf("%v", session.Get("name")))
-	if err != nil {
-		log.Println(err)
-		c.Redirect(http.StatusMovedPermanently, "/request-signatures")
-	}
-	getDocument := h.signaturesService.GetDocument(hash, fmt.Sprintf("%v", session.Get("public_key")))
+	getSignature := h.serviceSignature.GetMySignature(fmt.Sprintf("%v", session.Get("sign")), fmt.Sprintf("%v", session.Get("id")), fmt.Sprintf("%v", session.Get("name")))
+	getDocument := h.serviceSignature.GetDocument(hash, fmt.Sprintf("%v", session.Get("public_key")))
 	getDocIPFS := string(h.serviceUser.Decrypt([]byte(getDocument.IPFS), conf.App.Secret_key))
 	directory := "./public/temp/pdfsign/"
-	_, err = h.serviceUser.GetFileIPFS(getDocIPFS, getDocument.Hash_ori+".pdf", directory)
+	_, err := h.serviceUser.GetFileIPFS(getDocIPFS, getDocument.Hash_ori+".pdf", directory)
 	if err != nil {
 		log.Println(err)
 		c.Redirect(http.StatusMovedPermanently, "/request-signatures")
@@ -187,7 +155,7 @@ func (h *signaturesView) Document(c *gin.Context) {
 	})
 }
 
-func (h *signaturesView) Verification(c *gin.Context) {
+func (h *signaturesview) Verification(c *gin.Context) {
 	session := sessions.Default(c)
 	title := "Verifikasi - SmartSign"
 	page := "verification"
@@ -204,15 +172,15 @@ func (h *signaturesView) Verification(c *gin.Context) {
 		"userid":  session.Get("id"),
 		"page":    page,
 		"failed":  fmt.Sprintf("%s", failed),
-		"success": fmt.Sprintf("%s", succes),
+		"success": string(succes),
 	})
 }
 
-func (h *signaturesView) History(c *gin.Context) {
+func (h *signaturesview) History(c *gin.Context) {
 	session := sessions.Default(c)
 	title := "Riwayat Tanda Tangan - SmartSign"
 	page := "history"
-	listDocument := h.signaturesService.GetListDocument(fmt.Sprintf("%v", session.Get("public_key")))
+	listDocument := h.serviceSignature.GetListDocument(fmt.Sprintf("%v", session.Get("public_key")))
 	h.serviceUser.Logging("Mengakses halaman riwayat tanda tangan", session.Get("sign").(string), c.ClientIP(), c.Request.UserAgent())
 	c.HTML(http.StatusOK, "history.html", gin.H{
 		"title":     title,
@@ -223,11 +191,11 @@ func (h *signaturesView) History(c *gin.Context) {
 	})
 }
 
-func (h *signaturesView) Transactions(c *gin.Context) {
+func (h *signaturesview) Transactions(c *gin.Context) {
 	session := sessions.Default(c)
 	title := "Transaksi - SmartSign"
 	page := "transactions"
-	transac := h.signaturesService.GetTransactions()
+	transac := h.serviceSignature.GetTransactions()
 
 	c.HTML(http.StatusOK, "transactions.html", gin.H{
 		"title":   title,
@@ -237,11 +205,11 @@ func (h *signaturesView) Transactions(c *gin.Context) {
 	})
 }
 
-func (h *signaturesView) Download(c *gin.Context) {
+func (h *signaturesview) Download(c *gin.Context) {
 	session := sessions.Default(c)
 	title := "Daftar Unduh Dokumen - SmartSign"
 	page := "download"
-	listDocument := h.signaturesService.GetListDocument(fmt.Sprintf("%v", session.Get("public_key")))
+	listDocument := h.serviceSignature.GetListDocument(fmt.Sprintf("%v", session.Get("public_key")))
 	failed, err := notif.GetMessage(c.Writer, c.Request, "failed")
 	if err != nil {
 		log.Println(err)
@@ -258,6 +226,6 @@ func (h *signaturesView) Download(c *gin.Context) {
 		"documents": listDocument,
 		"page":      page,
 		"failed":    fmt.Sprintf("%s", failed),
-		"success":   fmt.Sprintf("%s", succes),
+		"success":   string(succes),
 	})
 }

@@ -243,12 +243,11 @@ func (mr *MockServiceMockRecorder) GetListDocument(publickey interface{}) *gomoc
 }
 
 // GetMySignature mocks base method.
-func (m *MockService) GetMySignature(sign, id, name string) (models.MySignatures, error) {
+func (m *MockService) GetMySignature(sign, id, name string) models.MySignatures {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetMySignature", sign, id, name)
 	ret0, _ := ret[0].(models.MySignatures)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	return ret0
 }
 
 // GetMySignature indicates an expected call of GetMySignature.
