@@ -135,3 +135,46 @@ func Test_userview_Register(t *testing.T) {
 		assert.Contains(t, string(responseData), "Pendaftaran - SmartSign")
 	})
 }
+
+func Test_userview_Login(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	serviceUser := m_serviceUser.NewMockService(ctrl)
+	test := []struct {
+		name    string
+		cookies string
+	}{
+		{
+			name:    "Test userView Login Success",
+			cookies: "kosong",
+		},
+		{
+			name:    "Test userView Login with Register Notification Success",
+			cookies: "registered=",
+		},
+	}
+
+	for _, tt := range test {
+		t.Run(tt.name, func(t *testing.T) {
+			w := &userview{
+				userService: serviceUser,
+			}
+			got := w.Login
+
+			router := NewRouter()
+			router.GET("/login", got)
+			req, err := http.NewRequest("GET", "/login", nil)
+			if tt.cookies != "kosong" {
+				req.Header.Set("Cookie", tt.cookies)
+			}
+			assert.NoError(t, err)
+			resp := httptest.NewRecorder()
+			router.ServeHTTP(resp, req)
+			responseData, err := ioutil.ReadAll(resp.Body)
+			assert.NoError(t, err)
+
+			assert.Equal(t, http.StatusOK, resp.Code)
+			assert.Contains(t, string(responseData), "Masuk - SmartSign")
+		})
+	}
+}
