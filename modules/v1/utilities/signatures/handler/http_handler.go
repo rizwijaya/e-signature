@@ -156,7 +156,10 @@ func (h *signaturesHandler) SignDocuments(c *gin.Context) {
 	//invite people
 	if input.Invite_sts { //Check invite or not
 		for _, email := range input.Email { //Invite Via Email
-			h.signaturesService.InvitePeople(email, input)
+			if email != "" {
+				users, _ := h.serviceUser.GetUserByEmail(email)
+				h.signaturesService.InvitePeople(email, input, users)
+			}
 		}
 	}
 	input.Hash = signDocs.Hash
@@ -255,7 +258,10 @@ func (h *signaturesHandler) InviteSignatures(c *gin.Context) {
 
 	//Invite Via Email
 	for _, email := range input.Email {
-		h.signaturesService.InvitePeople(email, DocData)
+		if email != "" {
+			users, _ := h.serviceUser.GetUserByEmail(email)
+			h.signaturesService.InvitePeople(email, DocData, users)
+		}
 	}
 	//Add Creator for view signatures documents
 	DocData.Address = append(DocData.Address, common.HexToAddress(DocData.Creator))

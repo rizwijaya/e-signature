@@ -41,7 +41,7 @@ type Service interface {
 	ChangeSignatures(sign_type string, idsignature string) error
 	ResizeImages(mysign models.MySignatures, input models.SignDocuments) string
 	SignDocuments(imgpath string, input models.SignDocuments) string
-	InvitePeople(email string, input models.SignDocuments) error
+	InvitePeople(email string, input models.SignDocuments, users modelsUser.User) error
 	GenerateHashDocument(input string) string
 	AddToBlockhain(input models.SignDocuments) error
 	AddUserDocs(input models.SignDocuments) error
@@ -51,6 +51,7 @@ type Service interface {
 	GetDocumentAllSign(hash string) (models.DocumentAllSign, bool)
 	GetDocumentNoSigners(hash string) models.DocumentBlockchain
 	GetTransactions() []models.Transac
+	CheckSignature(hash string, publickey string) bool
 }
 
 type service struct {
@@ -364,8 +365,23 @@ func calcImagePos(img *creator.Image, page *model.PdfPage, input models.SignDocu
 	return img
 }
 
-func (s *service) InvitePeople(email string, input models.SignDocuments) error {
+func (s *service) InvitePeople(email string, input models.SignDocuments, users modelsUser.User) error {
 	conf, _ := config.Init()
+	emData := struct {
+		Judul         string
+		Creator_id    string
+		Note          string
+		Hash_original string
+		Name          string
+		Member_name   string
+	}{
+		Judul:         input.Judul,
+		Creator_id:    input.Creator_id,
+		Note:          input.Note,
+		Hash_original: input.Hash_original,
+		Name:          input.Name,
+		Member_name:   users.Name,
+	}
 	// Parse the html file.
 	dir := "./public/templates/users/pages/email.html"
 	t := template.New("email.html")
@@ -377,7 +393,7 @@ func (s *service) InvitePeople(email string, input models.SignDocuments) error {
 	}
 
 	var tpl bytes.Buffer
-	if err := t.Execute(&tpl, input); err != nil {
+	if err := t.Execute(&tpl, emData); err != nil {
 		log.Println(err)
 		return err
 	}
@@ -525,4 +541,9 @@ func (s *service) GetTransactions() []models.Transac {
 		transac[i].Ids = transac[i].Id.Hex()
 	}
 	return transac
+}
+
+func (s *service) CheckSignature(hash string, publickey string) bool {
+	check := s.repository.CheckSignature(hash, publickey)
+	return check
 }

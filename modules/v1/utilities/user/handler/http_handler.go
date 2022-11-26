@@ -98,6 +98,10 @@ func (h *userHandler) Logout(c *gin.Context) {
 		Name:   "message",
 		MaxAge: -1,
 	})
+	http.SetCookie(c.Writer, &http.Cookie{
+		Name:   "smartsign",
+		MaxAge: -1,
+	})
 
 	c.Redirect(http.StatusFound, "/")
 }

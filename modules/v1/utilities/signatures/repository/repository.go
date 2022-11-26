@@ -38,6 +38,7 @@ type Repository interface {
 	GetUserByIdSignatures(idsignature string) modelsUser.ProfileDB
 	VerifyDoc(hash string) bool
 	GetTransactions() []models.Transac
+	CheckSignature(hash string, publickey string) bool
 }
 
 type repository struct {
@@ -345,4 +346,21 @@ func (r *repository) GetTransactions() []models.Transac {
 		transac = append(transac, model)
 	}
 	return transac
+}
+
+func (r *repository) CheckSignature(hash string, publickey string) bool {
+	var sign struct {
+		Hash string `bson:"hash"`
+	}
+	c := r.db.Collection("signedDocuments")
+	filter := bson.M{"hash_ori": hash, "address": publickey}
+	err := c.FindOne(context.Background(), filter).Decode(&sign)
+	if err != nil {
+		log.Println(err)
+	}
+	if sign.Hash != "" {
+		return true
+	} else {
+		return false
+	}
 }

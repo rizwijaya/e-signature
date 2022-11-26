@@ -153,6 +153,16 @@ func (h *signaturesView) Document(c *gin.Context) {
 	hash := c.Param("hash")
 	title := "Tanda Tangan Dokumen - SmartSign"
 	page := "document"
+	publickey := session.Get("public_key").(string)
+	check := h.signaturesService.CheckSignature(hash, publickey)
+	if !check {
+		c.Redirect(http.StatusMovedPermanently, "/")
+	}
+	//Check creator if not sign access
+	getCreator := h.signaturesService.GetDocument(hash, publickey)
+	if getCreator.Creator_string == fmt.Sprintf("%v", session.Get("public_key")) {
+		c.Redirect(http.StatusMovedPermanently, "/")
+	}
 	getSignature, err := h.signaturesService.GetMySignature(fmt.Sprintf("%v", session.Get("sign")), fmt.Sprintf("%v", session.Get("id")), fmt.Sprintf("%v", session.Get("name")))
 	if err != nil {
 		log.Println(err)

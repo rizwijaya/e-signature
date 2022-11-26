@@ -46,6 +46,7 @@ type Service interface {
 	GetCardDashboard(sign_id string) models.CardDashboard
 	Logging(action string, idsignature string, ip string, user_agent string) error
 	GetLogUser(idsignature string) ([]models.UserLog, error)
+	GetUserByEmail(email string) (models.User, error)
 }
 
 type service struct {
@@ -364,3 +365,8 @@ func (s *service) GetLogUser(idsignature string) ([]models.UserLog, error) {
 // 	}
 // 	return nil
 // }
+
+func (s *service) GetUserByEmail(email string) (models.User, error) {
+	user, err := s.repository.GetUserByEmail(email)
+	return user, err
+}
