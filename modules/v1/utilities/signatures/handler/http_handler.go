@@ -110,7 +110,7 @@ func (h *signaturesHandler) SignDocuments(c *gin.Context) {
 	signDocs.Hash = h.signaturesService.GenerateHashDocument(sign)
 	input.Hash = input.Hash_original
 	//Input to IPFS
-	err, IPFS := h.serviceUser.UploadIPFS(sign)
+	IPFS, err := h.serviceUser.UploadIPFS(sign)
 	if err != nil {
 		fm := []byte("melakukan tanda tangan")
 		notif.SetMessage(c.Writer, "failed", fm)
@@ -234,7 +234,7 @@ func (h *signaturesHandler) InviteSignatures(c *gin.Context) {
 	DocData.Creator = fmt.Sprintf("%v", session.Get("public_key"))
 	DocData.Creator_id = fmt.Sprintf("%v", session.Get("sign"))
 	//Input to IPFS
-	err, DocData.IPFS = h.serviceUser.UploadIPFS(path)
+	DocData.IPFS, err = h.serviceUser.UploadIPFS(path)
 	if err != nil {
 		log.Println(err)
 		fm := []byte("mengundang orang lain untuk tanda tangan")
@@ -305,7 +305,7 @@ func (h *signaturesHandler) Document(c *gin.Context) {
 	signing := h.signaturesService.SignDocuments(img, input)
 	//Generate Hash Document Signed and Upload to IPFS
 	input.Hash = h.signaturesService.GenerateHashDocument(signing)
-	err, input.IPFS = h.serviceUser.UploadIPFS(signing)
+	input.IPFS, err = h.serviceUser.UploadIPFS(signing)
 	if err != nil {
 		log.Println(err)
 		fm := []byte("melakukan tanda tangan")

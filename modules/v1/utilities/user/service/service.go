@@ -27,7 +27,7 @@ import (
 
 type Service interface {
 	ConnectIPFS() *shell.Shell
-	UploadIPFS(path string) (error, string)
+	UploadIPFS(path string) (string, error)
 	GetFileIPFS(hash string, output string, directory string) (string, error)
 	Login(input models.LoginInput) (models.ProfileDB, error)
 	CreateAccount(user models.User) (string, error)
@@ -63,19 +63,19 @@ func (s *service) ConnectIPFS() *shell.Shell {
 	return sh
 }
 
-func (s *service) UploadIPFS(path string) (error, string) {
+func (s *service) UploadIPFS(path string) (string, error) {
 	//fmt.Printf("Adding %s on IPFS \n", filename)
 	sh := s.ConnectIPFS()
 	f, err := os.Open(path)
 	if err != nil {
 		log.Println(err)
-		return err, ""
+		return "", err
 	}
 	var r = f
 	cid, err := sh.Add(r)
 	if err != nil {
 		log.Println(err)
-		return err, ""
+		return "", err
 	}
 	defer f.Close()
 
@@ -83,9 +83,9 @@ func (s *service) UploadIPFS(path string) (error, string) {
 	if err != nil {
 		//log.Println("The file could not be removed")
 		log.Println(err)
-		return err, ""
+		return "", err
 	}
-	return nil, cid
+	return cid, nil
 }
 
 func (s *service) GetFileIPFS(hash string, output string, directory string) (string, error) {
@@ -178,7 +178,7 @@ func (s *service) CreateAccount(user models.User) (string, error) {
 // 		return "", err
 // 	}
 // 	//Upload to Network IPFS
-// 	err, cidr := s.UploadIPFS(path)
+// 	cidr, err := s.UploadIPFS(path)
 // 	if err != nil {
 // 		return "", err
 // 	}

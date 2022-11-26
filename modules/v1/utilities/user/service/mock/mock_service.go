@@ -4,6 +4,7 @@ import (
 	models "e-signature/modules/v1/utilities/user/models"
 	reflect "reflect"
 
+	common "github.com/ethereum/go-ethereum/common"
 	gomock "github.com/golang/mock/gomock"
 	shell "github.com/ipfs/go-ipfs-api"
 )
@@ -175,19 +176,92 @@ func (mr *MockServiceMockRecorder) GetBalance(user, pw interface{}) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBalance", reflect.TypeOf((*MockService)(nil).GetBalance), user, pw)
 }
 
-// GetFileIPFS mocks base method.
-func (m *MockService) GetFileIPFS(hash, output string) (string, error) {
+// GetCardDashboard mocks base method.
+func (m *MockService) GetCardDashboard(sign_id string) models.CardDashboard {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetFileIPFS", hash, output)
+	ret := m.ctrl.Call(m, "GetCardDashboard", sign_id)
+	ret0, _ := ret[0].(models.CardDashboard)
+	return ret0
+}
+
+// GetCardDashboard indicates an expected call of GetCardDashboard.
+func (mr *MockServiceMockRecorder) GetCardDashboard(sign_id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCardDashboard", reflect.TypeOf((*MockService)(nil).GetCardDashboard), sign_id)
+}
+
+// GetFileIPFS mocks base method.
+func (m *MockService) GetFileIPFS(hash, output, directory string) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetFileIPFS", hash, output, directory)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetFileIPFS indicates an expected call of GetFileIPFS.
-func (mr *MockServiceMockRecorder) GetFileIPFS(hash, output interface{}) *gomock.Call {
+func (mr *MockServiceMockRecorder) GetFileIPFS(hash, output, directory interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFileIPFS", reflect.TypeOf((*MockService)(nil).GetFileIPFS), hash, output)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFileIPFS", reflect.TypeOf((*MockService)(nil).GetFileIPFS), hash, output, directory)
+}
+
+// GetLogUser mocks base method.
+func (m *MockService) GetLogUser(idsignature string) ([]models.UserLog, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetLogUser", idsignature)
+	ret0, _ := ret[0].([]models.UserLog)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetLogUser indicates an expected call of GetLogUser.
+func (mr *MockServiceMockRecorder) GetLogUser(idsignature interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLogUser", reflect.TypeOf((*MockService)(nil).GetLogUser), idsignature)
+}
+
+// GetPublicKey mocks base method.
+func (m *MockService) GetPublicKey(email []string) ([]common.Address, []string) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPublicKey", email)
+	ret0, _ := ret[0].([]common.Address)
+	ret1, _ := ret[1].([]string)
+	return ret0, ret1
+}
+
+// GetPublicKey indicates an expected call of GetPublicKey.
+func (mr *MockServiceMockRecorder) GetPublicKey(email interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPublicKey", reflect.TypeOf((*MockService)(nil).GetPublicKey), email)
+}
+
+// GetUserByEmail mocks base method.
+func (m *MockService) GetUserByEmail(email string) (models.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserByEmail", email)
+	ret0, _ := ret[0].(models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserByEmail indicates an expected call of GetUserByEmail.
+func (mr *MockServiceMockRecorder) GetUserByEmail(email interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByEmail", reflect.TypeOf((*MockService)(nil).GetUserByEmail), email)
+}
+
+// Logging mocks base method.
+func (m *MockService) Logging(action, idsignature, ip, user_agent string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Logging", action, idsignature, ip, user_agent)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Logging indicates an expected call of Logging.
+func (mr *MockServiceMockRecorder) Logging(action, idsignature, ip, user_agent interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Logging", reflect.TypeOf((*MockService)(nil).Logging), action, idsignature, ip, user_agent)
 }
 
 // Login mocks base method.
@@ -220,11 +294,11 @@ func (mr *MockServiceMockRecorder) TransferBalance(user interface{}) *gomock.Cal
 }
 
 // UploadIPFS mocks base method.
-func (m *MockService) UploadIPFS(path string) (error, string) {
+func (m *MockService) UploadIPFS(path string) (string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UploadIPFS", path)
-	ret0, _ := ret[0].(error)
-	ret1, _ := ret[1].(string)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
