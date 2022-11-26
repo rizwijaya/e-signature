@@ -35,10 +35,7 @@ func (h *userView) Index(c *gin.Context) {
 	title := "SmartSign - Smart Digital Signatures"
 	page := "index"
 
-	fm, err := notif.GetMessage(c.Writer, c.Request, "message")
-	if err != nil {
-		log.Println(err)
-	}
+	fm, _ := notif.GetMessage(c.Writer, c.Request, "message")
 	c.HTML(http.StatusOK, "landing_index.html", gin.H{
 		"title":   title,
 		"page":    page,
