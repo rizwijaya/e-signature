@@ -37,7 +37,6 @@ type Service interface {
 	Decrypt(data []byte, passphrase string) []byte
 	EncryptFile(filename string, passphrase string) error
 	DecryptFile(filename string, passphrase string) error
-	//SavetoSystem(user models.User) error
 	CheckUserExist(idsignature string) (string, error)
 	CheckEmailExist(email string) (string, error)
 	GetBalance(user models.ProfileDB, pw string) (string, error)
@@ -353,18 +352,6 @@ func (s *service) GetLogUser(idsignature string) ([]models.UserLog, error) {
 	log, err := s.repository.GetLogUser(idsignature)
 	return log, err
 }
-
-// func (s *service) SavetoSystem(user models.User) error {
-// 	conf, _ := config.Init()
-// 	//System Authentication
-// 	auth := blockhain.GetAccountAuth(blockhain.Connect(), conf.Blockhain.Secret_key)
-// 	err := s.repository.SavetoSystem(auth, user)
-// 	if err != nil {
-// 		log.Println(err)
-// 		return err
-// 	}
-// 	return nil
-// }
 
 func (s *service) GetUserByEmail(email string) (models.User, error) {
 	user, err := s.repository.GetUserByEmail(email)

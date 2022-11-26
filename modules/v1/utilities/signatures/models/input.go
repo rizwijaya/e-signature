@@ -25,7 +25,6 @@ type Signatures struct {
 }
 
 type SignDocuments struct {
-	//File       string  `json:"file" form:"file" binding:"required"`
 	Name          string
 	SignPage      float64  `json:"signPage" form:"signPage" binding:"required"`
 	X_coord       float64  `json:"signX" form:"signX" binding:"required"`
@@ -42,9 +41,8 @@ type SignDocuments struct {
 	Hash_original string
 	Creator       string
 	Creator_id    string
-	//Metadata      string
-	Address     []common.Address
-	IdSignature []string
+	Address       []common.Address
+	IdSignature   []string
 }
 
 type InviteSignatures struct {

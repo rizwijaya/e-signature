@@ -31,9 +31,6 @@ func ParseTmpl(router *gin.Engine) *gin.Engine { //Load HTML Template
 	router.Static("/signatures", "./public/images/signatures")
 	router.Static("/file/documents", "./public/temp/pdfsign")
 
-	// router.Static("/dash", "./public/assets/dashboard")
-	// router.Static("/dashcustom", "./public/assets/dashboard/assets/css")
-
 	return router
 }
 

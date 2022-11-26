@@ -29,9 +29,7 @@ type Repository interface {
 	SearchFile(path string, info os.FileInfo, err error) error
 	GetPrivateKey(user models.User) (string, error)
 	GeneratePublicKey(user models.User) (models.User, error)
-	//SavetoSystem(auth *bind.TransactOpts, user models.User) error
 	Register(user models.User) (interface{}, error)
-	//ssSavetoProfile(user models.User, key string) error
 	CheckUserExist(idsignature string) (models.ProfileDB, error)
 	CheckEmailExist(email string) (models.ProfileDB, error)
 	TransferBalance(user models.ProfileDB) error
@@ -142,14 +140,6 @@ func (r *repository) GeneratePublicKey(user models.User) (models.User, error) {
 	return user, nil
 }
 
-// func (r *repository) SavetoSystem(auth *bind.TransactOpts, user models.User) error {
-// 	_, err := r.blockchain.AddProfilefirst(auth, user.Idsignature, user.Password, user.Publickey, user.Role)
-// 	if err != nil {
-// 		log.Println(err)
-// 		return err
-// 	}
-// 	return nil
-// }
 func (r *repository) Register(user models.User) (interface{}, error) {
 	location, err := time.LoadLocation("Asia/Jakarta")
 	if err != nil {
@@ -177,19 +167,6 @@ func (r *repository) Register(user models.User) (interface{}, error) {
 	}
 	return id.InsertedID, err
 }
-
-// func (r *repository) SavetoProfile(user models.User, key string) error {
-// 	//auth := blockhain.GetAccountAuth(blockhain.Connect(), key)
-// 	auth := blockhain.GetAccountAuth(blockhain.Connect(), key)
-// 	rs, err := r.blockchain.AddProfile(auth, user.Name, user.ImageIPFS, user.Email, user.Phone, user.Dateregistered)
-// 	if err != nil {
-// 		log.Println(err)
-// 		return err
-// 	}
-
-// 	fmt.Println(rs)
-// 	return nil
-// }
 
 func (r *repository) CheckUserExist(idsignature string) (models.ProfileDB, error) {
 	var profile models.ProfileDB
