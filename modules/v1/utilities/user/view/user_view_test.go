@@ -113,3 +113,25 @@ func Test_userView_Dashboard(t *testing.T) {
 		})
 	}
 }
+
+func Test_userview_Register(t *testing.T) {
+	t.Run("Test userView Index Success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		serviceUser := m_serviceUser.NewMockService(ctrl)
+		userView := NewUserView(serviceUser)
+		router := NewRouter()
+		router.GET("/register", userView.Register)
+
+		req, err := http.NewRequest("GET", "/register", nil)
+		assert.NoError(t, err)
+		resp := httptest.NewRecorder()
+		router.ServeHTTP(resp, req)
+		responseData, err := ioutil.ReadAll(resp.Body)
+		assert.NoError(t, err)
+
+		assert.Equal(t, http.StatusOK, resp.Code)
+		assert.Contains(t, string(responseData), "Pendaftaran - SmartSign")
+	})
+}
