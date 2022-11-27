@@ -2,21 +2,31 @@ package signatures
 
 import (
 	"bytes"
+	"e-signature/modules/v1/utilities/signatures/models"
 	m_serviceSignature "e-signature/modules/v1/utilities/signatures/service/mock"
+	modelUser "e-signature/modules/v1/utilities/user/models"
 	m_serviceUser "e-signature/modules/v1/utilities/user/service/mock"
 	"e-signature/pkg/html"
+	"errors"
+	"fmt"
+	"io"
 	"io/ioutil"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
+	"net/textproto"
 	"os"
 	"testing"
+	"time"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+	"github.com/tkuchiki/faketime"
 )
 
 func TestInit(t *testing.T) {
@@ -51,8 +61,6 @@ func NewRouter() *gin.Engine {
 func Test_signaturesHandler_AddSignatures(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	serviceSignature := m_serviceSignature.NewMockService(ctrl)
-	serviceUser := m_serviceUser.NewMockService(ctrl)
 
 	cookies := "smartsign=MTY2OTQ3NDEyOHxEdi1CQkFFQ180SUFBUkFCRUFBQV9nRXdfNElBQmdaemRISnBibWNNQkFBQ2FXUUdjM1J5YVc1bkRCb0FHRFl6T0RCaU5XTmlaR001TXpoak5XWmtaamhsTm1KbVpRWnpkSEpwYm1jTUJnQUVjMmxuYmdaemRISnBibWNNQ3dBSmNtbDZkMmxxWVhsaEJuTjBjbWx1Wnd3R0FBUnVZVzFsQm5OMGNtbHVad3dPQUF4U2FYcHhhU0JYYVdwaGVXRUdjM1J5YVc1bkRBd0FDbkIxWW14cFkxOXJaWGtHYzNSeWFXNW5EQ3dBS2pCNFJFSkZOREUwTmpVeE0yTTVPVFEwTTJOR016SkRZVGhCTkRRNVpqVXlPRGRoWVVRMlpqa3hZUVp6ZEhKcGJtY01CZ0FFY205c1pRTnBiblFFQWdBRUJuTjBjbWx1Wnd3SUFBWndZWE56Y0dnR2MzUnlhVzVuRERnQU5rWkNTQ3RMYkZwd1dHOHhlVTFSUTNnMU9VVTBNRnAxYlROWVVHa3dSbmxWT1c1TFVsTkRNbWR4UkhVNGJteFNSMHM0TTJkRlp3PT189RnNnJPqyThKonDOKwf4QeHI-7SwOwzto9OciAktNLw="
 
@@ -61,14 +69,14 @@ func Test_signaturesHandler_AddSignatures(t *testing.T) {
 		statusCode  int
 		request     string
 		response    string
-		serviceTest func(signatureService *m_serviceSignature.MockService, signatureUser *m_serviceUser.MockService)
+		serviceTest func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService)
 	}{
 		{
 			name:       "Test Add Signatures Success",
 			request:    `{"unique":"63322e432d405a140eb354e9","signature":"base64-pngimagefasnflanflasda"}`,
 			statusCode: http.StatusOK,
 			response:   `{"meta":{"message":"Success Add Signatures","code":200,"status":"success"},"data":null}`,
-			serviceTest: func(signatureService *m_serviceSignature.MockService, signatureUser *m_serviceUser.MockService) {
+			serviceTest: func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService) {
 				serviceSignature.EXPECT().CreateImgSignature(gomock.Any()).Return("public/images/signatures/signatures/signatures-63322e432d405a140eb354e9.png")
 				serviceSignature.EXPECT().CreateImgSignatureData(gomock.Any(), gomock.Any()).Return("public/images/signatures/signatures_data/signaturesdata-63322e432d405a140eb354e9.png")
 				serviceSignature.EXPECT().UpdateMySignatures(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
@@ -84,6 +92,8 @@ func Test_signaturesHandler_AddSignatures(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			serviceSignature := m_serviceSignature.NewMockService(ctrl)
+			serviceUser := m_serviceUser.NewMockService(ctrl)
 			w := &signaturesHandler{
 				serviceSignature: serviceSignature,
 				serviceUser:      serviceUser,
@@ -116,8 +126,6 @@ func Test_signaturesHandler_AddSignatures(t *testing.T) {
 func Test_signaturesHandler_ChangeSignatures(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	serviceSignature := m_serviceSignature.NewMockService(ctrl)
-	serviceUser := m_serviceUser.NewMockService(ctrl)
 
 	cookies := "smartsign=MTY2OTQ3NDEyOHxEdi1CQkFFQ180SUFBUkFCRUFBQV9nRXdfNElBQmdaemRISnBibWNNQkFBQ2FXUUdjM1J5YVc1bkRCb0FHRFl6T0RCaU5XTmlaR001TXpoak5XWmtaamhsTm1KbVpRWnpkSEpwYm1jTUJnQUVjMmxuYmdaemRISnBibWNNQ3dBSmNtbDZkMmxxWVhsaEJuTjBjbWx1Wnd3R0FBUnVZVzFsQm5OMGNtbHVad3dPQUF4U2FYcHhhU0JYYVdwaGVXRUdjM1J5YVc1bkRBd0FDbkIxWW14cFkxOXJaWGtHYzNSeWFXNW5EQ3dBS2pCNFJFSkZOREUwTmpVeE0yTTVPVFEwTTJOR016SkRZVGhCTkRRNVpqVXlPRGRoWVVRMlpqa3hZUVp6ZEhKcGJtY01CZ0FFY205c1pRTnBiblFFQWdBRUJuTjBjbWx1Wnd3SUFBWndZWE56Y0dnR2MzUnlhVzVuRERnQU5rWkNTQ3RMYkZwd1dHOHhlVTFSUTNnMU9VVTBNRnAxYlROWVVHa3dSbmxWT1c1TFVsTkRNbWR4UkhVNGJteFNSMHM0TTJkRlp3PT189RnNnJPqyThKonDOKwf4QeHI-7SwOwzto9OciAktNLw="
 
@@ -127,7 +135,7 @@ func Test_signaturesHandler_ChangeSignatures(t *testing.T) {
 		sign_type   string
 		sign_now    string
 		pages       string
-		serviceTest func(signatureService *m_serviceSignature.MockService, signatureUser *m_serviceUser.MockService)
+		serviceTest func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService)
 	}{
 		{
 			name:       "Change Signatures to signature success",
@@ -135,7 +143,7 @@ func Test_signaturesHandler_ChangeSignatures(t *testing.T) {
 			sign_type:  "signature",
 			sign_now:   "<a href=\"/my-signatures\">Found</a>.\n\n",
 			pages:      "/my-signatures",
-			serviceTest: func(signatureService *m_serviceSignature.MockService, signatureUser *m_serviceUser.MockService) {
+			serviceTest: func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService) {
 				serviceSignature.EXPECT().ChangeSignatures("signature", gomock.Any()).Times(1)
 				serviceUser.EXPECT().Logging("Mengganti tanda tangan ke signature", "rizwijaya", gomock.Any(), gomock.Any()).Times(1)
 			},
@@ -146,7 +154,7 @@ func Test_signaturesHandler_ChangeSignatures(t *testing.T) {
 			sign_type:  "signature_data",
 			sign_now:   "<a href=\"/my-signatures\">Found</a>.\n\n",
 			pages:      "/my-signatures",
-			serviceTest: func(signatureService *m_serviceSignature.MockService, signatureUser *m_serviceUser.MockService) {
+			serviceTest: func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService) {
 				serviceSignature.EXPECT().ChangeSignatures("signature_data", gomock.Any()).Times(1)
 				serviceUser.EXPECT().Logging("Mengganti tanda tangan ke signature_data", "rizwijaya", gomock.Any(), gomock.Any()).Times(1)
 			},
@@ -157,7 +165,7 @@ func Test_signaturesHandler_ChangeSignatures(t *testing.T) {
 			sign_type:  "latin",
 			sign_now:   "<a href=\"/my-signatures\">Found</a>.\n\n",
 			pages:      "/my-signatures",
-			serviceTest: func(signatureService *m_serviceSignature.MockService, signatureUser *m_serviceUser.MockService) {
+			serviceTest: func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService) {
 				serviceSignature.EXPECT().ChangeSignatures("latin", gomock.Any()).Times(1)
 				serviceUser.EXPECT().Logging("Mengganti tanda tangan ke latin", "rizwijaya", gomock.Any(), gomock.Any()).Times(1)
 			},
@@ -168,7 +176,7 @@ func Test_signaturesHandler_ChangeSignatures(t *testing.T) {
 			sign_type:  "latin_data",
 			sign_now:   "<a href=\"/my-signatures\">Found</a>.\n\n",
 			pages:      "/my-signatures",
-			serviceTest: func(signatureService *m_serviceSignature.MockService, signatureUser *m_serviceUser.MockService) {
+			serviceTest: func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService) {
 				serviceSignature.EXPECT().ChangeSignatures("latin_data", gomock.Any()).Times(1)
 				serviceUser.EXPECT().Logging("Mengganti tanda tangan ke latin_data", "rizwijaya", gomock.Any(), gomock.Any()).Times(1)
 			},
@@ -179,7 +187,7 @@ func Test_signaturesHandler_ChangeSignatures(t *testing.T) {
 			sign_type:  "signature-nothing",
 			sign_now:   "<a href=\"/my-signatures\">Found</a>.\n\n",
 			pages:      "/my-signatures",
-			serviceTest: func(signatureService *m_serviceSignature.MockService, signatureUser *m_serviceUser.MockService) {
+			serviceTest: func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService) {
 				serviceSignature.EXPECT().ChangeSignatures("latin", gomock.Any()).Times(1)
 				serviceUser.EXPECT().Logging("Mengganti tanda tangan ke signature-nothing", "rizwijaya", gomock.Any(), gomock.Any()).Times(1)
 			},
@@ -187,6 +195,8 @@ func Test_signaturesHandler_ChangeSignatures(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			serviceSignature := m_serviceSignature.NewMockService(ctrl)
+			serviceUser := m_serviceUser.NewMockService(ctrl)
 			//Testing Services Functions
 			if tt.serviceTest != nil {
 				tt.serviceTest(serviceSignature, serviceUser)
@@ -213,6 +223,384 @@ func Test_signaturesHandler_ChangeSignatures(t *testing.T) {
 			location, err := response.Result().Location()
 			assert.NoError(t, err)
 			assert.Equal(t, location.Path, tt.pages)
+		})
+	}
+}
+
+func CreateFilePDF(t *testing.T, w *multipart.Writer, filename string) (io.Writer, error) {
+	t.Helper()
+	h := make(textproto.MIMEHeader)
+	h.Set("Content-Disposition", fmt.Sprintf(`form-data; name="%s"; filename="%s"`, "file", filename))
+	h.Set("Content-Type", "application/pdf")
+	return w.CreatePart(h)
+}
+
+func Test_signaturesHandler_SignDocuments(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	var err error
+	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
+	defer f.Undo()
+	f.Do()
+	location, err := time.LoadLocation("Asia/Jakarta")
+	assert.NoError(t, err)
+	times := time.Now().In(location).String()
+	cookies := "smartsign=MTY2OTQ3NDEyOHxEdi1CQkFFQ180SUFBUkFCRUFBQV9nRXdfNElBQmdaemRISnBibWNNQkFBQ2FXUUdjM1J5YVc1bkRCb0FHRFl6T0RCaU5XTmlaR001TXpoak5XWmtaamhsTm1KbVpRWnpkSEpwYm1jTUJnQUVjMmxuYmdaemRISnBibWNNQ3dBSmNtbDZkMmxxWVhsaEJuTjBjbWx1Wnd3R0FBUnVZVzFsQm5OMGNtbHVad3dPQUF4U2FYcHhhU0JYYVdwaGVXRUdjM1J5YVc1bkRBd0FDbkIxWW14cFkxOXJaWGtHYzNSeWFXNW5EQ3dBS2pCNFJFSkZOREUwTmpVeE0yTTVPVFEwTTJOR016SkRZVGhCTkRRNVpqVXlPRGRoWVVRMlpqa3hZUVp6ZEhKcGJtY01CZ0FFY205c1pRTnBiblFFQWdBRUJuTjBjbWx1Wnd3SUFBWndZWE56Y0dnR2MzUnlhVzVuRERnQU5rWkNTQ3RMYkZwd1dHOHhlVTFSUTNnMU9VVTBNRnAxYlROWVVHa3dSbmxWT1c1TFVsTkRNbWR4UkhVNGJteFNSMHM0TTJkRlp3PT189RnNnJPqyThKonDOKwf4QeHI-7SwOwzto9OciAktNLw="
+
+	mysignature := models.MySignatures{
+		Id:                 "1",
+		Name:               "Rizqi Wijaya",
+		User_id:            "rizwijaya",
+		Signature:          "default.png",
+		Signature_id:       "sign_type",
+		Signature_data:     "default.png",
+		Signature_data_id:  "sign_type",
+		Latin:              "latin.png",
+		Latin_id:           "sign_type",
+		Latin_data:         "latin_data.png",
+		Latin_data_id:      "sign_type",
+		Signature_selected: "signature",
+		Date_update:        times,
+		Date_created:       times,
+	}
+
+	tests := []struct {
+		name         string
+		responseCode int
+		docs         models.SignDocuments
+		file         string
+		sign         models.SignDocs
+		pages        string
+		serviceTest  func(serviceUser *m_serviceUser.MockService, serviceSignature *m_serviceSignature.MockService)
+	}{
+		{
+			name:         "Test Sign Documents Input Invalid",
+			responseCode: http.StatusFound,
+			file:         "",
+			docs: models.SignDocuments{
+				SignPage:   1.0,
+				X_coord:    1,
+				Height:     4.2,
+				Width:      5.3,
+				Invite_sts: false,
+			},
+			pages: "/sign-documents",
+		},
+		{
+			name:         "Test Sign Documents Not File Request",
+			responseCode: http.StatusFound,
+			file:         "",
+			docs: models.SignDocuments{
+				SignPage:   1.0,
+				X_coord:    1.3,
+				Y_coord:    1.2,
+				Height:     4.2,
+				Width:      5.3,
+				Invite_sts: false,
+			},
+			pages: "/sign-documents",
+		},
+		{
+			name:         "Test Sign Documents Not File PDF",
+			responseCode: http.StatusFound,
+			file:         "card_test.jpeg",
+			docs: models.SignDocuments{
+				SignPage:   1.0,
+				X_coord:    1.3,
+				Y_coord:    1.2,
+				Height:     4.2,
+				Width:      5.3,
+				Invite_sts: false,
+			},
+			pages: "/sign-documents",
+		},
+		{
+			name:         "Test Sign Documents Failed to Input IPFS",
+			responseCode: http.StatusFound,
+			file:         "sample_test.pdf",
+			docs: models.SignDocuments{
+				Name:       "sample_test.pdf",
+				SignPage:   1.0,
+				X_coord:    1.3,
+				Y_coord:    1.2,
+				Height:     4.2,
+				Width:      5.3,
+				Invite_sts: true,
+				Email:      []string{"admin@smartsign.com"},
+				Creator:    "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
+				Creator_id: "rizwijaya",
+			},
+			pages: "/sign-documents",
+			serviceTest: func(serviceUser *m_serviceUser.MockService, serviceSignature *m_serviceSignature.MockService) {
+				docs := models.SignDocuments{
+					Name:       "sample_test.pdf",
+					SignPage:   1.0,
+					X_coord:    1.3,
+					Y_coord:    1.2,
+					Height:     4.2,
+					Width:      5.3,
+					Invite_sts: true,
+					Email:      []string{"[61646d696e40736d6172747369676e2e636f6d]"},
+				}
+
+				path := "./public/temp/pdfsign/"
+				serviceSignature.EXPECT().GenerateHashDocument(path + docs.Name).Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
+				docs.Hash_original = "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b"
+				docs.Creator = "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"
+				docs.Creator_id = "rizwijaya"
+				serviceSignature.EXPECT().GetMySignature("rizwijaya", "6380b5cbdc938c5fdf8e6bfe", "Rizqi Wijaya").Return(mysignature).Times(1)
+				serviceSignature.EXPECT().ResizeImages(mysignature, docs).Return("./public/temp/sizes-signature.png").Times(1)
+				serviceSignature.EXPECT().SignDocuments("./public/temp/sizes-signature.png", docs).Return(path + "signed_sample_test.pdf").Times(1)
+				docs.Hash = docs.Hash_original
+				serviceSignature.EXPECT().GenerateHashDocument(path + "signed_sample_test.pdf").Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
+				serviceUser.EXPECT().UploadIPFS(path+"signed_sample_test.pdf").Return("", errors.New("Failed to Input IPFS")).Times(1)
+			},
+		},
+		{
+			name:         "Test Sign Documents Mode Sign No Invite and Failed Add To Blockchain",
+			responseCode: http.StatusFound,
+			file:         "sample_test.pdf",
+			docs: models.SignDocuments{
+				Name:       "sample_test.pdf",
+				SignPage:   1.0,
+				X_coord:    1.3,
+				Y_coord:    1.2,
+				Height:     4.2,
+				Width:      5.3,
+				Invite_sts: false,
+				Email:      []string{""},
+				Creator:    "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
+				Creator_id: "rizwijaya",
+			},
+			pages: "/sign-documents",
+			serviceTest: func(serviceUser *m_serviceUser.MockService, serviceSignature *m_serviceSignature.MockService) {
+				docs := models.SignDocuments{
+					Name:       "sample_test.pdf",
+					SignPage:   1.0,
+					X_coord:    1.3,
+					Y_coord:    1.2,
+					Height:     4.2,
+					Width:      5.3,
+					Invite_sts: false,
+					Email:      []string{"[]"},
+				}
+
+				path := "./public/temp/pdfsign/"
+				serviceSignature.EXPECT().GenerateHashDocument(path + docs.Name).Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
+				docs.Hash_original = "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b"
+				docs.Creator_id = "rizwijaya"
+				serviceSignature.EXPECT().GetMySignature("rizwijaya", "6380b5cbdc938c5fdf8e6bfe", "Rizqi Wijaya").Return(mysignature).Times(1)
+				docs.Creator = "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"
+				serviceSignature.EXPECT().ResizeImages(mysignature, docs).Return("./public/temp/sizes-signature.png").Times(1)
+				serviceSignature.EXPECT().SignDocuments("./public/temp/sizes-signature.png", docs).Return(path + "signed_sample_test.pdf").Times(1)
+				docs.Hash = docs.Hash_original
+				serviceSignature.EXPECT().GenerateHashDocument(path + "signed_sample_test.pdf").Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
+				serviceUser.EXPECT().UploadIPFS(path+"signed_sample_test.pdf").Return("j8329dnsay80e2asdas", nil).Times(1)
+				serviceUser.EXPECT().Encrypt([]byte("j8329dnsay80e2asdas"), "JWT_DAS3443HBOARDD_TAMS_RIZ_SK4343_343_KEJNF00975SDISu").Return([]byte("jdadsasdasr546fgfdsfs")).Times(1)
+				docs.IPFS = "jdadsasdasr546fgfdsfs"
+				docs.Address = append(docs.Address, common.HexToAddress("0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"))
+				docs.IdSignature = append(docs.IdSignature, docs.Creator_id)
+				docs.Mode = "3"
+				serviceSignature.EXPECT().AddToBlockhain(docs).Return(errors.New("Failed to Add to Blockchain")).Times(1)
+			},
+		},
+		{
+			name:         "Test Sign Documents Mode Sign with Invite and Failed to Add User Documents",
+			responseCode: http.StatusFound,
+			file:         "sample_test.pdf",
+			docs: models.SignDocuments{
+				Name:       "sample_test.pdf",
+				SignPage:   1.0,
+				X_coord:    1.3,
+				Y_coord:    1.2,
+				Height:     4.2,
+				Width:      5.3,
+				Invite_sts: true,
+				Email:      []string{"admin@rizwijaya.com", "smartsign@rizwijaya.com"},
+				Creator:    "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
+				Creator_id: "rizwijaya",
+			},
+			pages: "/sign-documents",
+			serviceTest: func(serviceUser *m_serviceUser.MockService, serviceSignature *m_serviceSignature.MockService) {
+				docs := models.SignDocuments{
+					Name:       "sample_test.pdf",
+					SignPage:   1.0,
+					X_coord:    1.3,
+					Y_coord:    1.2,
+					Height:     4.2,
+					Width:      5.3,
+					Invite_sts: true,
+					Email:      []string{"[61646d696e4072697a77696a6179612e636f6d 736d6172747369676e4072697a77696a6179612e636f6d]"},
+				}
+
+				path := "./public/temp/pdfsign/"
+				serviceSignature.EXPECT().GenerateHashDocument(path + docs.Name).Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
+				docs.Hash_original = "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b"
+				docs.Creator = "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"
+				docs.Creator_id = "rizwijaya"
+				serviceSignature.EXPECT().GetMySignature("rizwijaya", "6380b5cbdc938c5fdf8e6bfe", "Rizqi Wijaya").Return(mysignature).Times(1)
+				serviceSignature.EXPECT().ResizeImages(mysignature, docs).Return("./public/temp/sizes-signature.png").Times(1)
+				serviceSignature.EXPECT().SignDocuments("./public/temp/sizes-signature.png", docs).Return(path + "signed_sample_test.pdf").Times(1)
+				docs.Hash = docs.Hash_original
+				signDocs := models.SignDocs{
+					Hash: docs.Hash,
+				}
+				serviceSignature.EXPECT().GenerateHashDocument(path + "signed_sample_test.pdf").Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
+				serviceUser.EXPECT().UploadIPFS(path+"signed_sample_test.pdf").Return("j8329dnsay80e2asdas", nil).Times(1)
+				serviceUser.EXPECT().Encrypt([]byte("j8329dnsay80e2asdas"), "JWT_DAS3443HBOARDD_TAMS_RIZ_SK4343_343_KEJNF00975SDISu").Return([]byte("jdadsasdasr546fgfdsfs")).Times(1)
+				docs.IPFS = "jdadsasdasr546fgfdsfs"
+				serviceUser.EXPECT().GetPublicKey(docs.Email).Return([]common.Address{common.HexToAddress("0xAyysae6513c99443cF32Ca8A449f5287aaD6f91a"), common.HexToAddress("0xBha62e6513c99443cF32Ca8A449f5287aaD6f91a")}, []string{"signed_1", "signed2"}).Times(1)
+				docs.Address = append(docs.Address, common.HexToAddress("0xAyysae6513c99443cF32Ca8A449f5287aaD6f91a"))
+				docs.Address = append(docs.Address, common.HexToAddress("0xBha62e6513c99443cF32Ca8A449f5287aaD6f91a"))
+				docs.Address = append(docs.Address, common.HexToAddress("0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"))
+				docs.IdSignature = append(docs.IdSignature, "signed_1")
+				docs.IdSignature = append(docs.IdSignature, "signed2")
+				docs.IdSignature = append(docs.IdSignature, docs.Creator_id)
+				docs.Mode = "1"
+				serviceSignature.EXPECT().AddToBlockhain(docs).Return(nil).Times(1)
+				signDocs.Hash_original = docs.Hash_original
+				signDocs.Creator = docs.Creator
+				signDocs.IPFS = docs.IPFS
+				serviceSignature.EXPECT().DocumentSigned(signDocs).Return(nil).Times(1)
+				serviceUser.EXPECT().GetUserByEmail(docs.Email[0]).Times(1)
+				serviceSignature.EXPECT().InvitePeople(docs.Email[0], docs, modelUser.User{}).Times(1)
+				docs.Hash = signDocs.Hash
+				serviceSignature.EXPECT().AddUserDocs(docs).Return(errors.New("Failed to insert data")).Times(1)
+			},
+		},
+
+		{
+			name:         "Test Sign Documents Success",
+			responseCode: http.StatusFound,
+			file:         "sample_test.pdf",
+			docs: models.SignDocuments{
+				Name:       "sample_test.pdf",
+				SignPage:   1.0,
+				X_coord:    1.3,
+				Y_coord:    1.2,
+				Height:     4.2,
+				Width:      5.3,
+				Invite_sts: true,
+				Email:      []string{"admin@rizwijaya.com", "smartsign@rizwijaya.com"},
+				Creator:    "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
+				Creator_id: "rizwijaya",
+			},
+			pages: "/download",
+			serviceTest: func(serviceUser *m_serviceUser.MockService, serviceSignature *m_serviceSignature.MockService) {
+				docs := models.SignDocuments{
+					Name:       "sample_test.pdf",
+					SignPage:   1.0,
+					X_coord:    1.3,
+					Y_coord:    1.2,
+					Height:     4.2,
+					Width:      5.3,
+					Invite_sts: true,
+					Email:      []string{"[61646d696e4072697a77696a6179612e636f6d 736d6172747369676e4072697a77696a6179612e636f6d]"},
+				}
+
+				path := "./public/temp/pdfsign/"
+				serviceSignature.EXPECT().GenerateHashDocument(path + docs.Name).Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
+				docs.Hash_original = "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b"
+				docs.Creator = "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"
+				docs.Creator_id = "rizwijaya"
+				serviceSignature.EXPECT().GetMySignature("rizwijaya", "6380b5cbdc938c5fdf8e6bfe", "Rizqi Wijaya").Return(mysignature).Times(1)
+				serviceSignature.EXPECT().ResizeImages(mysignature, docs).Return("./public/temp/sizes-signature.png").Times(1)
+				serviceSignature.EXPECT().SignDocuments("./public/temp/sizes-signature.png", docs).Return(path + "signed_sample_test.pdf").Times(1)
+				docs.Hash = docs.Hash_original
+				signDocs := models.SignDocs{
+					Hash: docs.Hash,
+				}
+				serviceSignature.EXPECT().GenerateHashDocument(path + "signed_sample_test.pdf").Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
+				serviceUser.EXPECT().UploadIPFS(path+"signed_sample_test.pdf").Return("j8329dnsay80e2asdas", nil).Times(1)
+				serviceUser.EXPECT().Encrypt([]byte("j8329dnsay80e2asdas"), "JWT_DAS3443HBOARDD_TAMS_RIZ_SK4343_343_KEJNF00975SDISu").Return([]byte("jdadsasdasr546fgfdsfs")).Times(1)
+				docs.IPFS = "jdadsasdasr546fgfdsfs"
+				serviceUser.EXPECT().GetPublicKey(docs.Email).Return([]common.Address{common.HexToAddress("0xAyysae6513c99443cF32Ca8A449f5287aaD6f91a"), common.HexToAddress("0xBha62e6513c99443cF32Ca8A449f5287aaD6f91a")}, []string{"signed_1", "signed2"}).Times(1)
+				docs.Address = append(docs.Address, common.HexToAddress("0xAyysae6513c99443cF32Ca8A449f5287aaD6f91a"))
+				docs.Address = append(docs.Address, common.HexToAddress("0xBha62e6513c99443cF32Ca8A449f5287aaD6f91a"))
+				docs.Address = append(docs.Address, common.HexToAddress("0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"))
+				docs.IdSignature = append(docs.IdSignature, "signed_1")
+				docs.IdSignature = append(docs.IdSignature, "signed2")
+				docs.IdSignature = append(docs.IdSignature, docs.Creator_id)
+				docs.Mode = "1"
+				serviceSignature.EXPECT().AddToBlockhain(docs).Return(nil).Times(1)
+				signDocs.Hash_original = docs.Hash_original
+				signDocs.Creator = docs.Creator
+				signDocs.IPFS = docs.IPFS
+				serviceSignature.EXPECT().DocumentSigned(signDocs).Return(nil).Times(1)
+				serviceUser.EXPECT().GetUserByEmail(docs.Email[0]).Times(1)
+				serviceSignature.EXPECT().InvitePeople(docs.Email[0], docs, modelUser.User{}).Times(1)
+				docs.Hash = signDocs.Hash
+				serviceSignature.EXPECT().AddUserDocs(docs).Return(nil).Times(1)
+				serviceUser.EXPECT().Logging("Menandatangani dokumen "+docs.Name, "rizwijaya", gomock.Any(), gomock.Any()).Times(1)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			serviceSignature := m_serviceSignature.NewMockService(ctrl)
+			serviceUser := m_serviceUser.NewMockService(ctrl)
+			//Testing Services Functions
+			if tt.serviceTest != nil {
+				tt.serviceTest(serviceUser, serviceSignature)
+			}
+			w := &signaturesHandler{
+				serviceSignature: serviceSignature,
+				serviceUser:      serviceUser,
+			}
+			got := w.SignDocuments
+			router := NewRouter()
+			router.POST("/sign-documents", got)
+			//Testing Handler Functions
+			payload := &bytes.Buffer{}
+			writer := multipart.NewWriter(payload)
+			err = writer.WriteField("signPage", fmt.Sprintf("%x", tt.docs.SignPage))
+			assert.NoError(t, err)
+			err = writer.WriteField("signX", fmt.Sprintf("%x", tt.docs.X_coord))
+			assert.NoError(t, err)
+			err = writer.WriteField("signY", fmt.Sprintf("%x", tt.docs.Y_coord))
+			assert.NoError(t, err)
+			err = writer.WriteField("signH", fmt.Sprintf("%x", tt.docs.Height))
+			assert.NoError(t, err)
+			err = writer.WriteField("signW", fmt.Sprintf("%x", tt.docs.Width))
+			assert.NoError(t, err)
+			err = writer.WriteField("invite_status", fmt.Sprintf("%v", tt.docs.Invite_sts))
+			assert.NoError(t, err)
+			err = writer.WriteField("email[]", fmt.Sprintf("%x", tt.docs.Email))
+			assert.NoError(t, err)
+			err = writer.WriteField("note", fmt.Sprintf("%x", tt.docs.Note))
+			assert.NoError(t, err)
+			err = writer.WriteField("judul", fmt.Sprintf("%x", tt.docs.Judul))
+			assert.NoError(t, err)
+			if tt.file != "" {
+				path := "public/unit_testing/"
+				file, errFile7 := os.Open(path + tt.file)
+				assert.NoError(t, errFile7)
+				defer file.Close()
+				part7, errFile7 := CreateFilePDF(t, writer, path+tt.file)
+				assert.NoError(t, errFile7)
+				_, errFile7 = io.Copy(part7, file)
+				assert.NoError(t, errFile7)
+			}
+			err := writer.Close()
+			assert.Nil(t, err)
+
+			req, err := http.NewRequest("POST", "/sign-documents", payload)
+			assert.NoError(t, err)
+			req.Header.Set("Content-Type", writer.FormDataContentType())
+			req.Header.Set("Cookie", cookies)
+			resp := httptest.NewRecorder()
+			router.ServeHTTP(resp, req)
+
+			assert.Equal(t, tt.responseCode, resp.Code)
+			if tt.responseCode == http.StatusFound {
+				location, err := resp.Result().Location()
+				assert.NoError(t, err)
+				assert.Equal(t, tt.pages, location.Path)
+			} else {
+				responseData, err := ioutil.ReadAll(resp.Body)
+				assert.NoError(t, err)
+				assert.Contains(t, string(responseData), "melakukan tanda tangan")
+			}
 		})
 	}
 }

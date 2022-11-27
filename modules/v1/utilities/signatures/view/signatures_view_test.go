@@ -58,17 +58,15 @@ func TestView(t *testing.T) {
 func Test_signaturesView_MySignatures(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	serviceUser := m_serviceUser.NewMockService(ctrl)
-	serviceSignature := m_serviceSignature.NewMockService(ctrl)
 
 	cookies := "smartsign=MTY2OTQ3NDEyOHxEdi1CQkFFQ180SUFBUkFCRUFBQV9nRXdfNElBQmdaemRISnBibWNNQkFBQ2FXUUdjM1J5YVc1bkRCb0FHRFl6T0RCaU5XTmlaR001TXpoak5XWmtaamhsTm1KbVpRWnpkSEpwYm1jTUJnQUVjMmxuYmdaemRISnBibWNNQ3dBSmNtbDZkMmxxWVhsaEJuTjBjbWx1Wnd3R0FBUnVZVzFsQm5OMGNtbHVad3dPQUF4U2FYcHhhU0JYYVdwaGVXRUdjM1J5YVc1bkRBd0FDbkIxWW14cFkxOXJaWGtHYzNSeWFXNW5EQ3dBS2pCNFJFSkZOREUwTmpVeE0yTTVPVFEwTTJOR016SkRZVGhCTkRRNVpqVXlPRGRoWVVRMlpqa3hZUVp6ZEhKcGJtY01CZ0FFY205c1pRTnBiblFFQWdBRUJuTjBjbWx1Wnd3SUFBWndZWE56Y0dnR2MzUnlhVzVuRERnQU5rWkNTQ3RMYkZwd1dHOHhlVTFSUTNnMU9VVTBNRnAxYlROWVVHa3dSbmxWT1c1TFVsTkRNbWR4UkhVNGJteFNSMHM0TTJkRlp3PT189RnNnJPqyThKonDOKwf4QeHI-7SwOwzto9OciAktNLw="
 	test := []struct {
 		name       string
-		beforeTest func()
+		beforeTest func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService)
 	}{
 		{
 			name: "Test signaturesView MySignature Success",
-			beforeTest: func() {
+			beforeTest: func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService) {
 				serviceSignature.EXPECT().GetMySignature("rizwijaya", "6380b5cbdc938c5fdf8e6bfe", "Rizqi Wijaya").Times(1)
 				serviceUser.EXPECT().Logging("Mengakses tanda tangan saya", "rizwijaya", gomock.Any(), gomock.Any()).Times(1)
 			},
@@ -76,12 +74,14 @@ func Test_signaturesView_MySignatures(t *testing.T) {
 	}
 	for _, tt := range test {
 		t.Run(tt.name, func(t *testing.T) {
+			serviceUser := m_serviceUser.NewMockService(ctrl)
+			serviceSignature := m_serviceSignature.NewMockService(ctrl)
 			w := &signaturesview{
 				serviceSignature: serviceSignature,
 				serviceUser:      serviceUser,
 			}
 			if tt.beforeTest != nil {
-				tt.beforeTest()
+				tt.beforeTest(serviceSignature, serviceUser)
 			}
 
 			got := w.MySignatures
@@ -105,17 +105,15 @@ func Test_signaturesView_MySignatures(t *testing.T) {
 func Test_signaturesView_SignDocuments(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	serviceUser := m_serviceUser.NewMockService(ctrl)
-	serviceSignature := m_serviceSignature.NewMockService(ctrl)
 
 	cookies := "smartsign=MTY2OTQ3NDEyOHxEdi1CQkFFQ180SUFBUkFCRUFBQV9nRXdfNElBQmdaemRISnBibWNNQkFBQ2FXUUdjM1J5YVc1bkRCb0FHRFl6T0RCaU5XTmlaR001TXpoak5XWmtaamhsTm1KbVpRWnpkSEpwYm1jTUJnQUVjMmxuYmdaemRISnBibWNNQ3dBSmNtbDZkMmxxWVhsaEJuTjBjbWx1Wnd3R0FBUnVZVzFsQm5OMGNtbHVad3dPQUF4U2FYcHhhU0JYYVdwaGVXRUdjM1J5YVc1bkRBd0FDbkIxWW14cFkxOXJaWGtHYzNSeWFXNW5EQ3dBS2pCNFJFSkZOREUwTmpVeE0yTTVPVFEwTTJOR016SkRZVGhCTkRRNVpqVXlPRGRoWVVRMlpqa3hZUVp6ZEhKcGJtY01CZ0FFY205c1pRTnBiblFFQWdBRUJuTjBjbWx1Wnd3SUFBWndZWE56Y0dnR2MzUnlhVzVuRERnQU5rWkNTQ3RMYkZwd1dHOHhlVTFSUTNnMU9VVTBNRnAxYlROWVVHa3dSbmxWT1c1TFVsTkRNbWR4UkhVNGJteFNSMHM0TTJkRlp3PT189RnNnJPqyThKonDOKwf4QeHI-7SwOwzto9OciAktNLw="
 	test := []struct {
 		name       string
-		beforeTest func()
+		beforeTest func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService)
 	}{
 		{
 			name: "Test signaturesView Sign Documents Success",
-			beforeTest: func() {
+			beforeTest: func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService) {
 				serviceSignature.EXPECT().GetMySignature("rizwijaya", "6380b5cbdc938c5fdf8e6bfe", "Rizqi Wijaya").Times(1)
 				serviceUser.EXPECT().Logging("Mengakses tanda tangan dan minta tanda tangan", "rizwijaya", gomock.Any(), gomock.Any()).Times(1)
 			},
@@ -123,12 +121,14 @@ func Test_signaturesView_SignDocuments(t *testing.T) {
 	}
 	for _, tt := range test {
 		t.Run(tt.name, func(t *testing.T) {
+			serviceUser := m_serviceUser.NewMockService(ctrl)
+			serviceSignature := m_serviceSignature.NewMockService(ctrl)
 			w := &signaturesview{
 				serviceSignature: serviceSignature,
 				serviceUser:      serviceUser,
 			}
 			if tt.beforeTest != nil {
-				tt.beforeTest()
+				tt.beforeTest(serviceSignature, serviceUser)
 			}
 
 			got := w.SignDocuments
@@ -152,29 +152,29 @@ func Test_signaturesView_SignDocuments(t *testing.T) {
 func Test_signaturesview_InviteSignatures(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	serviceUser := m_serviceUser.NewMockService(ctrl)
-	serviceSignature := m_serviceSignature.NewMockService(ctrl)
 
 	cookies := "smartsign=MTY2OTQ3NDEyOHxEdi1CQkFFQ180SUFBUkFCRUFBQV9nRXdfNElBQmdaemRISnBibWNNQkFBQ2FXUUdjM1J5YVc1bkRCb0FHRFl6T0RCaU5XTmlaR001TXpoak5XWmtaamhsTm1KbVpRWnpkSEpwYm1jTUJnQUVjMmxuYmdaemRISnBibWNNQ3dBSmNtbDZkMmxxWVhsaEJuTjBjbWx1Wnd3R0FBUnVZVzFsQm5OMGNtbHVad3dPQUF4U2FYcHhhU0JYYVdwaGVXRUdjM1J5YVc1bkRBd0FDbkIxWW14cFkxOXJaWGtHYzNSeWFXNW5EQ3dBS2pCNFJFSkZOREUwTmpVeE0yTTVPVFEwTTJOR016SkRZVGhCTkRRNVpqVXlPRGRoWVVRMlpqa3hZUVp6ZEhKcGJtY01CZ0FFY205c1pRTnBiblFFQWdBRUJuTjBjbWx1Wnd3SUFBWndZWE56Y0dnR2MzUnlhVzVuRERnQU5rWkNTQ3RMYkZwd1dHOHhlVTFSUTNnMU9VVTBNRnAxYlROWVVHa3dSbmxWT1c1TFVsTkRNbWR4UkhVNGJteFNSMHM0TTJkRlp3PT189RnNnJPqyThKonDOKwf4QeHI-7SwOwzto9OciAktNLw="
 	test := []struct {
 		name       string
-		beforeTest func()
+		beforeTest func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService)
 	}{
 		{
 			name: "Test signaturesView Invite Signatures Success",
-			beforeTest: func() {
+			beforeTest: func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService) {
 				serviceUser.EXPECT().Logging("Mengakses undang orang lain untuk tanda tangan", "rizwijaya", gomock.Any(), gomock.Any()).Times(1)
 			},
 		},
 	}
 	for _, tt := range test {
 		t.Run(tt.name, func(t *testing.T) {
+			serviceUser := m_serviceUser.NewMockService(ctrl)
+			serviceSignature := m_serviceSignature.NewMockService(ctrl)
 			w := &signaturesview{
 				serviceSignature: serviceSignature,
 				serviceUser:      serviceUser,
 			}
 			if tt.beforeTest != nil {
-				tt.beforeTest()
+				tt.beforeTest(serviceSignature, serviceUser)
 			}
 
 			got := w.InviteSignatures
@@ -198,17 +198,15 @@ func Test_signaturesview_InviteSignatures(t *testing.T) {
 func Test_signaturesview_RequestSignatures(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	serviceUser := m_serviceUser.NewMockService(ctrl)
-	serviceSignature := m_serviceSignature.NewMockService(ctrl)
 
 	cookies := "smartsign=MTY2OTQ3NDEyOHxEdi1CQkFFQ180SUFBUkFCRUFBQV9nRXdfNElBQmdaemRISnBibWNNQkFBQ2FXUUdjM1J5YVc1bkRCb0FHRFl6T0RCaU5XTmlaR001TXpoak5XWmtaamhsTm1KbVpRWnpkSEpwYm1jTUJnQUVjMmxuYmdaemRISnBibWNNQ3dBSmNtbDZkMmxxWVhsaEJuTjBjbWx1Wnd3R0FBUnVZVzFsQm5OMGNtbHVad3dPQUF4U2FYcHhhU0JYYVdwaGVXRUdjM1J5YVc1bkRBd0FDbkIxWW14cFkxOXJaWGtHYzNSeWFXNW5EQ3dBS2pCNFJFSkZOREUwTmpVeE0yTTVPVFEwTTJOR016SkRZVGhCTkRRNVpqVXlPRGRoWVVRMlpqa3hZUVp6ZEhKcGJtY01CZ0FFY205c1pRTnBiblFFQWdBRUJuTjBjbWx1Wnd3SUFBWndZWE56Y0dnR2MzUnlhVzVuRERnQU5rWkNTQ3RMYkZwd1dHOHhlVTFSUTNnMU9VVTBNRnAxYlROWVVHa3dSbmxWT1c1TFVsTkRNbWR4UkhVNGJteFNSMHM0TTJkRlp3PT189RnNnJPqyThKonDOKwf4QeHI-7SwOwzto9OciAktNLw="
 	test := []struct {
 		name       string
-		beforeTest func()
+		beforeTest func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService)
 	}{
 		{
 			name: "Test signaturesView Request Signatures Success",
-			beforeTest: func() {
+			beforeTest: func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService) {
 				serviceSignature.EXPECT().GetListDocument(gomock.Any()).Times(1)
 				serviceUser.EXPECT().Logging("Mengakses halaman permintaan tanda tangan", "rizwijaya", gomock.Any(), gomock.Any()).Times(1)
 			},
@@ -216,12 +214,14 @@ func Test_signaturesview_RequestSignatures(t *testing.T) {
 	}
 	for _, tt := range test {
 		t.Run(tt.name, func(t *testing.T) {
+			serviceUser := m_serviceUser.NewMockService(ctrl)
+			serviceSignature := m_serviceSignature.NewMockService(ctrl)
 			w := &signaturesview{
 				serviceSignature: serviceSignature,
 				serviceUser:      serviceUser,
 			}
 			if tt.beforeTest != nil {
-				tt.beforeTest()
+				tt.beforeTest(serviceSignature, serviceUser)
 			}
 
 			got := w.RequestSignatures
@@ -245,19 +245,17 @@ func Test_signaturesview_RequestSignatures(t *testing.T) {
 func Test_signaturesview_Document(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	serviceUser := m_serviceUser.NewMockService(ctrl)
-	serviceSignature := m_serviceSignature.NewMockService(ctrl)
 
 	cookies := "smartsign=MTY2OTQ3NDEyOHxEdi1CQkFFQ180SUFBUkFCRUFBQV9nRXdfNElBQmdaemRISnBibWNNQkFBQ2FXUUdjM1J5YVc1bkRCb0FHRFl6T0RCaU5XTmlaR001TXpoak5XWmtaamhsTm1KbVpRWnpkSEpwYm1jTUJnQUVjMmxuYmdaemRISnBibWNNQ3dBSmNtbDZkMmxxWVhsaEJuTjBjbWx1Wnd3R0FBUnVZVzFsQm5OMGNtbHVad3dPQUF4U2FYcHhhU0JYYVdwaGVXRUdjM1J5YVc1bkRBd0FDbkIxWW14cFkxOXJaWGtHYzNSeWFXNW5EQ3dBS2pCNFJFSkZOREUwTmpVeE0yTTVPVFEwTTJOR016SkRZVGhCTkRRNVpqVXlPRGRoWVVRMlpqa3hZUVp6ZEhKcGJtY01CZ0FFY205c1pRTnBiblFFQWdBRUJuTjBjbWx1Wnd3SUFBWndZWE56Y0dnR2MzUnlhVzVuRERnQU5rWkNTQ3RMYkZwd1dHOHhlVTFSUTNnMU9VVTBNRnAxYlROWVVHa3dSbmxWT1c1TFVsTkRNbWR4UkhVNGJteFNSMHM0TTJkRlp3PT189RnNnJPqyThKonDOKwf4QeHI-7SwOwzto9OciAktNLw="
 	test := []struct {
 		name       string
 		hash       string
-		beforeTest func()
+		beforeTest func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService)
 	}{
 		{
 			name: "Test signaturesView Request Signatures Allow Permission",
 			hash: gomock.Any().String(),
-			beforeTest: func() {
+			beforeTest: func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService) {
 				serviceSignature.EXPECT().CheckSignature(gomock.Any(), gomock.Any()).Times(1)
 				serviceSignature.EXPECT().GetDocument(gomock.Any(), gomock.Any()).Times(1)
 				serviceSignature.EXPECT().GetMySignature(gomock.Any(), gomock.Any(), gomock.Any()).Times(1)
@@ -269,7 +267,7 @@ func Test_signaturesview_Document(t *testing.T) {
 		{
 			name: "Test signaturesView Request Signatures Not Allow Permission For Creator",
 			hash: "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
-			beforeTest: func() {
+			beforeTest: func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService) {
 				serviceSignature.EXPECT().CheckSignature(gomock.Any(), gomock.Any()).Times(1)
 
 				serviceSignature.EXPECT().GetDocument("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b", "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a").Return(models.DocumentBlockchain{
@@ -296,7 +294,7 @@ func Test_signaturesview_Document(t *testing.T) {
 		{
 			name: "Test signaturesView Request Signatures Failed to Get File From IPFS",
 			hash: "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
-			beforeTest: func() {
+			beforeTest: func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService) {
 				serviceSignature.EXPECT().CheckSignature(gomock.Any(), gomock.Any()).Times(1)
 				serviceSignature.EXPECT().GetDocument(gomock.Any(), gomock.Any()).Times(1)
 				serviceSignature.EXPECT().GetMySignature(gomock.Any(), gomock.Any(), gomock.Any()).Times(1)
@@ -308,12 +306,14 @@ func Test_signaturesview_Document(t *testing.T) {
 	}
 	for _, tt := range test {
 		t.Run(tt.name, func(t *testing.T) {
+			serviceUser := m_serviceUser.NewMockService(ctrl)
+			serviceSignature := m_serviceSignature.NewMockService(ctrl)
 			w := &signaturesview{
 				serviceSignature: serviceSignature,
 				serviceUser:      serviceUser,
 			}
 			if tt.beforeTest != nil {
-				tt.beforeTest()
+				tt.beforeTest(serviceSignature, serviceUser)
 			}
 
 			got := w.Document
@@ -365,17 +365,15 @@ func Test_signaturesview_Verification(t *testing.T) {
 func Test_signaturesview_History(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	serviceUser := m_serviceUser.NewMockService(ctrl)
-	serviceSignature := m_serviceSignature.NewMockService(ctrl)
 
 	cookies := "smartsign=MTY2OTQ3NDEyOHxEdi1CQkFFQ180SUFBUkFCRUFBQV9nRXdfNElBQmdaemRISnBibWNNQkFBQ2FXUUdjM1J5YVc1bkRCb0FHRFl6T0RCaU5XTmlaR001TXpoak5XWmtaamhsTm1KbVpRWnpkSEpwYm1jTUJnQUVjMmxuYmdaemRISnBibWNNQ3dBSmNtbDZkMmxxWVhsaEJuTjBjbWx1Wnd3R0FBUnVZVzFsQm5OMGNtbHVad3dPQUF4U2FYcHhhU0JYYVdwaGVXRUdjM1J5YVc1bkRBd0FDbkIxWW14cFkxOXJaWGtHYzNSeWFXNW5EQ3dBS2pCNFJFSkZOREUwTmpVeE0yTTVPVFEwTTJOR016SkRZVGhCTkRRNVpqVXlPRGRoWVVRMlpqa3hZUVp6ZEhKcGJtY01CZ0FFY205c1pRTnBiblFFQWdBRUJuTjBjbWx1Wnd3SUFBWndZWE56Y0dnR2MzUnlhVzVuRERnQU5rWkNTQ3RMYkZwd1dHOHhlVTFSUTNnMU9VVTBNRnAxYlROWVVHa3dSbmxWT1c1TFVsTkRNbWR4UkhVNGJteFNSMHM0TTJkRlp3PT189RnNnJPqyThKonDOKwf4QeHI-7SwOwzto9OciAktNLw="
 	test := []struct {
 		name       string
-		beforeTest func()
+		beforeTest func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService)
 	}{
 		{
 			name: "Test signaturesView History Success",
-			beforeTest: func() {
+			beforeTest: func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService) {
 				serviceSignature.EXPECT().GetListDocument(gomock.Any()).Times(1)
 				serviceUser.EXPECT().Logging("Mengakses halaman riwayat tanda tangan", "rizwijaya", gomock.Any(), gomock.Any()).Times(1)
 			},
@@ -383,12 +381,14 @@ func Test_signaturesview_History(t *testing.T) {
 	}
 	for _, tt := range test {
 		t.Run(tt.name, func(t *testing.T) {
+			serviceUser := m_serviceUser.NewMockService(ctrl)
+			serviceSignature := m_serviceSignature.NewMockService(ctrl)
 			w := &signaturesview{
 				serviceSignature: serviceSignature,
 				serviceUser:      serviceUser,
 			}
 			if tt.beforeTest != nil {
-				tt.beforeTest()
+				tt.beforeTest(serviceSignature, serviceUser)
 			}
 
 			got := w.History
@@ -412,29 +412,29 @@ func Test_signaturesview_History(t *testing.T) {
 func Test_signaturesview_Transactions(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	serviceUser := m_serviceUser.NewMockService(ctrl)
-	serviceSignature := m_serviceSignature.NewMockService(ctrl)
 
 	cookies := "smartsign=MTY2OTQ3NDEyOHxEdi1CQkFFQ180SUFBUkFCRUFBQV9nRXdfNElBQmdaemRISnBibWNNQkFBQ2FXUUdjM1J5YVc1bkRCb0FHRFl6T0RCaU5XTmlaR001TXpoak5XWmtaamhsTm1KbVpRWnpkSEpwYm1jTUJnQUVjMmxuYmdaemRISnBibWNNQ3dBSmNtbDZkMmxxWVhsaEJuTjBjbWx1Wnd3R0FBUnVZVzFsQm5OMGNtbHVad3dPQUF4U2FYcHhhU0JYYVdwaGVXRUdjM1J5YVc1bkRBd0FDbkIxWW14cFkxOXJaWGtHYzNSeWFXNW5EQ3dBS2pCNFJFSkZOREUwTmpVeE0yTTVPVFEwTTJOR016SkRZVGhCTkRRNVpqVXlPRGRoWVVRMlpqa3hZUVp6ZEhKcGJtY01CZ0FFY205c1pRTnBiblFFQWdBRUJuTjBjbWx1Wnd3SUFBWndZWE56Y0dnR2MzUnlhVzVuRERnQU5rWkNTQ3RMYkZwd1dHOHhlVTFSUTNnMU9VVTBNRnAxYlROWVVHa3dSbmxWT1c1TFVsTkRNbWR4UkhVNGJteFNSMHM0TTJkRlp3PT189RnNnJPqyThKonDOKwf4QeHI-7SwOwzto9OciAktNLw="
 	test := []struct {
 		name       string
-		beforeTest func()
+		beforeTest func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService)
 	}{
 		{
 			name: "Test signaturesView History Success",
-			beforeTest: func() {
+			beforeTest: func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService) {
 				serviceSignature.EXPECT().GetTransactions().Times(1)
 			},
 		},
 	}
 	for _, tt := range test {
 		t.Run(tt.name, func(t *testing.T) {
+			serviceUser := m_serviceUser.NewMockService(ctrl)
+			serviceSignature := m_serviceSignature.NewMockService(ctrl)
 			w := &signaturesview{
 				serviceSignature: serviceSignature,
 				serviceUser:      serviceUser,
 			}
 			if tt.beforeTest != nil {
-				tt.beforeTest()
+				tt.beforeTest(serviceSignature, serviceUser)
 			}
 
 			got := w.Transactions
@@ -458,17 +458,15 @@ func Test_signaturesview_Transactions(t *testing.T) {
 func Test_signaturesview_Download(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	serviceUser := m_serviceUser.NewMockService(ctrl)
-	serviceSignature := m_serviceSignature.NewMockService(ctrl)
 
 	cookies := "smartsign=MTY2OTQ3NDEyOHxEdi1CQkFFQ180SUFBUkFCRUFBQV9nRXdfNElBQmdaemRISnBibWNNQkFBQ2FXUUdjM1J5YVc1bkRCb0FHRFl6T0RCaU5XTmlaR001TXpoak5XWmtaamhsTm1KbVpRWnpkSEpwYm1jTUJnQUVjMmxuYmdaemRISnBibWNNQ3dBSmNtbDZkMmxxWVhsaEJuTjBjbWx1Wnd3R0FBUnVZVzFsQm5OMGNtbHVad3dPQUF4U2FYcHhhU0JYYVdwaGVXRUdjM1J5YVc1bkRBd0FDbkIxWW14cFkxOXJaWGtHYzNSeWFXNW5EQ3dBS2pCNFJFSkZOREUwTmpVeE0yTTVPVFEwTTJOR016SkRZVGhCTkRRNVpqVXlPRGRoWVVRMlpqa3hZUVp6ZEhKcGJtY01CZ0FFY205c1pRTnBiblFFQWdBRUJuTjBjbWx1Wnd3SUFBWndZWE56Y0dnR2MzUnlhVzVuRERnQU5rWkNTQ3RMYkZwd1dHOHhlVTFSUTNnMU9VVTBNRnAxYlROWVVHa3dSbmxWT1c1TFVsTkRNbWR4UkhVNGJteFNSMHM0TTJkRlp3PT189RnNnJPqyThKonDOKwf4QeHI-7SwOwzto9OciAktNLw="
 	test := []struct {
 		name       string
-		beforeTest func()
+		beforeTest func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService)
 	}{
 		{
 			name: "Test signaturesView Daftar Unduh Dokumen Success",
-			beforeTest: func() {
+			beforeTest: func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService) {
 				serviceSignature.EXPECT().GetListDocument(gomock.Any()).Times(1)
 				serviceUser.EXPECT().Logging("Mengakses halaman daftar unduh dokumen", "rizwijaya", gomock.Any(), gomock.Any()).Times(1)
 			},
@@ -476,12 +474,14 @@ func Test_signaturesview_Download(t *testing.T) {
 	}
 	for _, tt := range test {
 		t.Run(tt.name, func(t *testing.T) {
+			serviceUser := m_serviceUser.NewMockService(ctrl)
+			serviceSignature := m_serviceSignature.NewMockService(ctrl)
 			w := &signaturesview{
 				serviceSignature: serviceSignature,
 				serviceUser:      serviceUser,
 			}
 			if tt.beforeTest != nil {
-				tt.beforeTest()
+				tt.beforeTest(serviceSignature, serviceUser)
 			}
 
 			got := w.Download

@@ -88,14 +88,7 @@ func (h *signaturesHandler) SignDocuments(c *gin.Context) {
 	input.Name = file.Filename
 	//Saving Document to Directory
 	path := fmt.Sprintf("./public/temp/pdfsign/%s", input.Name)
-	err = c.SaveUploadedFile(file, path)
-	if err != nil {
-		log.Println(err)
-		fm := []byte("melakukan tanda tangan")
-		notif.SetMessage(c.Writer, "failed", fm)
-		c.Redirect(302, "/sign-documents")
-		return
-	}
+	_ = c.SaveUploadedFile(file, path)
 	//Generate hash document original
 	input.Hash_original = h.serviceSignature.GenerateHashDocument(path)
 	//Get Address Creator
@@ -119,17 +112,12 @@ func (h *signaturesHandler) SignDocuments(c *gin.Context) {
 		return
 	}
 	//Delete file uploaded sign
-	err = os.Remove(path)
-	if err != nil {
-		fm := []byte("melakukan tanda tangan")
-		notif.SetMessage(c.Writer, "failed", fm)
-		log.Println(err)
-		c.Redirect(302, "/sign-documents")
-		return
-	}
+	_ = os.Remove(path)
 	//Encript IPFS and Get Signatures Data
 	input.IPFS = string(h.serviceUser.Encrypt([]byte(IPFS), conf.App.Secret_key))
-	input.Address, input.IdSignature = h.serviceUser.GetPublicKey(input.Email)
+	if input.Invite_sts { //Check invite or not
+		input.Address, input.IdSignature = h.serviceUser.GetPublicKey(input.Email)
+	}
 	//Add Creator for signatures
 	input.Address = append(input.Address, common.HexToAddress(input.Creator))
 	input.IdSignature = append(input.IdSignature, input.Creator_id)

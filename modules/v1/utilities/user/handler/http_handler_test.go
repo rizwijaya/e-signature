@@ -59,8 +59,6 @@ func NewRouter() *gin.Engine {
 func Test_userHandler_Login(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	serviceUser := m_serviceUser.NewMockService(ctrl)
-	serviceSignature := m_serviceSignature.NewMockService(ctrl)
 
 	test := []struct {
 		name         string
@@ -69,7 +67,7 @@ func Test_userHandler_Login(t *testing.T) {
 		formValidate bool
 		ResponseCode int
 		pages        string
-		beforeTest   func()
+		beforeTest   func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService)
 	}{
 		{
 			name:         "Test userHandler Login Success",
@@ -78,7 +76,7 @@ func Test_userHandler_Login(t *testing.T) {
 			formValidate: true,
 			ResponseCode: http.StatusFound,
 			pages:        "/dashboard",
-			beforeTest: func() {
+			beforeTest: func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService) {
 				serviceUser.EXPECT().Login(gomock.Any()).Times(1)
 				serviceUser.EXPECT().Decrypt(gomock.Any(), gomock.Any()).Times(1)
 				serviceUser.EXPECT().Logging("Masuk ke SmartSign", "", gomock.Any(), gomock.Any()).Times(1)
@@ -100,19 +98,21 @@ func Test_userHandler_Login(t *testing.T) {
 			formValidate: true,
 			ResponseCode: http.StatusOK,
 			pages:        "/login",
-			beforeTest: func() {
+			beforeTest: func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService) {
 				serviceUser.EXPECT().Login(gomock.Any()).Return(models.ProfileDB{}, errors.New("ID Signature/Password salah!")).Times(1)
 			},
 		},
 	}
 	for _, tt := range test {
 		t.Run(tt.name, func(t *testing.T) {
+			serviceUser := m_serviceUser.NewMockService(ctrl)
+			serviceSignature := m_serviceSignature.NewMockService(ctrl)
 			w := &userHandler{
 				userService:      serviceUser,
 				signatureService: serviceSignature,
 			}
 			if tt.beforeTest != nil {
-				tt.beforeTest()
+				tt.beforeTest(serviceSignature, serviceUser)
 			}
 
 			got := w.Login
@@ -151,33 +151,34 @@ func Test_userHandler_Login(t *testing.T) {
 func Test_userHandler_Logout(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	serviceUser := m_serviceUser.NewMockService(ctrl)
-	serviceSignature := m_serviceSignature.NewMockService(ctrl)
+
 	cookies := "smartsign=MTY2OTQ3NDEyOHxEdi1CQkFFQ180SUFBUkFCRUFBQV9nRXdfNElBQmdaemRISnBibWNNQkFBQ2FXUUdjM1J5YVc1bkRCb0FHRFl6T0RCaU5XTmlaR001TXpoak5XWmtaamhsTm1KbVpRWnpkSEpwYm1jTUJnQUVjMmxuYmdaemRISnBibWNNQ3dBSmNtbDZkMmxxWVhsaEJuTjBjbWx1Wnd3R0FBUnVZVzFsQm5OMGNtbHVad3dPQUF4U2FYcHhhU0JYYVdwaGVXRUdjM1J5YVc1bkRBd0FDbkIxWW14cFkxOXJaWGtHYzNSeWFXNW5EQ3dBS2pCNFJFSkZOREUwTmpVeE0yTTVPVFEwTTJOR016SkRZVGhCTkRRNVpqVXlPRGRoWVVRMlpqa3hZUVp6ZEhKcGJtY01CZ0FFY205c1pRTnBiblFFQWdBRUJuTjBjbWx1Wnd3SUFBWndZWE56Y0dnR2MzUnlhVzVuRERnQU5rWkNTQ3RMYkZwd1dHOHhlVTFSUTNnMU9VVTBNRnAxYlROWVVHa3dSbmxWT1c1TFVsTkRNbWR4UkhVNGJteFNSMHM0TTJkRlp3PT189RnNnJPqyThKonDOKwf4QeHI-7SwOwzto9OciAktNLw="
 
 	test := []struct {
 		name         string
 		ResponseCode int
 		pages        string
-		beforeTest   func()
+		beforeTest   func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService)
 	}{
 		{
 			name:         "Test userHandler Logout Success",
 			ResponseCode: http.StatusFound,
 			pages:        "/",
-			beforeTest: func() {
+			beforeTest: func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService) {
 				serviceUser.EXPECT().Logging("Keluar dari SmartSign", "rizwijaya", gomock.Any(), gomock.Any()).Times(1)
 			},
 		},
 	}
 	for _, tt := range test {
 		t.Run(tt.name, func(t *testing.T) {
+			serviceUser := m_serviceUser.NewMockService(ctrl)
+			serviceSignature := m_serviceSignature.NewMockService(ctrl)
 			w := &userHandler{
 				userService:      serviceUser,
 				signatureService: serviceSignature,
 			}
 			if tt.beforeTest != nil {
-				tt.beforeTest()
+				tt.beforeTest(serviceSignature, serviceUser)
 			}
 
 			got := w.Logout
@@ -207,8 +208,7 @@ func Test_userHandler_Logout(t *testing.T) {
 func Test_userHandler_Register(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	serviceUser := m_serviceUser.NewMockService(ctrl)
-	serviceSignature := m_serviceSignature.NewMockService(ctrl)
+
 	var err error
 	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
 	defer f.Undo()
@@ -238,7 +238,7 @@ func Test_userHandler_Register(t *testing.T) {
 		formValidate bool
 		ResponseCode int
 		pages        string
-		beforeTest   func()
+		beforeTest   func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService)
 	}{
 		{
 			nameTest:     "Test userHandler Register Success",
@@ -252,7 +252,7 @@ func Test_userHandler_Register(t *testing.T) {
 			formValidate: true,
 			ResponseCode: http.StatusFound,
 			pages:        "/login",
-			beforeTest: func() {
+			beforeTest: func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService) {
 				serviceUser.EXPECT().CheckUserExist("adminsmartsign").Times(1)
 				serviceUser.EXPECT().CheckEmailExist("admin@smartsign.com").Times(1)
 				serviceUser.EXPECT().EncryptFile("./public/images/identity_card/card-adminsmartsign.peg", "admin12345").Times(1)
@@ -287,7 +287,7 @@ func Test_userHandler_Register(t *testing.T) {
 			formValidate: true,
 			ResponseCode: http.StatusOK,
 			pages:        "/register",
-			beforeTest: func() {
+			beforeTest: func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService) {
 				serviceUser.EXPECT().CheckUserExist("adminsmartsign").Return("exist", errors.New("Id Signature Exist")).Times(1)
 			},
 		},
@@ -303,7 +303,7 @@ func Test_userHandler_Register(t *testing.T) {
 			formValidate: true,
 			ResponseCode: http.StatusOK,
 			pages:        "/register",
-			beforeTest: func() {
+			beforeTest: func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService) {
 				serviceUser.EXPECT().CheckUserExist("adminsmartsign").Times(1)
 				serviceUser.EXPECT().CheckEmailExist("admin@smartsign.com").Return("exist", errors.New("Email exist")).Times(1)
 			},
@@ -320,7 +320,7 @@ func Test_userHandler_Register(t *testing.T) {
 			formValidate: true,
 			ResponseCode: http.StatusOK,
 			pages:        "/register",
-			beforeTest: func() {
+			beforeTest: func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService) {
 				serviceUser.EXPECT().CheckUserExist("adminsmartsign").Times(1)
 				serviceUser.EXPECT().CheckEmailExist("admin@smartsign.com").Times(1)
 			},
@@ -337,14 +337,11 @@ func Test_userHandler_Register(t *testing.T) {
 			formValidate: true,
 			ResponseCode: http.StatusOK,
 			pages:        "/register",
-			beforeTest: func() {
+			beforeTest: func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService) {
 				serviceUser.EXPECT().CheckUserExist("adminsmartsign").Times(1)
 				serviceUser.EXPECT().CheckEmailExist("admin@smartsign.com").Times(1)
 				serviceUser.EXPECT().EncryptFile("./public/images/identity_card/card-adminsmartsign.peg", "admin12345").Times(1)
 				serviceUser.EXPECT().CreateAccount(user).Return("", errors.New("Create Account Failed")).Times(1)
-				// serviceSignature.EXPECT().CreateLatinSignatures(user, "").Times(1)
-				// serviceSignature.EXPECT().CreateLatinSignaturesData(user, "", "").Times(1)
-				// serviceSignature.EXPECT().DefaultSignatures(user, "").Times(1)
 			},
 		},
 		{
@@ -359,7 +356,7 @@ func Test_userHandler_Register(t *testing.T) {
 			formValidate: true,
 			ResponseCode: http.StatusOK,
 			pages:        "/register",
-			beforeTest: func() {
+			beforeTest: func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService) {
 				serviceUser.EXPECT().CheckUserExist("adminsmartsign").Times(1)
 				serviceUser.EXPECT().CheckEmailExist("admin@smartsign.com").Times(1)
 				serviceUser.EXPECT().EncryptFile("./public/images/identity_card/card-adminsmartsign.peg", "admin12345").Times(1)
@@ -372,12 +369,15 @@ func Test_userHandler_Register(t *testing.T) {
 	}
 	for _, tt := range test {
 		t.Run(tt.nameTest, func(t *testing.T) {
+			serviceSignature := m_serviceSignature.NewMockService(ctrl)
+			serviceUser := m_serviceUser.NewMockService(ctrl)
+
 			w := &userHandler{
 				userService:      serviceUser,
 				signatureService: serviceSignature,
 			}
 			if tt.beforeTest != nil {
-				tt.beforeTest()
+				tt.beforeTest(serviceSignature, serviceUser)
 			}
 
 			got := w.Register
