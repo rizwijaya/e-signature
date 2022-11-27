@@ -2,6 +2,7 @@ package notify
 
 import (
 	"encoding/base64"
+	"log"
 	"net/http"
 	"time"
 )
@@ -11,23 +12,25 @@ func SetMessage(w http.ResponseWriter, name string, value []byte) {
 	http.SetCookie(w, c)
 }
 
-func GetMessage(w http.ResponseWriter, r *http.Request, name string) ([]byte, error) {
+func GetMessage(w http.ResponseWriter, r *http.Request, name string) []byte {
 	c, err := r.Cookie(name)
 	if err != nil {
 		switch err {
 		case http.ErrNoCookie:
-			return nil, nil
+			return nil
 		default:
-			return nil, err
+			log.Println(err)
+			return nil
 		}
 	}
 	value, err := decode(c.Value)
 	if err != nil {
-		return nil, err
+		log.Println(err)
+		return nil
 	}
 	dc := &http.Cookie{Name: name}
 	http.SetCookie(w, dc)
-	return value, nil
+	return value
 }
 
 func encode(src []byte) string {

@@ -33,7 +33,7 @@ func (h *userview) Index(c *gin.Context) {
 	title := "SmartSign - Smart Digital Signatures"
 	page := "index"
 
-	fm, _ := notif.GetMessage(c.Writer, c.Request, "message")
+	fm := notif.GetMessage(c.Writer, c.Request, "message")
 	c.HTML(http.StatusOK, "landing_index.html", gin.H{
 		"title":   title,
 		"page":    page,
@@ -47,7 +47,7 @@ func (h *userview) Dashboard(c *gin.Context) {
 	title := "Dashboard - SmartSign"
 	page := "dashboard"
 
-	fm, _ := notif.GetMessage(c.Writer, c.Request, "message")
+	fm := notif.GetMessage(c.Writer, c.Request, "message")
 	cardDashboard := h.userService.GetCardDashboard(session.Get("sign").(string))
 	//Logging Access
 	h.userService.Logging("Mengakses Halaman Dashboard", session.Get("sign").(string), c.ClientIP(), c.Request.UserAgent())
@@ -79,7 +79,7 @@ func (h *userview) Register(c *gin.Context) {
 
 func (h *userview) Login(c *gin.Context) {
 	title := "Masuk - SmartSign"
-	fm, _ := notif.GetMessage(c.Writer, c.Request, "registered")
+	fm := notif.GetMessage(c.Writer, c.Request, "registered")
 	out := []error.Form{
 		{
 			Field:   "no field",
