@@ -26,10 +26,10 @@ func (h *signaturesHandler) AddSignatures(c *gin.Context) {
 	}
 
 	sign := fmt.Sprintf("%v", sessions.Get("sign"))
-	h.signaturesService.CreateImgSignature(input)
-	h.signaturesService.CreateImgSignatureData(input, sign)
+	h.serviceSignature.CreateImgSignature(input)
+	h.serviceSignature.CreateImgSignatureData(input, sign)
 	//Update Database MySignatures
-	h.signaturesService.UpdateMySignatures(fmt.Sprintf("signatures-%s.png", input.Id), fmt.Sprintf("signaturesdata-%s.png", input.Id), sign)
+	h.serviceSignature.UpdateMySignatures(fmt.Sprintf("signatures-%s.png", input.Id), fmt.Sprintf("signaturesdata-%s.png", input.Id), sign)
 
 	//Return Response API
 	response := api.APIRespon("Success Add Signatures", 200, "success", nil)
@@ -48,7 +48,7 @@ func (h *signaturesHandler) ChangeSignatures(c *gin.Context) {
 		signing = "latin"
 	}
 	user := fmt.Sprintf("%v", session.Get("sign"))
-	h.signaturesService.ChangeSignatures(signing, user)
+	h.serviceSignature.ChangeSignatures(signing, user)
 	fm := []byte("Mengganti Tanda Tangan!")
 	notif.SetMessage(c.Writer, "message", fm)
 	//Logging Access
@@ -97,17 +97,17 @@ func (h *signaturesHandler) SignDocuments(c *gin.Context) {
 		return
 	}
 	//Generate hash document original
-	input.Hash_original = h.signaturesService.GenerateHashDocument(path)
+	input.Hash_original = h.serviceSignature.GenerateHashDocument(path)
 	//Get Address Creator
 	input.Creator = fmt.Sprintf("%v", session.Get("public_key"))
 	input.Creator_id = fmt.Sprintf("%v", session.Get("sign"))
 	//Get Images signatures
-	mysignatures := h.signaturesService.GetMySignature(fmt.Sprintf("%v", session.Get("sign")), fmt.Sprintf("%v", session.Get("id")), fmt.Sprintf("%v", session.Get("name")))
+	mysignatures := h.serviceSignature.GetMySignature(fmt.Sprintf("%v", session.Get("sign")), fmt.Sprintf("%v", session.Get("id")), fmt.Sprintf("%v", session.Get("name")))
 	//Resize Images Signatures
-	img := h.signaturesService.ResizeImages(mysignatures, input)
+	img := h.serviceSignature.ResizeImages(mysignatures, input)
 	//Signing Documents to PDF
-	sign := h.signaturesService.SignDocuments(img, input)
-	signDocs.Hash = h.signaturesService.GenerateHashDocument(sign)
+	sign := h.serviceSignature.SignDocuments(img, input)
+	signDocs.Hash = h.serviceSignature.GenerateHashDocument(sign)
 	input.Hash = input.Hash_original
 	//Input to IPFS
 	IPFS, err := h.serviceUser.UploadIPFS(sign)
@@ -139,7 +139,7 @@ func (h *signaturesHandler) SignDocuments(c *gin.Context) {
 		input.Mode = "3"
 	}
 	//Input to blockchain
-	err = h.signaturesService.AddToBlockhain(input)
+	err = h.serviceSignature.AddToBlockhain(input)
 	if err != nil {
 		fm := []byte("melakukan tanda tangan")
 		notif.SetMessage(c.Writer, "failed", fm)
@@ -151,19 +151,19 @@ func (h *signaturesHandler) SignDocuments(c *gin.Context) {
 	signDocs.Hash_original = input.Hash_original
 	signDocs.Creator = input.Creator
 	signDocs.IPFS = input.IPFS
-	h.signaturesService.DocumentSigned(signDocs)
+	h.serviceSignature.DocumentSigned(signDocs)
 
 	//invite people
 	if input.Invite_sts { //Check invite or not
 		for _, email := range input.Email { //Invite Via Email
 			if email != "" {
 				users, _ := h.serviceUser.GetUserByEmail(email)
-				h.signaturesService.InvitePeople(email, input, users)
+				h.serviceSignature.InvitePeople(email, input, users)
 			}
 		}
 	}
 	input.Hash = signDocs.Hash
-	err = h.signaturesService.AddUserDocs(input)
+	err = h.serviceSignature.AddUserDocs(input)
 	if err != nil {
 		fm := []byte("melakukan tanda tangan")
 		notif.SetMessage(c.Writer, "failed", fm)
@@ -228,7 +228,7 @@ func (h *signaturesHandler) InviteSignatures(c *gin.Context) {
 	DocData.Judul = input.Judul
 	DocData.Note = input.Note
 	//Generate hash document
-	DocData.Hash_original = h.signaturesService.GenerateHashDocument(path)
+	DocData.Hash_original = h.serviceSignature.GenerateHashDocument(path)
 	DocData.Hash = DocData.Hash_original
 	//Get Address Creator
 	DocData.Creator = fmt.Sprintf("%v", session.Get("public_key"))
@@ -247,7 +247,7 @@ func (h *signaturesHandler) InviteSignatures(c *gin.Context) {
 	DocData.Address, DocData.IdSignature = h.serviceUser.GetPublicKey(DocData.Email)
 	DocData.Mode = "2"
 	//Input to blockchain
-	err = h.signaturesService.AddToBlockhain(DocData)
+	err = h.serviceSignature.AddToBlockhain(DocData)
 	if err != nil {
 		log.Println(err)
 		fm := []byte("mengundang orang lain untuk tanda tangan")
@@ -260,14 +260,14 @@ func (h *signaturesHandler) InviteSignatures(c *gin.Context) {
 	for _, email := range input.Email {
 		if email != "" {
 			users, _ := h.serviceUser.GetUserByEmail(email)
-			h.signaturesService.InvitePeople(email, DocData, users)
+			h.serviceSignature.InvitePeople(email, DocData, users)
 		}
 	}
 	//Add Creator for view signatures documents
 	DocData.Address = append(DocData.Address, common.HexToAddress(DocData.Creator))
 	DocData.IdSignature = append(DocData.IdSignature, DocData.Creator_id)
 
-	err = h.signaturesService.AddUserDocs(DocData)
+	err = h.serviceSignature.AddUserDocs(DocData)
 	if err != nil {
 		log.Println(err)
 		fm := []byte("mengundang orang lain untuk tanda tangan")
@@ -298,13 +298,13 @@ func (h *signaturesHandler) Document(c *gin.Context) {
 	input.Hash_original = c.Param("hash")
 	input.Name = input.Hash_original + ".pdf"
 	//Get Images signatures
-	mysignatures := h.signaturesService.GetMySignature(fmt.Sprintf("%v", session.Get("sign")), fmt.Sprintf("%v", session.Get("id")), fmt.Sprintf("%v", session.Get("name")))
+	mysignatures := h.serviceSignature.GetMySignature(fmt.Sprintf("%v", session.Get("sign")), fmt.Sprintf("%v", session.Get("id")), fmt.Sprintf("%v", session.Get("name")))
 	//Resize Images Signatures
-	img := h.signaturesService.ResizeImages(mysignatures, input)
+	img := h.serviceSignature.ResizeImages(mysignatures, input)
 	//Signing Document to PDF
-	signing := h.signaturesService.SignDocuments(img, input)
+	signing := h.serviceSignature.SignDocuments(img, input)
 	//Generate Hash Document Signed and Upload to IPFS
-	input.Hash = h.signaturesService.GenerateHashDocument(signing)
+	input.Hash = h.serviceSignature.GenerateHashDocument(signing)
 	input.IPFS, err = h.serviceUser.UploadIPFS(signing)
 	if err != nil {
 		log.Println(err)
@@ -319,7 +319,7 @@ func (h *signaturesHandler) Document(c *gin.Context) {
 	signDocs.Creator = fmt.Sprintf("%v", session.Get("public_key"))
 	signDocs.Hash = input.Hash
 	signDocs.IPFS = input.IPFS
-	h.signaturesService.DocumentSigned(signDocs)
+	h.serviceSignature.DocumentSigned(signDocs)
 	//Remove document
 	inputPath := fmt.Sprintf("./public/temp/pdfsign/%s", input.Name)
 	err = os.Remove(inputPath)
@@ -372,9 +372,9 @@ func (h *signaturesHandler) Verification(c *gin.Context) {
 		return
 	}
 	//Generate Hash Document
-	hash := h.signaturesService.GenerateHashDocument(path)
+	hash := h.serviceSignature.GenerateHashDocument(path)
 	//Get Data Document
-	data, exist := h.signaturesService.GetDocumentAllSign(hash)
+	data, exist := h.serviceSignature.GetDocumentAllSign(hash)
 	if !exist {
 		log.Println("Document not signed")
 	}
@@ -398,7 +398,7 @@ func (h *signaturesHandler) Download(c *gin.Context) {
 	conf, _ := config.Init()
 	session := sessions.Default(c)
 	hash := c.Param("hash")
-	doc := h.signaturesService.GetDocumentNoSigners(hash)
+	doc := h.serviceSignature.GetDocumentNoSigners(hash)
 	doc.IPFS = string(h.serviceUser.Decrypt([]byte(doc.IPFS), conf.App.Secret_key))
 	//Download File From
 	directory := "./public/temp/pdfdownload/"
@@ -422,7 +422,7 @@ func (h *signaturesHandler) Download(c *gin.Context) {
 // Test verification
 // func (h *signaturesHandler) Verif(c *gin.Context) {
 // 	hash := c.Param("hash")
-// 	data, exist := h.signaturesService.GetDocumentAllSign(hash)
+// 	data, exist := h.serviceSignature.GetDocumentAllSign(hash)
 // 	if !exist {
 // 		log.Println("Document not signed")
 // 		c.JSON(200, "Document not signed")
@@ -440,7 +440,7 @@ func (h *signaturesHandler) Download(c *gin.Context) {
 // 		id = fmt.Sprintf("%v", session.Get("id"))
 // 	}
 // 	fmt.Println(hash)
-// 	docs := h.signaturesService.GetDocument(hash, id)
+// 	docs := h.serviceSignature.GetDocument(hash, id)
 // 	fmt.Println(docs)
 // 	c.JSON(200, docs)
 // }

@@ -12,12 +12,12 @@ import (
 )
 
 type signaturesHandler struct {
-	signaturesService service.Service
-	serviceUser       serviceUser.Service
+	serviceSignature service.Service
+	serviceUser      serviceUser.Service
 }
 
-func NewSignaturesHandler(signaturesService service.Service, serviceUser serviceUser.Service) *signaturesHandler {
-	return &signaturesHandler{signaturesService, serviceUser}
+func NewSignaturesHandler(serviceSignature service.Service, serviceUser serviceUser.Service) *signaturesHandler {
+	return &signaturesHandler{serviceSignature, serviceUser}
 }
 
 func Handler(db *mongo.Database, blockhain *api.Api, client *ethclient.Client) *signaturesHandler {
