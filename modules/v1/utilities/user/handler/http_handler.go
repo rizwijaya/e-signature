@@ -109,6 +109,7 @@ func (h *userHandler) Logout(c *gin.Context) {
 func (h *userHandler) Register(c *gin.Context) {
 	var input models.RegisterUserInput
 	var user models.User
+	title := "Pendaftaran - SmartSign"
 	//Input Validation
 	err := c.ShouldBind(&input)
 	if err != nil {
@@ -123,7 +124,7 @@ func (h *userHandler) Register(c *gin.Context) {
 				}
 			}
 			c.HTML(http.StatusOK, "register.html", gin.H{
-				"title":    "pendaftaran - SmartSign",
+				"title":    title,
 				"errorVal": out,
 				"message":  "Harap masukan input dengan benar.",
 			})
@@ -136,12 +137,11 @@ func (h *userHandler) Register(c *gin.Context) {
 			Message: "invalid input",
 		},
 	}
-
 	//Check if user already exist
 	id, _ := h.userService.CheckUserExist(input.IdSignature)
 	if id == "exist" {
 		c.HTML(http.StatusOK, "register.html", gin.H{
-			"title":    "Register - SmartSign",
+			"title":    title,
 			"errorVal": out,
 			"message":  "ID Signature sudah terdaftar.",
 		})
@@ -151,16 +151,13 @@ func (h *userHandler) Register(c *gin.Context) {
 	email, _ := h.userService.CheckEmailExist(input.Email)
 	if email == "exist" {
 		c.HTML(http.StatusOK, "register.html", gin.H{
-			"title":    "Register - SmartSign",
+			"title":    title,
 			"errorVal": out,
 			"message":  "Email sudah terdaftar.",
 		})
 		return
 	}
-	location, err := time.LoadLocation("Asia/Jakarta")
-	if err != nil {
-		log.Println(err)
-	}
+	location, _ := time.LoadLocation("Asia/Jakarta")
 	user.Idsignature = input.IdSignature
 	user.Name = input.Name
 	user.Password = input.Password
@@ -173,7 +170,7 @@ func (h *userHandler) Register(c *gin.Context) {
 	if err != nil {
 		log.Println(err)
 		c.HTML(http.StatusOK, "register.html", gin.H{
-			"title":    "Register - SmartSign",
+			"title":    title,
 			"errorVal": out,
 			"message":  "Terjadi kesalahan, harap hubungi administrator.",
 		})
@@ -181,16 +178,7 @@ func (h *userHandler) Register(c *gin.Context) {
 	}
 	//Saving Image to Directory
 	path := fmt.Sprintf("./public/images/identity_card/card-%s.%s", input.IdSignature, file.Filename[len(file.Filename)-3:])
-	err = c.SaveUploadedFile(file, path)
-	if err != nil {
-		log.Println(err)
-		c.HTML(http.StatusOK, "register.html", gin.H{
-			"title":    "Register - SmartSign",
-			"errorVal": out,
-			"message":  "Terjadi kesalahan, harap hubungi administrator.",
-		})
-		return
-	}
+	_ = c.SaveUploadedFile(file, path)
 	user.Identity_card = fmt.Sprintf("card-%s.%s", input.IdSignature, file.Filename[len(file.Filename)-3:])
 	h.userService.EncryptFile(path, input.Password)
 
@@ -198,7 +186,7 @@ func (h *userHandler) Register(c *gin.Context) {
 	idn, err := h.userService.CreateAccount(user)
 	if err != nil {
 		c.HTML(http.StatusOK, "register.html", gin.H{
-			"title":    "Register - SmartSign",
+			"title":    title,
 			"errorVal": out,
 			"message":  "Terjadi kesalahan, harap hubungi administrator.",
 		})
@@ -211,7 +199,7 @@ func (h *userHandler) Register(c *gin.Context) {
 	err = h.signatureService.DefaultSignatures(user, idn)
 	if err != nil {
 		c.HTML(http.StatusOK, "register.html", gin.H{
-			"title":    "Register - SmartSign",
+			"title":    title,
 			"errorVal": out,
 			"message":  "Terjadi kesalahan, harap hubungi administrator.",
 		})

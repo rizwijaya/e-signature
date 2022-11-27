@@ -7,12 +7,17 @@ import (
 	m_serviceUser "e-signature/modules/v1/utilities/user/service/mock"
 	"e-signature/pkg/html"
 	"errors"
+	"io"
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"path/filepath"
 	"testing"
+	"time"
+
+	"github.com/tkuchiki/faketime"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
@@ -191,6 +196,240 @@ func Test_userHandler_Logout(t *testing.T) {
 			location, err := resp.Result().Location()
 			assert.NoError(t, err)
 			assert.Equal(t, tt.pages, location.Path)
+		})
+	}
+}
+
+// func () Matches(x interface{}) bool {
+// 	return true
+// }
+
+func Test_userHandler_Register(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	serviceUser := m_serviceUser.NewMockService(ctrl)
+	serviceSignature := m_serviceSignature.NewMockService(ctrl)
+	var err error
+	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
+	defer f.Undo()
+	f.Do()
+	location, err := time.LoadLocation("Asia/Jakarta")
+	assert.NoError(t, err)
+	user := models.User{
+		Idsignature:    "adminsmartsign",
+		Name:           "Administrator",
+		Password:       "admin12345",
+		Role:           2,
+		Email:          "admin@smartsign.com",
+		Phone:          "081234567890",
+		Dateregistered: time.Now().In(location).String(),
+		Identity_card:  "card-adminsmartsign.peg",
+	}
+
+	test := []struct {
+		nameTest     string
+		idsignature  string
+		name         string
+		email        string
+		phone        string
+		password     string
+		cpassword    string
+		file         string
+		formValidate bool
+		ResponseCode int
+		pages        string
+		beforeTest   func()
+	}{
+		{
+			nameTest:     "Test userHandler Register Success",
+			idsignature:  "adminsmartsign",
+			name:         "Administrator",
+			email:        "admin@smartsign.com",
+			phone:        "081234567890",
+			password:     "admin12345",
+			cpassword:    "admin12345",
+			file:         "card_test.jpeg",
+			formValidate: true,
+			ResponseCode: http.StatusFound,
+			pages:        "/login",
+			beforeTest: func() {
+				serviceUser.EXPECT().CheckUserExist("adminsmartsign").Times(1)
+				serviceUser.EXPECT().CheckEmailExist("admin@smartsign.com").Times(1)
+				serviceUser.EXPECT().EncryptFile("./public/images/identity_card/card-adminsmartsign.peg", "admin12345").Times(1)
+				serviceUser.EXPECT().CreateAccount(user)
+				serviceSignature.EXPECT().CreateLatinSignatures(user, "").Times(1)
+				serviceSignature.EXPECT().CreateLatinSignaturesData(user, "", "").Times(1)
+				serviceSignature.EXPECT().DefaultSignatures(user, "").Times(1)
+			},
+		},
+		{
+			nameTest:     "Test Register Failed Input Not Valid",
+			idsignature:  "admin",
+			name:         "Admin",
+			email:        "admin@smartsign.com",
+			phone:        "081234567890",
+			password:     "admin",
+			cpassword:    "admin",
+			file:         "card_test.jpeg",
+			formValidate: true,
+			ResponseCode: http.StatusOK,
+			pages:        "/register",
+		},
+		{
+			nameTest:     "Test Registed Failed idsignature Exist",
+			idsignature:  "adminsmartsign",
+			name:         "Administrator",
+			email:        "admin@smartsign.com",
+			phone:        "081234567890",
+			password:     "admin12345",
+			cpassword:    "admin12345",
+			file:         "card_test.jpeg",
+			formValidate: true,
+			ResponseCode: http.StatusOK,
+			pages:        "/register",
+			beforeTest: func() {
+				serviceUser.EXPECT().CheckUserExist("adminsmartsign").Return("exist", errors.New("Id Signature Exist")).Times(1)
+			},
+		},
+		{
+			nameTest:     "Test Register Failed Email Exist",
+			idsignature:  "adminsmartsign",
+			name:         "Administrator",
+			email:        "admin@smartsign.com",
+			phone:        "081234567890",
+			password:     "admin12345",
+			cpassword:    "admin12345",
+			file:         "card_test.jpeg",
+			formValidate: true,
+			ResponseCode: http.StatusOK,
+			pages:        "/register",
+			beforeTest: func() {
+				serviceUser.EXPECT().CheckUserExist("adminsmartsign").Times(1)
+				serviceUser.EXPECT().CheckEmailExist("admin@smartsign.com").Return("exist", errors.New("Email exist")).Times(1)
+			},
+		},
+		{
+			nameTest:     "Test Register Failed File Not Exist",
+			idsignature:  "adminsmartsign",
+			name:         "Administrator",
+			email:        "admin@smartsign.com",
+			phone:        "081234567890",
+			password:     "admin12345",
+			cpassword:    "admin12345",
+			file:         "",
+			formValidate: true,
+			ResponseCode: http.StatusOK,
+			pages:        "/register",
+			beforeTest: func() {
+				serviceUser.EXPECT().CheckUserExist("adminsmartsign").Times(1)
+				serviceUser.EXPECT().CheckEmailExist("admin@smartsign.com").Times(1)
+			},
+		},
+		{
+			nameTest:     "Test Register Failed Create Account",
+			idsignature:  "adminsmartsign",
+			name:         "Administrator",
+			email:        "admin@smartsign.com",
+			phone:        "081234567890",
+			password:     "admin12345",
+			cpassword:    "admin12345",
+			file:         "card_test.jpeg",
+			formValidate: true,
+			ResponseCode: http.StatusOK,
+			pages:        "/register",
+			beforeTest: func() {
+				serviceUser.EXPECT().CheckUserExist("adminsmartsign").Times(1)
+				serviceUser.EXPECT().CheckEmailExist("admin@smartsign.com").Times(1)
+				serviceUser.EXPECT().EncryptFile("./public/images/identity_card/card-adminsmartsign.peg", "admin12345").Times(1)
+				serviceUser.EXPECT().CreateAccount(user).Return("", errors.New("Create Account Failed")).Times(1)
+				// serviceSignature.EXPECT().CreateLatinSignatures(user, "").Times(1)
+				// serviceSignature.EXPECT().CreateLatinSignaturesData(user, "", "").Times(1)
+				// serviceSignature.EXPECT().DefaultSignatures(user, "").Times(1)
+			},
+		},
+		{
+			nameTest:     "Test Register Failed to Save Default Signatures",
+			idsignature:  "adminsmartsign",
+			name:         "Administrator",
+			email:        "admin@smartsign.com",
+			phone:        "081234567890",
+			password:     "admin12345",
+			cpassword:    "admin12345",
+			file:         "card_test.jpeg",
+			formValidate: true,
+			ResponseCode: http.StatusOK,
+			pages:        "/register",
+			beforeTest: func() {
+				serviceUser.EXPECT().CheckUserExist("adminsmartsign").Times(1)
+				serviceUser.EXPECT().CheckEmailExist("admin@smartsign.com").Times(1)
+				serviceUser.EXPECT().EncryptFile("./public/images/identity_card/card-adminsmartsign.peg", "admin12345").Times(1)
+				serviceUser.EXPECT().CreateAccount(user).Times(1)
+				serviceSignature.EXPECT().CreateLatinSignatures(user, "").Times(1)
+				serviceSignature.EXPECT().CreateLatinSignaturesData(user, "", "").Times(1)
+				serviceSignature.EXPECT().DefaultSignatures(user, "").Return(errors.New("Failed to save default signatures")).Times(1)
+			},
+		},
+	}
+	for _, tt := range test {
+		t.Run(tt.nameTest, func(t *testing.T) {
+			w := &userHandler{
+				userService:      serviceUser,
+				signatureService: serviceSignature,
+			}
+			if tt.beforeTest != nil {
+				tt.beforeTest()
+			}
+
+			got := w.Register
+
+			router := NewRouter()
+			router.POST("/register", got)
+			//Payload POST Request
+			payload := &bytes.Buffer{}
+			writer := multipart.NewWriter(payload)
+			err = writer.WriteField("idsignature", tt.idsignature)
+			assert.NoError(t, err)
+			err = writer.WriteField("name", tt.name)
+			assert.NoError(t, err)
+			err = writer.WriteField("email", tt.email)
+			assert.NoError(t, err)
+			err = writer.WriteField("phone", tt.phone)
+			assert.NoError(t, err)
+			err = writer.WriteField("password", tt.password)
+			assert.NoError(t, err)
+			err = writer.WriteField("cpassword", tt.cpassword)
+			assert.NoError(t, err)
+			if tt.file != "" {
+				path := "public/unit_testing/"
+				file, errFile7 := os.Open(path + tt.file)
+				assert.NoError(t, errFile7)
+				defer file.Close()
+				part7, errFile7 := writer.CreateFormFile("file", filepath.Base(path+tt.file))
+				assert.NoError(t, errFile7)
+				_, errFile7 = io.Copy(part7, file)
+				assert.NoError(t, errFile7)
+			}
+			err := writer.Close()
+			assert.NoError(t, err)
+			//Request to URL Register with Method POST
+			req, err := http.NewRequest("POST", "/register", payload)
+			assert.NoError(t, err)
+			if tt.formValidate {
+				req.Header.Set("Content-Type", writer.FormDataContentType())
+			}
+			resp := httptest.NewRecorder()
+			router.ServeHTTP(resp, req)
+
+			assert.Equal(t, tt.ResponseCode, resp.Code)
+			if tt.ResponseCode == http.StatusFound {
+				location, err := resp.Result().Location()
+				assert.NoError(t, err)
+				assert.Equal(t, tt.pages, location.Path)
+			} else {
+				responseData, err := ioutil.ReadAll(resp.Body)
+				assert.NoError(t, err)
+				assert.Contains(t, string(responseData), "Pendaftaran - SmartSign")
+			}
 		})
 	}
 }
