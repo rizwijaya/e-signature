@@ -142,3 +142,55 @@ func Test_userHandler_Login(t *testing.T) {
 		})
 	}
 }
+
+func Test_userHandler_Logout(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	serviceUser := m_serviceUser.NewMockService(ctrl)
+	serviceSignature := m_serviceSignature.NewMockService(ctrl)
+	cookies := "smartsign=MTY2OTQ3NDEyOHxEdi1CQkFFQ180SUFBUkFCRUFBQV9nRXdfNElBQmdaemRISnBibWNNQkFBQ2FXUUdjM1J5YVc1bkRCb0FHRFl6T0RCaU5XTmlaR001TXpoak5XWmtaamhsTm1KbVpRWnpkSEpwYm1jTUJnQUVjMmxuYmdaemRISnBibWNNQ3dBSmNtbDZkMmxxWVhsaEJuTjBjbWx1Wnd3R0FBUnVZVzFsQm5OMGNtbHVad3dPQUF4U2FYcHhhU0JYYVdwaGVXRUdjM1J5YVc1bkRBd0FDbkIxWW14cFkxOXJaWGtHYzNSeWFXNW5EQ3dBS2pCNFJFSkZOREUwTmpVeE0yTTVPVFEwTTJOR016SkRZVGhCTkRRNVpqVXlPRGRoWVVRMlpqa3hZUVp6ZEhKcGJtY01CZ0FFY205c1pRTnBiblFFQWdBRUJuTjBjbWx1Wnd3SUFBWndZWE56Y0dnR2MzUnlhVzVuRERnQU5rWkNTQ3RMYkZwd1dHOHhlVTFSUTNnMU9VVTBNRnAxYlROWVVHa3dSbmxWT1c1TFVsTkRNbWR4UkhVNGJteFNSMHM0TTJkRlp3PT189RnNnJPqyThKonDOKwf4QeHI-7SwOwzto9OciAktNLw="
+
+	test := []struct {
+		name         string
+		ResponseCode int
+		pages        string
+		beforeTest   func()
+	}{
+		{
+			name:         "Test userHandler Logout Success",
+			ResponseCode: http.StatusFound,
+			pages:        "/",
+			beforeTest: func() {
+				serviceUser.EXPECT().Logging("Keluar dari SmartSign", "rizwijaya", gomock.Any(), gomock.Any()).Times(1)
+			},
+		},
+	}
+	for _, tt := range test {
+		t.Run(tt.name, func(t *testing.T) {
+			w := &userHandler{
+				userService:      serviceUser,
+				signatureService: serviceSignature,
+			}
+			if tt.beforeTest != nil {
+				tt.beforeTest()
+			}
+
+			got := w.Logout
+
+			router := NewRouter()
+			router.GET("/logout", got)
+
+			req, err := http.NewRequest("GET", "/logout", nil)
+			req.Header.Set("Cookie", cookies)
+			assert.NoError(t, err)
+
+			resp := httptest.NewRecorder()
+			router.ServeHTTP(resp, req)
+
+			assert.Equal(t, tt.ResponseCode, resp.Code)
+			location, err := resp.Result().Location()
+			assert.NoError(t, err)
+			assert.Equal(t, tt.pages, location.Path)
+		})
+	}
+}
