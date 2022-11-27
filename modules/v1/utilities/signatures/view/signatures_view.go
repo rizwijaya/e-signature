@@ -119,12 +119,12 @@ func (h *signaturesview) Document(c *gin.Context) {
 		c.Redirect(http.StatusMovedPermanently, "/")
 	}
 	//Check creator if not sign access
-	getCreator := h.serviceSignature.GetDocument(hash, publickey)
-	if getCreator.Creator_string == fmt.Sprintf("%v", session.Get("public_key")) {
+	getDocument := h.serviceSignature.GetDocument(hash, publickey)
+	if getDocument.Creator_string == fmt.Sprintf("%v", session.Get("public_key")) {
 		c.Redirect(http.StatusMovedPermanently, "/")
 	}
 	getSignature := h.serviceSignature.GetMySignature(fmt.Sprintf("%v", session.Get("sign")), fmt.Sprintf("%v", session.Get("id")), fmt.Sprintf("%v", session.Get("name")))
-	getDocument := h.serviceSignature.GetDocument(hash, fmt.Sprintf("%v", session.Get("public_key")))
+	// getDocument := h.serviceSignature.GetDocument(hash, fmt.Sprintf("%v", session.Get("public_key")))
 	getDocIPFS := string(h.serviceUser.Decrypt([]byte(getDocument.IPFS), conf.App.Secret_key))
 	directory := "./public/temp/pdfsign/"
 	_, err := h.serviceUser.GetFileIPFS(getDocIPFS, getDocument.Hash_ori+".pdf", directory)

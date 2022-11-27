@@ -1,15 +1,18 @@
 package view
 
 import (
+	"e-signature/modules/v1/utilities/signatures/models"
 	m_serviceSignature "e-signature/modules/v1/utilities/signatures/service/mock"
 	m_serviceUser "e-signature/modules/v1/utilities/user/service/mock"
 	"e-signature/pkg/html"
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
@@ -235,6 +238,98 @@ func Test_signaturesview_RequestSignatures(t *testing.T) {
 
 			assert.Equal(t, http.StatusOK, resp.Code)
 			assert.Contains(t, string(responseData), "Daftar Permintaan Tanda Tangan - SmartSign")
+		})
+	}
+}
+
+func Test_signaturesview_Document(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	serviceUser := m_serviceUser.NewMockService(ctrl)
+	serviceSignature := m_serviceSignature.NewMockService(ctrl)
+
+	cookies := "smartsign=MTY2OTQ3NDEyOHxEdi1CQkFFQ180SUFBUkFCRUFBQV9nRXdfNElBQmdaemRISnBibWNNQkFBQ2FXUUdjM1J5YVc1bkRCb0FHRFl6T0RCaU5XTmlaR001TXpoak5XWmtaamhsTm1KbVpRWnpkSEpwYm1jTUJnQUVjMmxuYmdaemRISnBibWNNQ3dBSmNtbDZkMmxxWVhsaEJuTjBjbWx1Wnd3R0FBUnVZVzFsQm5OMGNtbHVad3dPQUF4U2FYcHhhU0JYYVdwaGVXRUdjM1J5YVc1bkRBd0FDbkIxWW14cFkxOXJaWGtHYzNSeWFXNW5EQ3dBS2pCNFJFSkZOREUwTmpVeE0yTTVPVFEwTTJOR016SkRZVGhCTkRRNVpqVXlPRGRoWVVRMlpqa3hZUVp6ZEhKcGJtY01CZ0FFY205c1pRTnBiblFFQWdBRUJuTjBjbWx1Wnd3SUFBWndZWE56Y0dnR2MzUnlhVzVuRERnQU5rWkNTQ3RMYkZwd1dHOHhlVTFSUTNnMU9VVTBNRnAxYlROWVVHa3dSbmxWT1c1TFVsTkRNbWR4UkhVNGJteFNSMHM0TTJkRlp3PT189RnNnJPqyThKonDOKwf4QeHI-7SwOwzto9OciAktNLw="
+	test := []struct {
+		name       string
+		hash       string
+		beforeTest func()
+	}{
+		{
+			name: "Test signaturesView Request Signatures Allow Permission",
+			hash: gomock.Any().String(),
+			beforeTest: func() {
+				serviceSignature.EXPECT().CheckSignature(gomock.Any(), gomock.Any()).Times(1)
+				serviceSignature.EXPECT().GetDocument(gomock.Any(), gomock.Any()).Times(1)
+				serviceSignature.EXPECT().GetMySignature(gomock.Any(), gomock.Any(), gomock.Any()).Times(1)
+				serviceUser.EXPECT().Decrypt(gomock.Any(), gomock.Any()).Times(1)
+				serviceUser.EXPECT().GetFileIPFS(gomock.Any(), gomock.Any(), gomock.Any()).Times(1)
+				serviceUser.EXPECT().Logging("Mengakses dokumen untuk ditanda tangani", "rizwijaya", gomock.Any(), gomock.Any()).Times(1)
+			},
+		},
+		{
+			name: "Test signaturesView Request Signatures Not Allow Permission For Creator",
+			hash: "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
+			beforeTest: func() {
+				serviceSignature.EXPECT().CheckSignature(gomock.Any(), gomock.Any()).Times(1)
+
+				serviceSignature.EXPECT().GetDocument("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b", "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a").Return(models.DocumentBlockchain{
+					Document_id:    "63820321334838fe2021b0fe",
+					Creator:        common.HexToAddress("0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"),
+					Creator_string: "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
+					Metadata:       "File-Testing.pdf",
+					Hash_ori:       "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
+					Hash:           "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
+					IPFS:           "6a4c244e82419f9d725e15d9cc4b",
+					State:          "1",
+					Mode:           "1",
+					Createdtime:    "27112022",
+					Completedtime:  "28112022",
+					Exist:          true,
+				}).Times(1)
+
+				serviceSignature.EXPECT().GetMySignature(gomock.Any(), gomock.Any(), gomock.Any()).Times(1)
+				serviceUser.EXPECT().Decrypt(gomock.Any(), gomock.Any()).Times(1)
+				serviceUser.EXPECT().GetFileIPFS(gomock.Any(), gomock.Any(), gomock.Any()).Times(1)
+				serviceUser.EXPECT().Logging("Mengakses dokumen untuk ditanda tangani", "rizwijaya", gomock.Any(), gomock.Any()).Times(1)
+			},
+		},
+		{
+			name: "Test signaturesView Request Signatures Failed to Get File From IPFS",
+			hash: "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
+			beforeTest: func() {
+				serviceSignature.EXPECT().CheckSignature(gomock.Any(), gomock.Any()).Times(1)
+				serviceSignature.EXPECT().GetDocument(gomock.Any(), gomock.Any()).Times(1)
+				serviceSignature.EXPECT().GetMySignature(gomock.Any(), gomock.Any(), gomock.Any()).Times(1)
+				serviceUser.EXPECT().Decrypt(gomock.Any(), gomock.Any()).Times(1)
+				serviceUser.EXPECT().GetFileIPFS("", ".pdf", "./public/temp/pdfsign/").Return("", errors.New("Failed to Get File From IPFS")).Times(1)
+				serviceUser.EXPECT().Logging("Mengakses dokumen untuk ditanda tangani", "rizwijaya", gomock.Any(), gomock.Any()).Times(1)
+			},
+		},
+	}
+	for _, tt := range test {
+		t.Run(tt.name, func(t *testing.T) {
+			w := &signaturesview{
+				serviceSignature: serviceSignature,
+				serviceUser:      serviceUser,
+			}
+			if tt.beforeTest != nil {
+				tt.beforeTest()
+			}
+
+			got := w.Document
+
+			router := NewRouter()
+			router.GET("/document/:hash", got)
+			req, err := http.NewRequest("GET", "/document/"+tt.hash, nil)
+			req.Header.Set("Cookie", cookies)
+			assert.NoError(t, err)
+			resp := httptest.NewRecorder()
+			router.ServeHTTP(resp, req)
+			responseData, err := ioutil.ReadAll(resp.Body)
+			assert.NoError(t, err)
+
+			assert.Equal(t, 301, resp.Code)
+			assert.Contains(t, string(responseData), "Tanda Tangan Dokumen - SmartSign")
 		})
 	}
 }
