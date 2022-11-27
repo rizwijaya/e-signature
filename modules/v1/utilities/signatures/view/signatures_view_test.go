@@ -333,3 +333,31 @@ func Test_signaturesview_Document(t *testing.T) {
 		})
 	}
 }
+
+func Test_signaturesview_Verification(t *testing.T) {
+	t.Run("Test signaturesView Verification Success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		serviceUser := m_serviceUser.NewMockService(ctrl)
+		serviceSignature := m_serviceSignature.NewMockService(ctrl)
+
+		w := &signaturesview{
+			serviceSignature: serviceSignature,
+			serviceUser:      serviceUser,
+		}
+
+		router := NewRouter()
+		router.GET("/verification", w.Verification)
+
+		req, err := http.NewRequest("GET", "/verification", nil)
+		assert.NoError(t, err)
+		resp := httptest.NewRecorder()
+		router.ServeHTTP(resp, req)
+		responseData, err := ioutil.ReadAll(resp.Body)
+		assert.NoError(t, err)
+
+		assert.Equal(t, http.StatusOK, resp.Code)
+		assert.Contains(t, string(responseData), "Verifikasi - SmartSign")
+	})
+}
