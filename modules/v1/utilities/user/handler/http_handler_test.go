@@ -70,7 +70,7 @@ func Test_userHandler_Login(t *testing.T) {
 		beforeTest   func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService)
 	}{
 		{
-			name:         "Test userHandler Login Success",
+			name:         "Login Case 1: Login Success",
 			idsignature:  "admin",
 			password:     "admin",
 			formValidate: true,
@@ -84,7 +84,7 @@ func Test_userHandler_Login(t *testing.T) {
 			},
 		},
 		{
-			name:         "Test userHandler Login Failed Input Invalid",
+			name:         "Login Case 2: Failed Login Input Invalid",
 			idsignature:  "admin",
 			password:     "admin",
 			formValidate: false,
@@ -92,7 +92,7 @@ func Test_userHandler_Login(t *testing.T) {
 			pages:        "/login",
 		},
 		{
-			name:         "Test userHandler Login Failed (Idsignature/Password Wrong)",
+			name:         "Login Case 3: Failed Login Idsignature/Password is Wrong",
 			idsignature:  "admin",
 			password:     "admin",
 			formValidate: true,
@@ -161,7 +161,7 @@ func Test_userHandler_Logout(t *testing.T) {
 		beforeTest   func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService)
 	}{
 		{
-			name:         "Test userHandler Logout Success",
+			name:         "Logout Case 1: Logout Success",
 			ResponseCode: http.StatusFound,
 			pages:        "/",
 			beforeTest: func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService) {
@@ -241,7 +241,7 @@ func Test_userHandler_Register(t *testing.T) {
 		beforeTest   func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService)
 	}{
 		{
-			nameTest:     "Test userHandler Register Success",
+			nameTest:     "Register Case 1: Register New User Success",
 			idsignature:  "adminsmartsign",
 			name:         "Administrator",
 			email:        "admin@smartsign.com",
@@ -263,7 +263,7 @@ func Test_userHandler_Register(t *testing.T) {
 			},
 		},
 		{
-			nameTest:     "Test Register Failed Input Not Valid",
+			nameTest:     "Register Case 2: Failed Register Input Not Valid",
 			idsignature:  "admin",
 			name:         "Admin",
 			email:        "admin@smartsign.com",
@@ -276,7 +276,7 @@ func Test_userHandler_Register(t *testing.T) {
 			pages:        "/register",
 		},
 		{
-			nameTest:     "Test Registed Failed idsignature Exist",
+			nameTest:     "Register Case 3: Failed Register Id Signature Registered",
 			idsignature:  "adminsmartsign",
 			name:         "Administrator",
 			email:        "admin@smartsign.com",
@@ -292,7 +292,7 @@ func Test_userHandler_Register(t *testing.T) {
 			},
 		},
 		{
-			nameTest:     "Test Register Failed Email Exist",
+			nameTest:     "Register Case 4: Failed Register Email Registered",
 			idsignature:  "adminsmartsign",
 			name:         "Administrator",
 			email:        "admin@smartsign.com",
@@ -309,7 +309,7 @@ func Test_userHandler_Register(t *testing.T) {
 			},
 		},
 		{
-			nameTest:     "Test Register Failed File Not Exist",
+			nameTest:     "Register Case 5: Failed File Documents Not Exist in Register",
 			idsignature:  "adminsmartsign",
 			name:         "Administrator",
 			email:        "admin@smartsign.com",
@@ -326,7 +326,7 @@ func Test_userHandler_Register(t *testing.T) {
 			},
 		},
 		{
-			nameTest:     "Test Register Failed Create Account",
+			nameTest:     "Register Case 6: Failed Create Account",
 			idsignature:  "adminsmartsign",
 			name:         "Administrator",
 			email:        "admin@smartsign.com",
@@ -345,7 +345,7 @@ func Test_userHandler_Register(t *testing.T) {
 			},
 		},
 		{
-			nameTest:     "Test Register Failed to Save Default Signatures",
+			nameTest:     "Register Case 7: Failed to Generate Default Signatures",
 			idsignature:  "adminsmartsign",
 			name:         "Administrator",
 			email:        "admin@smartsign.com",

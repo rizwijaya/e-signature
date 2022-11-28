@@ -65,7 +65,7 @@ func Test_signaturesView_MySignatures(t *testing.T) {
 		beforeTest func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService)
 	}{
 		{
-			name: "Test signaturesView MySignature Success",
+			name: "My Signatures Case 1: Success View My Signatures",
 			beforeTest: func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService) {
 				serviceSignature.EXPECT().GetMySignature("rizwijaya", "6380b5cbdc938c5fdf8e6bfe", "Rizqi Wijaya").Times(1)
 				serviceUser.EXPECT().Logging("Mengakses tanda tangan saya", "rizwijaya", gomock.Any(), gomock.Any()).Times(1)
@@ -112,7 +112,7 @@ func Test_signaturesView_SignDocuments(t *testing.T) {
 		beforeTest func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService)
 	}{
 		{
-			name: "Test signaturesView Sign Documents Success",
+			name: "Sign Documents Case 1: Success View Sign Documents",
 			beforeTest: func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService) {
 				serviceSignature.EXPECT().GetMySignature("rizwijaya", "6380b5cbdc938c5fdf8e6bfe", "Rizqi Wijaya").Times(1)
 				serviceUser.EXPECT().Logging("Mengakses tanda tangan dan minta tanda tangan", "rizwijaya", gomock.Any(), gomock.Any()).Times(1)
@@ -159,7 +159,7 @@ func Test_signaturesview_InviteSignatures(t *testing.T) {
 		beforeTest func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService)
 	}{
 		{
-			name: "Test signaturesView Invite Signatures Success",
+			name: "Invite Signatures Case 1: Success View Invite Signatures",
 			beforeTest: func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService) {
 				serviceUser.EXPECT().Logging("Mengakses undang orang lain untuk tanda tangan", "rizwijaya", gomock.Any(), gomock.Any()).Times(1)
 			},
@@ -205,7 +205,7 @@ func Test_signaturesview_RequestSignatures(t *testing.T) {
 		beforeTest func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService)
 	}{
 		{
-			name: "Test signaturesView Request Signatures Success",
+			name: "Request Signatures Case 1: Success View Request Signatures",
 			beforeTest: func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService) {
 				serviceSignature.EXPECT().GetListDocument(gomock.Any()).Times(1)
 				serviceUser.EXPECT().Logging("Mengakses halaman permintaan tanda tangan", "rizwijaya", gomock.Any(), gomock.Any()).Times(1)
@@ -253,7 +253,7 @@ func Test_signaturesview_Document(t *testing.T) {
 		beforeTest func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService)
 	}{
 		{
-			name: "Test signaturesView Request Signatures Allow Permission",
+			name: "Request Signatures Document Case 1: Allowed Permission User Signers",
 			hash: gomock.Any().String(),
 			beforeTest: func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService) {
 				serviceSignature.EXPECT().CheckSignature(gomock.Any(), gomock.Any()).Times(1)
@@ -265,7 +265,7 @@ func Test_signaturesview_Document(t *testing.T) {
 			},
 		},
 		{
-			name: "Test signaturesView Request Signatures Not Allow Permission For Creator",
+			name: "Request Signatures Document Case 2: Not Allow Permission For Creator Document and User Signers",
 			hash: "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
 			beforeTest: func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService) {
 				serviceSignature.EXPECT().CheckSignature(gomock.Any(), gomock.Any()).Times(1)
@@ -292,7 +292,7 @@ func Test_signaturesview_Document(t *testing.T) {
 			},
 		},
 		{
-			name: "Test signaturesView Request Signatures Failed to Get File From IPFS",
+			name: "Request Signatures Document Case 3: Failed to Get File Documents From IPFS",
 			hash: "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
 			beforeTest: func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService) {
 				serviceSignature.EXPECT().CheckSignature(gomock.Any(), gomock.Any()).Times(1)
@@ -335,7 +335,7 @@ func Test_signaturesview_Document(t *testing.T) {
 }
 
 func Test_signaturesview_Verification(t *testing.T) {
-	t.Run("Test signaturesView Verification Success", func(t *testing.T) {
+	t.Run("Verification Case 1: Success View Verification", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
@@ -372,7 +372,7 @@ func Test_signaturesview_History(t *testing.T) {
 		beforeTest func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService)
 	}{
 		{
-			name: "Test signaturesView History Success",
+			name: "History Signers Case 1: Success View History Signers",
 			beforeTest: func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService) {
 				serviceSignature.EXPECT().GetListDocument(gomock.Any()).Times(1)
 				serviceUser.EXPECT().Logging("Mengakses halaman riwayat tanda tangan", "rizwijaya", gomock.Any(), gomock.Any()).Times(1)
@@ -419,7 +419,7 @@ func Test_signaturesview_Transactions(t *testing.T) {
 		beforeTest func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService)
 	}{
 		{
-			name: "Test signaturesView History Success",
+			name: "Transactions Signers in Blockchain Case 1: Success View Transactions Signers in Blockchain",
 			beforeTest: func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService) {
 				serviceSignature.EXPECT().GetTransactions().Times(1)
 			},
@@ -465,7 +465,7 @@ func Test_signaturesview_Download(t *testing.T) {
 		beforeTest func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService)
 	}{
 		{
-			name: "Test signaturesView Daftar Unduh Dokumen Success",
+			name: "List Download Documents Case 1: Success View List Download Documents",
 			beforeTest: func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService) {
 				serviceSignature.EXPECT().GetListDocument(gomock.Any()).Times(1)
 				serviceUser.EXPECT().Logging("Mengakses halaman daftar unduh dokumen", "rizwijaya", gomock.Any(), gomock.Any()).Times(1)

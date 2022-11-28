@@ -73,7 +73,7 @@ func Test_signaturesHandler_AddSignatures(t *testing.T) {
 		serviceTest func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService)
 	}{
 		{
-			name:       "Test Add Signatures Success",
+			name:       "Add Signatures Case 1: Success",
 			request:    `{"unique":"63322e432d405a140eb354e9","signature":"base64-pngimagefasnflanflasda"}`,
 			statusCode: http.StatusOK,
 			response:   `{"meta":{"message":"Success Add Signatures","code":200,"status":"success"},"data":null}`,
@@ -85,7 +85,7 @@ func Test_signaturesHandler_AddSignatures(t *testing.T) {
 			},
 		},
 		{
-			name:       "Test Add Signatures, Input Not Valid",
+			name:       "Add Signatures Case 2: Input Not Valid",
 			request:    `{"unique":"63322e432d405a140eb354e9","signature":"base64-pngimagefasnflanflasda"`,
 			statusCode: 300,
 			response:   `{"meta":{"message":"unexpected EOF","code":300,"status":"error"},"data":null}`,
@@ -139,7 +139,7 @@ func Test_signaturesHandler_ChangeSignatures(t *testing.T) {
 		serviceTest func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService)
 	}{
 		{
-			name:       "Change Signatures to signature success",
+			name:       "Change Signatures Case 1: Change to Signature Success",
 			statusCode: 302,
 			sign_type:  "signature",
 			sign_now:   "<a href=\"/my-signatures\">Found</a>.\n\n",
@@ -150,7 +150,7 @@ func Test_signaturesHandler_ChangeSignatures(t *testing.T) {
 			},
 		},
 		{
-			name:       "Change Signatures to signature data success",
+			name:       "Change Signatures Case 2: Change to Signature Data Success",
 			statusCode: 302,
 			sign_type:  "signature_data",
 			sign_now:   "<a href=\"/my-signatures\">Found</a>.\n\n",
@@ -161,7 +161,7 @@ func Test_signaturesHandler_ChangeSignatures(t *testing.T) {
 			},
 		},
 		{
-			name:       "Change Signatures to latin success",
+			name:       "Change Signatures Case 3: Change to Latin Success",
 			statusCode: 302,
 			sign_type:  "latin",
 			sign_now:   "<a href=\"/my-signatures\">Found</a>.\n\n",
@@ -172,7 +172,7 @@ func Test_signaturesHandler_ChangeSignatures(t *testing.T) {
 			},
 		},
 		{
-			name:       "Change Signatures to latin data success",
+			name:       "Change Signatures Case 4: Change to Latin Data Success",
 			statusCode: 302,
 			sign_type:  "latin_data",
 			sign_now:   "<a href=\"/my-signatures\">Found</a>.\n\n",
@@ -183,7 +183,7 @@ func Test_signaturesHandler_ChangeSignatures(t *testing.T) {
 			},
 		},
 		{
-			name:       "Change Signatures, random sign type",
+			name:       "Change Signatures Case 5: Input Random Sign Type",
 			statusCode: 302,
 			sign_type:  "signature-nothing",
 			sign_now:   "<a href=\"/my-signatures\">Found</a>.\n\n",
@@ -274,7 +274,7 @@ func Test_signaturesHandler_SignDocuments(t *testing.T) {
 		serviceTest  func(serviceUser *m_serviceUser.MockService, serviceSignature *m_serviceSignature.MockService)
 	}{
 		{
-			name:         "Test Sign Documents Input Invalid",
+			name:         "Sign Documents Case 1: Input Invalid",
 			responseCode: http.StatusFound,
 			file:         "",
 			docs: models.SignDocuments{
@@ -287,7 +287,7 @@ func Test_signaturesHandler_SignDocuments(t *testing.T) {
 			pages: "/sign-documents",
 		},
 		{
-			name:         "Test Sign Documents Not File Request",
+			name:         "Sign Documents Case 2: Not File Document Request",
 			responseCode: http.StatusFound,
 			file:         "",
 			docs: models.SignDocuments{
@@ -301,7 +301,7 @@ func Test_signaturesHandler_SignDocuments(t *testing.T) {
 			pages: "/sign-documents",
 		},
 		{
-			name:         "Test Sign Documents Not File PDF",
+			name:         "Sign Documents Case 3:  Not File format PDF in Request",
 			responseCode: http.StatusFound,
 			file:         "card_test.jpeg",
 			docs: models.SignDocuments{
@@ -315,7 +315,7 @@ func Test_signaturesHandler_SignDocuments(t *testing.T) {
 			pages: "/sign-documents",
 		},
 		{
-			name:         "Test Sign Documents Failed to Input IPFS",
+			name:         "Sign Documents Case 4: Failed to Input IPFS",
 			responseCode: http.StatusFound,
 			file:         "sample_test.pdf",
 			docs: models.SignDocuments{
@@ -357,7 +357,7 @@ func Test_signaturesHandler_SignDocuments(t *testing.T) {
 			},
 		},
 		{
-			name:         "Test Sign Documents Mode Sign No Invite and Failed Add To Blockchain",
+			name:         "Sign Documents Case 5: No Invite Signers and Failed Add To Blockchain",
 			responseCode: http.StatusFound,
 			file:         "sample_test.pdf",
 			docs: models.SignDocuments{
@@ -405,7 +405,7 @@ func Test_signaturesHandler_SignDocuments(t *testing.T) {
 			},
 		},
 		{
-			name:         "Test Sign Documents Mode Sign with Invite and Failed to Add User Documents",
+			name:         "Sign Documents Case 6: Invite Signers and Failed to Add User Documents",
 			responseCode: http.StatusFound,
 			file:         "sample_test.pdf",
 			docs: models.SignDocuments{
@@ -469,7 +469,7 @@ func Test_signaturesHandler_SignDocuments(t *testing.T) {
 			},
 		},
 		{
-			name:         "Test Sign Documents Success",
+			name:         "Sign Documents Case 7: Success Signed Document",
 			responseCode: http.StatusFound,
 			file:         "sample_test.pdf",
 			docs: models.SignDocuments{
@@ -627,7 +627,7 @@ func Test_signaturesHandler_InviteSignatures(t *testing.T) {
 		serviceTest  func(serviceUser *m_serviceUser.MockService, serviceSignature *m_serviceSignature.MockService)
 	}{
 		{
-			name:         "Test Invite Signature Input Invalid",
+			name:         "Invite Signature Case 1: Input Invalid",
 			responseCode: http.StatusFound,
 			file:         "",
 			invite: models.InviteSignatures{
@@ -637,7 +637,7 @@ func Test_signaturesHandler_InviteSignatures(t *testing.T) {
 			pages: "/invite-signatures",
 		},
 		{
-			name:         "Test Invite Signature Not File Request",
+			name:         "Invite Signature Case 2: Not File Document in Request",
 			responseCode: http.StatusFound,
 			file:         "",
 			invite: models.InviteSignatures{
@@ -648,7 +648,7 @@ func Test_signaturesHandler_InviteSignatures(t *testing.T) {
 			pages: "/invite-signatures",
 		},
 		{
-			name:         "Test Invite Signature Not File PDF",
+			name:         "Invite Signature Case 3: Not File PDF Format in Request",
 			responseCode: http.StatusFound,
 			file:         "card_test.jpeg",
 			invite: models.InviteSignatures{
@@ -659,7 +659,7 @@ func Test_signaturesHandler_InviteSignatures(t *testing.T) {
 			pages: "/invite-signatures",
 		},
 		{
-			name:         "Test Invite Signature Failed to Input IPFS",
+			name:         "Invite Signature Case 4: Failed Input Document to IPFS",
 			responseCode: http.StatusFound,
 			file:         "sample_test.pdf",
 			invite: models.InviteSignatures{
@@ -685,7 +685,7 @@ func Test_signaturesHandler_InviteSignatures(t *testing.T) {
 			},
 		},
 		{
-			name:         "Test Invite Signature Failed to Add in Blockchain",
+			name:         "Invite Signature Case 5: Failed Add Document to Blockchain",
 			responseCode: http.StatusFound,
 			file:         "sample_test.pdf",
 			invite: models.InviteSignatures{
@@ -721,7 +721,7 @@ func Test_signaturesHandler_InviteSignatures(t *testing.T) {
 			},
 		},
 		{
-			name:         "Test Invite Signature Failed to Add Documents",
+			name:         "Invite Signature Case 6: Failed Add Documents to Database",
 			responseCode: http.StatusFound,
 			file:         "sample_test.pdf",
 			invite: models.InviteSignatures{
@@ -762,7 +762,7 @@ func Test_signaturesHandler_InviteSignatures(t *testing.T) {
 			},
 		},
 		{
-			name:         "Test Invite Signature Success",
+			name:         "Invite Signature Case 7: Success Invite Signers",
 			responseCode: http.StatusFound,
 			file:         "sample_test.pdf",
 			invite: models.InviteSignatures{
@@ -901,7 +901,7 @@ func Test_signaturesHandler_Document(t *testing.T) {
 		serviceTest  func(serviceUser *m_serviceUser.MockService, serviceSignature *m_serviceSignature.MockService)
 	}{
 		{
-			name:         "Test Document Invalid input",
+			name:         "Document Sign Now Case 1: Invalid input",
 			responseCode: http.StatusFound,
 			hash:         "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
 			docs: models.SignDocuments{
@@ -914,7 +914,7 @@ func Test_signaturesHandler_Document(t *testing.T) {
 			pages: "/request-signatures",
 		},
 		{
-			name:         "Test Document Failed Upload to IPFS",
+			name:         "Document Sign Now Case 2: Failed Upload to IPFS",
 			responseCode: http.StatusFound,
 			hash:         "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
 			docs: models.SignDocuments{
@@ -945,7 +945,7 @@ func Test_signaturesHandler_Document(t *testing.T) {
 			},
 		},
 		{
-			name:         "Test Document Signed Success",
+			name:         "Document Sign Now Case 3: Document Signed Success",
 			responseCode: http.StatusFound,
 			hash:         "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
 			docs: models.SignDocuments{
@@ -1056,19 +1056,19 @@ func Test_signaturesHandler_Verification(t *testing.T) {
 		serviceTest  func(serviceUser *m_serviceUser.MockService, serviceSignature *m_serviceSignature.MockService)
 	}{
 		{
-			name:         "Test Verification Input Invalid",
+			name:         "Verification Case 1: Input File Document Invalid",
 			responseCode: http.StatusFound,
 			file:         "",
 			pages:        "/verification",
 		},
 		{
-			name:         "Test Verification Document Not PDF",
+			name:         "Verification Case 2: Document Not PDF Format",
 			responseCode: http.StatusFound,
 			file:         "card_test.jpeg",
 			pages:        "/verification",
 		},
 		{
-			name:         "Test Verification Document Not Signed Success",
+			name:         "Verification Case 3: Document Not Signed Status Success",
 			responseCode: http.StatusOK,
 			file:         "sample_test.pdf",
 			pages:        "/verification",
@@ -1079,7 +1079,7 @@ func Test_signaturesHandler_Verification(t *testing.T) {
 			},
 		},
 		{
-			name:         "Test Verification Document Signed Success",
+			name:         "Verification Case 4: Document Signed Status Success",
 			responseCode: http.StatusOK,
 			file:         "sample_test.pdf",
 			pages:        "/verification",
@@ -1163,7 +1163,7 @@ func Test_signaturesHandler_Download(t *testing.T) {
 		serviceTest  func(serviceUser *m_serviceUser.MockService, serviceSignature *m_serviceSignature.MockService)
 	}{
 		{
-			name:         "Test Download Documents Success",
+			name:         "Download Case 1: Download Documents Success",
 			responseCode: http.StatusFound,
 			hash:         "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
 			pages:        "/download",

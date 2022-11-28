@@ -47,7 +47,7 @@ func NewRouter() *gin.Engine {
 }
 
 func Test_userView_Index(t *testing.T) {
-	t.Run("Test userView Index Success", func(t *testing.T) {
+	t.Run("Landing Page Case 1: Success View Landing Page", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 		//service := m_service.NewMockService(ctrl)
@@ -79,7 +79,7 @@ func Test_userView_Dashboard(t *testing.T) {
 		beforeTest func(serviceUser *m_serviceUser.MockService)
 	}{
 		{
-			name:    "Test userView Dashboard Success",
+			name:    "Dashboard Case 1: Success View Dashboard",
 			sign_id: "rizwijaya",
 			beforeTest: func(serviceUser *m_serviceUser.MockService) {
 				serviceUser.EXPECT().GetCardDashboard("rizwijaya").Times(1)
@@ -116,7 +116,7 @@ func Test_userView_Dashboard(t *testing.T) {
 }
 
 func Test_userview_Register(t *testing.T) {
-	t.Run("Test userView Index Success", func(t *testing.T) {
+	t.Run("Register Case 1: Success View Register", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
@@ -146,11 +146,11 @@ func Test_userview_Login(t *testing.T) {
 		cookies string
 	}{
 		{
-			name:    "Test userView Login Success",
+			name:    "Login Case 1: Success View Login",
 			cookies: "kosong",
 		},
 		{
-			name:    "Test userView Login with Register Notification Success",
+			name:    "Login Case 2: Success View Login with Register Notification Success",
 			cookies: "registered=",
 		},
 	}
@@ -192,7 +192,7 @@ func Test_userview_Logg(t *testing.T) {
 		beforeTest func(serviceUser *m_serviceUser.MockService)
 	}{
 		{
-			name:    "Test userView Log Success",
+			name:    "Log User Case 1: Success View Log User",
 			sign_id: "rizwijaya",
 			beforeTest: func(serviceUser *m_serviceUser.MockService) {
 				serviceUser.EXPECT().GetLogUser("rizwijaya")
