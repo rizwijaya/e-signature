@@ -367,13 +367,7 @@ func (h *signaturesHandler) Download(c *gin.Context) {
 	//Download Dokumen
 	c.FileAttachment(res, doc.Metadata+".pdf")
 	//Delete File
-	err := os.Remove(res)
-	if err != nil {
-		log.Println(err)
-		failed := []byte("mengunduh dokumen")
-		notif.SetMessage(c.Writer, "failed", failed)
-		c.Redirect(302, "/download")
-	}
+	//_ = os.Remove(res)
 	sucess := []byte("mengunduh dokumen")
 	notif.SetMessage(c.Writer, "success", sucess)
 	h.serviceUser.Logging("Mengunduh dokumen "+doc.Metadata+".pdf", session.Get("sign").(string), c.ClientIP(), c.Request.UserAgent())

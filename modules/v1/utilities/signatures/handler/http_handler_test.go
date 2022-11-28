@@ -616,9 +616,6 @@ func Test_signaturesHandler_InviteSignatures(t *testing.T) {
 	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
 	defer f.Undo()
 	f.Do()
-	location, err := time.LoadLocation("Asia/Jakarta")
-	assert.NoError(t, err)
-	_ = time.Now().In(location).String()
 	cookies := "smartsign=MTY2OTQ3NDEyOHxEdi1CQkFFQ180SUFBUkFCRUFBQV9nRXdfNElBQmdaemRISnBibWNNQkFBQ2FXUUdjM1J5YVc1bkRCb0FHRFl6T0RCaU5XTmlaR001TXpoak5XWmtaamhsTm1KbVpRWnpkSEpwYm1jTUJnQUVjMmxuYmdaemRISnBibWNNQ3dBSmNtbDZkMmxxWVhsaEJuTjBjbWx1Wnd3R0FBUnVZVzFsQm5OMGNtbHVad3dPQUF4U2FYcHhhU0JYYVdwaGVXRUdjM1J5YVc1bkRBd0FDbkIxWW14cFkxOXJaWGtHYzNSeWFXNW5EQ3dBS2pCNFJFSkZOREUwTmpVeE0yTTVPVFEwTTJOR016SkRZVGhCTkRRNVpqVXlPRGRoWVVRMlpqa3hZUVp6ZEhKcGJtY01CZ0FFY205c1pRTnBiblFFQWdBRUJuTjBjbWx1Wnd3SUFBWndZWE56Y0dnR2MzUnlhVzVuRERnQU5rWkNTQ3RMYkZwd1dHOHhlVTFSUTNnMU9VVTBNRnAxYlROWVVHa3dSbmxWT1c1TFVsTkRNbWR4UkhVNGJteFNSMHM0TTJkRlp3PT189RnNnJPqyThKonDOKwf4QeHI-7SwOwzto9OciAktNLw="
 
 	tests := []struct {
@@ -1046,13 +1043,9 @@ func Test_signaturesHandler_Document(t *testing.T) {
 func Test_signaturesHandler_Verification(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	var err error
 	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
 	defer f.Undo()
 	f.Do()
-	location, err := time.LoadLocation("Asia/Jakarta")
-	assert.NoError(t, err)
-	_ = time.Now().In(location).String()
 	cookies := "smartsign=MTY2OTQ3NDEyOHxEdi1CQkFFQ180SUFBUkFCRUFBQV9nRXdfNElBQmdaemRISnBibWNNQkFBQ2FXUUdjM1J5YVc1bkRCb0FHRFl6T0RCaU5XTmlaR001TXpoak5XWmtaamhsTm1KbVpRWnpkSEpwYm1jTUJnQUVjMmxuYmdaemRISnBibWNNQ3dBSmNtbDZkMmxxWVhsaEJuTjBjbWx1Wnd3R0FBUnVZVzFsQm5OMGNtbHVad3dPQUF4U2FYcHhhU0JYYVdwaGVXRUdjM1J5YVc1bkRBd0FDbkIxWW14cFkxOXJaWGtHYzNSeWFXNW5EQ3dBS2pCNFJFSkZOREUwTmpVeE0yTTVPVFEwTTJOR016SkRZVGhCTkRRNVpqVXlPRGRoWVVRMlpqa3hZUVp6ZEhKcGJtY01CZ0FFY205c1pRTnBiblFFQWdBRUJuTjBjbWx1Wnd3SUFBWndZWE56Y0dnR2MzUnlhVzVuRERnQU5rWkNTQ3RMYkZwd1dHOHhlVTFSUTNnMU9VVTBNRnAxYlROWVVHa3dSbmxWT1c1TFVsTkRNbWR4UkhVNGJteFNSMHM0TTJkRlp3PT189RnNnJPqyThKonDOKwf4QeHI-7SwOwzto9OciAktNLw="
 
 	tests := []struct {
@@ -1150,6 +1143,73 @@ func Test_signaturesHandler_Verification(t *testing.T) {
 				assert.NoError(t, err)
 				assert.Contains(t, string(responseData), "Hasil Verifikasi - SmartSign")
 			}
+		})
+	}
+}
+
+func Test_signaturesHandler_Download(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
+	defer f.Undo()
+	f.Do()
+	cookies := "smartsign=MTY2OTQ3NDEyOHxEdi1CQkFFQ180SUFBUkFCRUFBQV9nRXdfNElBQmdaemRISnBibWNNQkFBQ2FXUUdjM1J5YVc1bkRCb0FHRFl6T0RCaU5XTmlaR001TXpoak5XWmtaamhsTm1KbVpRWnpkSEpwYm1jTUJnQUVjMmxuYmdaemRISnBibWNNQ3dBSmNtbDZkMmxxWVhsaEJuTjBjbWx1Wnd3R0FBUnVZVzFsQm5OMGNtbHVad3dPQUF4U2FYcHhhU0JYYVdwaGVXRUdjM1J5YVc1bkRBd0FDbkIxWW14cFkxOXJaWGtHYzNSeWFXNW5EQ3dBS2pCNFJFSkZOREUwTmpVeE0yTTVPVFEwTTJOR016SkRZVGhCTkRRNVpqVXlPRGRoWVVRMlpqa3hZUVp6ZEhKcGJtY01CZ0FFY205c1pRTnBiblFFQWdBRUJuTjBjbWx1Wnd3SUFBWndZWE56Y0dnR2MzUnlhVzVuRERnQU5rWkNTQ3RMYkZwd1dHOHhlVTFSUTNnMU9VVTBNRnAxYlROWVVHa3dSbmxWT1c1TFVsTkRNbWR4UkhVNGJteFNSMHM0TTJkRlp3PT189RnNnJPqyThKonDOKwf4QeHI-7SwOwzto9OciAktNLw="
+
+	tests := []struct {
+		name         string
+		responseCode int
+		hash         string
+		pages        string
+		serviceTest  func(serviceUser *m_serviceUser.MockService, serviceSignature *m_serviceSignature.MockService)
+	}{
+		{
+			name:         "Test Download Documents Success",
+			responseCode: http.StatusFound,
+			hash:         "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
+			pages:        "/download",
+			serviceTest: func(serviceUser *m_serviceUser.MockService, serviceSignature *m_serviceSignature.MockService) {
+				doc := models.DocumentBlockchain{
+					// Document_id: "1",
+					// Creator: common.HexToAddress("0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"),
+					// Creator_string: ""
+					Metadata: "sample_test.pdf",
+					IPFS:     "2c3idnsymuia7n8sb7dl92j63onsfdf",
+				}
+				hash := "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b"
+				serviceSignature.EXPECT().GetDocumentNoSigners(hash).Return(doc).Times(1)
+				serviceUser.EXPECT().Decrypt([]byte(doc.IPFS), "JWT_DAS3443HBOARDD_TAMS_RIZ_SK4343_343_KEJNF00975SDISu").Return([]byte("2dj3d1d6a34323ds4d4as43asda4sr5456fgfsdsfs")).Times(1)
+				doc.IPFS = "2dj3d1d6a34323ds4d4as43asda4sr5456fgfsdsfs"
+				directory := "./public/temp/pdfdownload/"
+				serviceUser.EXPECT().GetFileIPFS(doc.IPFS, doc.Metadata+".pdf", directory)
+				serviceUser.EXPECT().Logging("Mengunduh dokumen "+doc.Metadata+".pdf", "rizwijaya", gomock.Any(), gomock.Any()).Times(1)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			serviceSignature := m_serviceSignature.NewMockService(ctrl)
+			serviceUser := m_serviceUser.NewMockService(ctrl)
+			//Testing Services Functions
+			if tt.serviceTest != nil {
+				tt.serviceTest(serviceUser, serviceSignature)
+			}
+			w := &signaturesHandler{
+				serviceSignature: serviceSignature,
+				serviceUser:      serviceUser,
+			}
+			got := w.Download
+			router := NewRouter()
+			router.GET("/download/:hash", got)
+			req, err := http.NewRequest("GET", "/download/"+tt.hash, nil)
+			assert.NoError(t, err)
+			req.Header.Set("Cookie", cookies)
+			resp := httptest.NewRecorder()
+			router.ServeHTTP(resp, req)
+
+			assert.Equal(t, tt.responseCode, resp.Code)
+			location, err := resp.Result().Location()
+			assert.NoError(t, err)
+			assert.Equal(t, tt.pages, location.Path)
 		})
 	}
 }
