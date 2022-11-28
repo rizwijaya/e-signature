@@ -204,14 +204,7 @@ func (h *signaturesHandler) InviteSignatures(c *gin.Context) {
 	DocData.Name = file.Filename
 	//Saving Image to Directory
 	path := fmt.Sprintf("./public/temp/pdfsign/%s", DocData.Name)
-	err = c.SaveUploadedFile(file, path)
-	if err != nil {
-		log.Println(err)
-		fm := []byte("mengundang orang lain untuk tanda tangan")
-		notif.SetMessage(c.Writer, "failed", fm)
-		c.Redirect(302, "/invite-signatures")
-		return
-	}
+	_ = c.SaveUploadedFile(file, path)
 	DocData.Email = input.Email
 	DocData.Judul = input.Judul
 	DocData.Note = input.Note
