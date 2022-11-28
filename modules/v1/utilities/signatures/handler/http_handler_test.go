@@ -854,3 +854,180 @@ func Test_signaturesHandler_InviteSignatures(t *testing.T) {
 		})
 	}
 }
+
+func Test_signaturesHandler_Document(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	var err error
+	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
+	defer f.Undo()
+	f.Do()
+	location, err := time.LoadLocation("Asia/Jakarta")
+	assert.NoError(t, err)
+	times := time.Now().In(location).String()
+	cookies := "smartsign=MTY2OTQ3NDEyOHxEdi1CQkFFQ180SUFBUkFCRUFBQV9nRXdfNElBQmdaemRISnBibWNNQkFBQ2FXUUdjM1J5YVc1bkRCb0FHRFl6T0RCaU5XTmlaR001TXpoak5XWmtaamhsTm1KbVpRWnpkSEpwYm1jTUJnQUVjMmxuYmdaemRISnBibWNNQ3dBSmNtbDZkMmxxWVhsaEJuTjBjbWx1Wnd3R0FBUnVZVzFsQm5OMGNtbHVad3dPQUF4U2FYcHhhU0JYYVdwaGVXRUdjM1J5YVc1bkRBd0FDbkIxWW14cFkxOXJaWGtHYzNSeWFXNW5EQ3dBS2pCNFJFSkZOREUwTmpVeE0yTTVPVFEwTTJOR016SkRZVGhCTkRRNVpqVXlPRGRoWVVRMlpqa3hZUVp6ZEhKcGJtY01CZ0FFY205c1pRTnBiblFFQWdBRUJuTjBjbWx1Wnd3SUFBWndZWE56Y0dnR2MzUnlhVzVuRERnQU5rWkNTQ3RMYkZwd1dHOHhlVTFSUTNnMU9VVTBNRnAxYlROWVVHa3dSbmxWT1c1TFVsTkRNbWR4UkhVNGJteFNSMHM0TTJkRlp3PT189RnNnJPqyThKonDOKwf4QeHI-7SwOwzto9OciAktNLw="
+
+	mysignature := models.MySignatures{
+		Id:                 "1",
+		Name:               "Rizqi Wijaya",
+		User_id:            "rizwijaya",
+		Signature:          "default.png",
+		Signature_id:       "sign_type",
+		Signature_data:     "default.png",
+		Signature_data_id:  "sign_type",
+		Latin:              "latin.png",
+		Latin_id:           "sign_type",
+		Latin_data:         "latin_data.png",
+		Latin_data_id:      "sign_type",
+		Signature_selected: "signature",
+		Date_update:        times,
+		Date_created:       times,
+	}
+
+	tests := []struct {
+		name         string
+		responseCode int
+		docs         models.SignDocuments
+		hash         string
+		pages        string
+		serviceTest  func(serviceUser *m_serviceUser.MockService, serviceSignature *m_serviceSignature.MockService)
+	}{
+		{
+			name:         "Test Document Invalid input",
+			responseCode: http.StatusFound,
+			hash:         "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
+			docs: models.SignDocuments{
+				Name:     "sample_test.pdf",
+				SignPage: 1.0,
+				X_coord:  1.3,
+				Y_coord:  1.2,
+				Height:   4.2,
+			},
+			pages: "/request-signatures",
+		},
+		{
+			name:         "Test Document Failed Upload to IPFS",
+			responseCode: http.StatusFound,
+			hash:         "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
+			docs: models.SignDocuments{
+				// Name:     "sample_test.pdf",
+				SignPage: 1.0,
+				X_coord:  1.3,
+				Y_coord:  1.2,
+				Height:   4.2,
+				Width:    5.3,
+			},
+			pages: "/request-signatures",
+			serviceTest: func(serviceUser *m_serviceUser.MockService, serviceSignature *m_serviceSignature.MockService) {
+				docs := models.SignDocuments{
+					Name:          "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b.pdf",
+					SignPage:      1.0,
+					X_coord:       1.3,
+					Y_coord:       1.2,
+					Height:        4.2,
+					Width:         5.3,
+					Hash_original: "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
+				}
+				path := "./public/temp/pdfsign/"
+				serviceSignature.EXPECT().GetMySignature("rizwijaya", "6380b5cbdc938c5fdf8e6bfe", "Rizqi Wijaya").Return(mysignature).Times(1)
+				serviceSignature.EXPECT().ResizeImages(mysignature, docs).Return("./public/temp/sizes-signature.png").Times(1)
+				serviceSignature.EXPECT().SignDocuments("./public/temp/sizes-signature.png", docs).Return(path + "signed_84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b.pdf").Times(1)
+				serviceSignature.EXPECT().GenerateHashDocument(path + "signed_84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b.pdf")
+				serviceUser.EXPECT().UploadIPFS(path+"signed_84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b.pdf").Return("", errors.New("Failed Upload to IPFS")).Times(1)
+			},
+		},
+		{
+			name:         "Test Document Signed Success",
+			responseCode: http.StatusFound,
+			hash:         "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
+			docs: models.SignDocuments{
+				// Name:     "sample_test.pdf",
+				SignPage: 1.0,
+				X_coord:  1.3,
+				Y_coord:  1.2,
+				Height:   4.2,
+				Width:    5.3,
+			},
+			pages: "/download",
+			serviceTest: func(serviceUser *m_serviceUser.MockService, serviceSignature *m_serviceSignature.MockService) {
+				docs := models.SignDocuments{
+					Name:          "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b.pdf",
+					SignPage:      1.0,
+					X_coord:       1.3,
+					Y_coord:       1.2,
+					Height:        4.2,
+					Width:         5.3,
+					Hash_original: "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
+				}
+				path := "./public/temp/pdfsign/"
+				serviceSignature.EXPECT().GetMySignature("rizwijaya", "6380b5cbdc938c5fdf8e6bfe", "Rizqi Wijaya").Return(mysignature).Times(1)
+				serviceSignature.EXPECT().ResizeImages(mysignature, docs).Return("./public/temp/sizes-signature.png").Times(1)
+				serviceSignature.EXPECT().SignDocuments("./public/temp/sizes-signature.png", docs).Return(path + "signed_84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b.pdf").Times(1)
+				serviceSignature.EXPECT().GenerateHashDocument(path + "signed_84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b.pdf").Return("js63hd9asn32nasddy783en9djas933").Times(1)
+				serviceUser.EXPECT().UploadIPFS(path+"signed_84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b.pdf").Return("2c3idnsymuia7n8sb7dl92j63onsfdf", nil).Times(1)
+				docs.Hash = "js63hd9asn32nasddy783en9djas933"
+				docs.IPFS = "2c3idnsymuia7n8sb7dl92j63onsfdf"
+				serviceUser.EXPECT().Encrypt([]byte("2c3idnsymuia7n8sb7dl92j63onsfdf"), "JWT_DAS3443HBOARDD_TAMS_RIZ_SK4343_343_KEJNF00975SDISu").Return([]byte("2dj3d1d6a34323ds4d4as43asda4sr5456fgfsdsfs")).Times(1)
+				docs.IPFS = "2dj3d1d6a34323ds4d4as43asda4sr5456fgfsdsfs"
+				signDocs := models.SignDocs{
+					Hash_original: "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
+					Creator:       "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
+					Hash:          docs.Hash,
+					IPFS:          docs.IPFS,
+				}
+				serviceSignature.EXPECT().DocumentSigned(signDocs).Return(nil).Times(1)
+				serviceUser.EXPECT().Logging("Melakukan tanda tangan dari permintaan tanda tangan", "rizwijaya", gomock.Any(), gomock.Any()).Times(1)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			serviceSignature := m_serviceSignature.NewMockService(ctrl)
+			serviceUser := m_serviceUser.NewMockService(ctrl)
+			//Testing Services Functions
+			if tt.serviceTest != nil {
+				tt.serviceTest(serviceUser, serviceSignature)
+			}
+			w := &signaturesHandler{
+				serviceSignature: serviceSignature,
+				serviceUser:      serviceUser,
+			}
+			got := w.Document
+			router := NewRouter()
+			router.POST("/document/:hash", got)
+			//Testing Handler Functions
+			payload := &bytes.Buffer{}
+			writer := multipart.NewWriter(payload)
+			err = writer.WriteField("signPage", fmt.Sprintf("%x", tt.docs.SignPage))
+			assert.NoError(t, err)
+			err = writer.WriteField("signX", fmt.Sprintf("%x", tt.docs.X_coord))
+			assert.NoError(t, err)
+			err = writer.WriteField("signY", fmt.Sprintf("%x", tt.docs.Y_coord))
+			assert.NoError(t, err)
+			err = writer.WriteField("signH", fmt.Sprintf("%x", tt.docs.Height))
+			assert.NoError(t, err)
+			err = writer.WriteField("signW", fmt.Sprintf("%x", tt.docs.Width))
+			assert.NoError(t, err)
+			err := writer.Close()
+			assert.Nil(t, err)
+
+			req, err := http.NewRequest("POST", "/document/"+tt.hash, payload)
+			assert.NoError(t, err)
+			req.Header.Set("Content-Type", writer.FormDataContentType())
+			req.Header.Set("Cookie", cookies)
+			resp := httptest.NewRecorder()
+			router.ServeHTTP(resp, req)
+
+			assert.Equal(t, tt.responseCode, resp.Code)
+			if tt.responseCode == http.StatusFound {
+				location, err := resp.Result().Location()
+				assert.NoError(t, err)
+				assert.Equal(t, tt.pages, location.Path)
+			} else {
+				responseData, err := ioutil.ReadAll(resp.Body)
+				assert.NoError(t, err)
+				assert.Contains(t, string(responseData), "melakukan tanda tangan")
+			}
+		})
+	}
+}

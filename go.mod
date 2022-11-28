@@ -3,6 +3,7 @@ module e-signature
 go 1.16
 
 require (
+	bou.ke/monkey v1.0.2 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/ethereum/go-ethereum v1.10.21
 	github.com/fatih/structs v1.1.0
@@ -18,6 +19,7 @@ require (
 	github.com/ipfs/go-ipfs-api v0.3.0 // indirect
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
 	github.com/stretchr/testify v1.8.0 // indirect
+	github.com/tkuchiki/faketime v0.1.1
 	github.com/unidoc/unipdf/v3 v3.40.0 // indirect
 	github.com/xdg-go/stringprep v1.0.3 // indirect
 	go.mongodb.org/mongo-driver v1.11.0 // indirect

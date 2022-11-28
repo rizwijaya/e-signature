@@ -303,19 +303,9 @@ func (h *signaturesHandler) Document(c *gin.Context) {
 	h.serviceSignature.DocumentSigned(signDocs)
 	//Remove document
 	inputPath := fmt.Sprintf("./public/temp/pdfsign/%s", input.Name)
-	err = os.Remove(inputPath)
-	if err != nil {
-		log.Println(err)
-		fm := []byte("melakukan tanda tangan")
-		notif.SetMessage(c.Writer, "failed", fm)
-		c.Redirect(302, "/request-signatures")
-		return
-	}
+	_ = os.Remove(inputPath)
 	//Delete Image Sign Resize
-	err = os.Remove(img)
-	if err != nil {
-		log.Println(err)
-	}
+	_ = os.Remove(img)
 	fm := []byte("melakukan tanda tangan")
 	notif.SetMessage(c.Writer, "success", fm)
 	h.serviceUser.Logging("Melakukan tanda tangan dari permintaan tanda tangan", session.Get("sign").(string), c.ClientIP(), c.Request.UserAgent())
