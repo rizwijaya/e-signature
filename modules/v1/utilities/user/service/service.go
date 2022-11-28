@@ -105,13 +105,9 @@ func (s *service) Login(input models.LoginInput) (models.ProfileDB, error) {
 
 	user, err := s.repository.CheckUserExist(idsignature)
 
-	if user.Idsignature == "" {
-		log.Println("User not found")
-		return user, errors.New("user not found")
-	}
-	if err != nil {
+	if user.Idsignature == "" || err != nil {
 		log.Println(err)
-		return user, err
+		return user, errors.New("user not found")
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
