@@ -16,6 +16,7 @@ import (
 	"net/http/httptest"
 	"net/textproto"
 	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -574,7 +575,12 @@ func Test_signaturesHandler_SignDocuments(t *testing.T) {
 				file, errFile7 := os.Open(path + tt.file)
 				assert.NoError(t, errFile7)
 				defer file.Close()
-				part7, errFile7 := CreateFilePDF(t, writer, path+tt.file)
+				var part7 io.Writer
+				if tt.file[len(tt.file)-3:] == "pdf" {
+					part7, errFile7 = CreateFilePDF(t, writer, path+tt.file)
+				} else {
+					part7, errFile7 = writer.CreateFormFile("file", filepath.Base(path+tt.file))
+				}
 				assert.NoError(t, errFile7)
 				_, errFile7 = io.Copy(part7, file)
 				assert.NoError(t, errFile7)
@@ -830,7 +836,12 @@ func Test_signaturesHandler_InviteSignatures(t *testing.T) {
 				file, errFile7 := os.Open(path + tt.file)
 				assert.NoError(t, errFile7)
 				defer file.Close()
-				part7, errFile7 := CreateFilePDF(t, writer, path+tt.file)
+				var part7 io.Writer
+				if tt.file[len(tt.file)-3:] == "pdf" {
+					part7, errFile7 = CreateFilePDF(t, writer, path+tt.file)
+				} else {
+					part7, errFile7 = writer.CreateFormFile("file", filepath.Base(path+tt.file))
+				}
 				assert.NoError(t, errFile7)
 				_, errFile7 = io.Copy(part7, file)
 				assert.NoError(t, errFile7)
@@ -1027,6 +1038,117 @@ func Test_signaturesHandler_Document(t *testing.T) {
 				responseData, err := ioutil.ReadAll(resp.Body)
 				assert.NoError(t, err)
 				assert.Contains(t, string(responseData), "melakukan tanda tangan")
+			}
+		})
+	}
+}
+
+func Test_signaturesHandler_Verification(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	var err error
+	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
+	defer f.Undo()
+	f.Do()
+	location, err := time.LoadLocation("Asia/Jakarta")
+	assert.NoError(t, err)
+	_ = time.Now().In(location).String()
+	cookies := "smartsign=MTY2OTQ3NDEyOHxEdi1CQkFFQ180SUFBUkFCRUFBQV9nRXdfNElBQmdaemRISnBibWNNQkFBQ2FXUUdjM1J5YVc1bkRCb0FHRFl6T0RCaU5XTmlaR001TXpoak5XWmtaamhsTm1KbVpRWnpkSEpwYm1jTUJnQUVjMmxuYmdaemRISnBibWNNQ3dBSmNtbDZkMmxxWVhsaEJuTjBjbWx1Wnd3R0FBUnVZVzFsQm5OMGNtbHVad3dPQUF4U2FYcHhhU0JYYVdwaGVXRUdjM1J5YVc1bkRBd0FDbkIxWW14cFkxOXJaWGtHYzNSeWFXNW5EQ3dBS2pCNFJFSkZOREUwTmpVeE0yTTVPVFEwTTJOR016SkRZVGhCTkRRNVpqVXlPRGRoWVVRMlpqa3hZUVp6ZEhKcGJtY01CZ0FFY205c1pRTnBiblFFQWdBRUJuTjBjbWx1Wnd3SUFBWndZWE56Y0dnR2MzUnlhVzVuRERnQU5rWkNTQ3RMYkZwd1dHOHhlVTFSUTNnMU9VVTBNRnAxYlROWVVHa3dSbmxWT1c1TFVsTkRNbWR4UkhVNGJteFNSMHM0TTJkRlp3PT189RnNnJPqyThKonDOKwf4QeHI-7SwOwzto9OciAktNLw="
+
+	tests := []struct {
+		name         string
+		responseCode int
+		file         string
+		pages        string
+		serviceTest  func(serviceUser *m_serviceUser.MockService, serviceSignature *m_serviceSignature.MockService)
+	}{
+		{
+			name:         "Test Verification Input Invalid",
+			responseCode: http.StatusFound,
+			file:         "",
+			pages:        "/verification",
+		},
+		{
+			name:         "Test Verification Document Not PDF",
+			responseCode: http.StatusFound,
+			file:         "card_test.jpeg",
+			pages:        "/verification",
+		},
+		{
+			name:         "Test Verification Document Not Signed Success",
+			responseCode: http.StatusOK,
+			file:         "sample_test.pdf",
+			pages:        "/verification",
+			serviceTest: func(serviceUser *m_serviceUser.MockService, serviceSignature *m_serviceSignature.MockService) {
+				path := "./public/temp/pdfverify/sample_test.pdf"
+				serviceSignature.EXPECT().GenerateHashDocument(path).Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
+				serviceSignature.EXPECT().GetDocumentAllSign("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Return(models.DocumentAllSign{}, true).Times(1)
+			},
+		},
+		{
+			name:         "Test Verification Document Signed Success",
+			responseCode: http.StatusOK,
+			file:         "sample_test.pdf",
+			pages:        "/verification",
+			serviceTest: func(serviceUser *m_serviceUser.MockService, serviceSignature *m_serviceSignature.MockService) {
+				path := "./public/temp/pdfverify/sample_test.pdf"
+				serviceSignature.EXPECT().GenerateHashDocument(path).Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
+				serviceSignature.EXPECT().GetDocumentAllSign("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Return(models.DocumentAllSign{}, false).Times(1)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			serviceSignature := m_serviceSignature.NewMockService(ctrl)
+			serviceUser := m_serviceUser.NewMockService(ctrl)
+			//Testing Services Functions
+			if tt.serviceTest != nil {
+				tt.serviceTest(serviceUser, serviceSignature)
+			}
+			w := &signaturesHandler{
+				serviceSignature: serviceSignature,
+				serviceUser:      serviceUser,
+			}
+			got := w.Verification
+			router := NewRouter()
+			router.POST("/verification", got)
+			//Testing Handler Functions
+			payload := &bytes.Buffer{}
+			writer := multipart.NewWriter(payload)
+			if tt.file != "" {
+				path := "public/unit_testing/"
+				file, errFile7 := os.Open(path + tt.file)
+				assert.NoError(t, errFile7)
+				defer file.Close()
+				var part7 io.Writer
+				if tt.file[len(tt.file)-3:] == "pdf" {
+					part7, errFile7 = CreateFilePDF(t, writer, path+tt.file)
+				} else {
+					part7, errFile7 = writer.CreateFormFile("file", filepath.Base(path+tt.file))
+				}
+				assert.NoError(t, errFile7)
+				_, errFile7 = io.Copy(part7, file)
+				assert.NoError(t, errFile7)
+				err := writer.Close()
+				assert.Nil(t, err)
+			}
+
+			req, err := http.NewRequest("POST", "/verification", payload)
+			assert.NoError(t, err)
+			req.Header.Set("Content-Type", writer.FormDataContentType())
+			req.Header.Set("Cookie", cookies)
+			resp := httptest.NewRecorder()
+			router.ServeHTTP(resp, req)
+
+			assert.Equal(t, tt.responseCode, resp.Code)
+			if tt.responseCode == http.StatusFound {
+				location, err := resp.Result().Location()
+				assert.NoError(t, err)
+				assert.Equal(t, tt.pages, location.Path)
+			} else {
+				responseData, err := ioutil.ReadAll(resp.Body)
+				assert.NoError(t, err)
+				assert.Contains(t, string(responseData), "Hasil Verifikasi - SmartSign")
 			}
 		})
 	}

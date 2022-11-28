@@ -334,14 +334,7 @@ func (h *signaturesHandler) Verification(c *gin.Context) {
 	}
 	//Saving File to Directory
 	path := fmt.Sprintf("./public/temp/pdfverify/%s", file.Filename)
-	err = c.SaveUploadedFile(file, path)
-	if err != nil {
-		log.Println(err)
-		fm := []byte("melakukan verifikasi")
-		notif.SetMessage(c.Writer, "failed", fm)
-		c.Redirect(302, "/verification")
-		return
-	}
+	_ = c.SaveUploadedFile(file, path)
 	//Generate Hash Document
 	hash := h.serviceSignature.GenerateHashDocument(path)
 	//Get Data Document
@@ -350,10 +343,7 @@ func (h *signaturesHandler) Verification(c *gin.Context) {
 		log.Println("Document not signed")
 	}
 	//remove Document
-	err = os.Remove(path)
-	if err != nil {
-		log.Println(err)
-	}
+	_ = os.Remove(path)
 	c.HTML(http.StatusOK, "verification_result.html", gin.H{
 		"title":       title,
 		"userid":      session.Get("id"),

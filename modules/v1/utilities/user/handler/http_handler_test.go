@@ -84,7 +84,7 @@ func Test_userHandler_Login(t *testing.T) {
 			},
 		},
 		{
-			name:         "Test userHandler Login Success",
+			name:         "Test userHandler Login Failed Input Invalid",
 			idsignature:  "admin",
 			password:     "admin",
 			formValidate: false,
