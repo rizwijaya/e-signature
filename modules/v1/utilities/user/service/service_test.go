@@ -413,3 +413,48 @@ func Test_service_CheckEmailExist(t *testing.T) {
 		})
 	}
 }
+
+func Test_service_GetBalance(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	test := []struct {
+		name     string
+		user     models.ProfileDB
+		password string
+		balance  string
+		erors    error
+		repoTest func(repo *m_repo.MockRepository)
+	}{
+		{
+			name:     "Get Balance Service Case 1: Get Balance Success",
+			user:     models.ProfileDB{},
+			password: "password",
+			balance:  "100",
+			erors:    nil,
+			repoTest: func(repo *m_repo.MockRepository) {
+				repo.EXPECT().GetBalance(models.ProfileDB{}, "password").Return("100", nil).Times(1)
+			},
+		},
+		{
+			name:     "Get Balance Service Case 2: Get Balance Failed",
+			user:     models.ProfileDB{},
+			password: "password",
+			balance:  "",
+			erors:    errors.New("Failed Get Balance from Blockchain"),
+			repoTest: func(repo *m_repo.MockRepository) {
+				repo.EXPECT().GetBalance(models.ProfileDB{}, "password").Return("", errors.New("Failed Get Balance from Blockchain")).Times(1)
+			},
+		},
+	}
+	for _, tt := range test {
+		t.Run(tt.name, func(t *testing.T) {
+			repo := m_repo.NewMockRepository(ctrl)
+			tt.repoTest(repo)
+			s := NewService(repo)
+			balance, err := s.GetBalance(tt.user, tt.password)
+			assert.Equal(t, tt.erors, err)
+			assert.Equal(t, tt.balance, balance)
+		})
+	}
+}
