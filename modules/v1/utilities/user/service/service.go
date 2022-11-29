@@ -226,11 +226,9 @@ func (s *service) Logging(action string, idsignature string, ip string, user_age
 }
 
 func (s *service) GetLogUser(idsignature string) ([]models.UserLog, error) {
-	log, err := s.repository.GetLogUser(idsignature)
-	return log, err
+	return s.repository.GetLogUser(idsignature)
 }
 
 func (s *service) GetUserByEmail(email string) (models.User, error) {
-	user, err := s.repository.GetUserByEmail(email)
-	return user, err
+	return s.repository.GetUserByEmail(email)
 }

@@ -552,3 +552,41 @@ func Test_service_GetPublicKey(t *testing.T) {
 		})
 	}
 }
+
+func Test_service_GetCardDashboard(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	test := []struct {
+		name     string
+		sign_id  string
+		card     models.CardDashboard
+		repoTest func(repo *m_repo.MockRepository)
+	}{
+		{
+			name:    "Get Card Dashboard Case 1: Get Card Dashboard Success",
+			sign_id: "rizwijaya",
+			card: models.CardDashboard{
+				TotalRequest:     9,
+				TotalUser:        3,
+				TotalTx:          5,
+				TotalRequestUser: 12,
+			},
+			repoTest: func(repo *m_repo.MockRepository) {
+				repo.EXPECT().GetTotal("signedDocuments").Return(9).Times(1)
+				repo.EXPECT().GetTotal("users").Return(3).Times(1)
+				repo.EXPECT().GetTotal("transactions").Return(5).Times(1)
+				repo.EXPECT().GetTotalRequestUser("rizwijaya").Return(12).Times(1)
+			},
+		},
+	}
+	for _, tt := range test {
+		t.Run(tt.name, func(t *testing.T) {
+			repo := m_repo.NewMockRepository(ctrl)
+			tt.repoTest(repo)
+			s := NewService(repo)
+			card := s.GetCardDashboard(tt.sign_id)
+			assert.Equal(t, tt.card, card)
+		})
+	}
+}
