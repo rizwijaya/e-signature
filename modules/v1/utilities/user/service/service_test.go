@@ -227,3 +227,36 @@ func Test_service_Encrypt(t *testing.T) {
 		fmt.Println(string(key))
 	})
 }
+
+func Test_service_Decrypt(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	test := []struct {
+		name       string
+		data       string
+		passphrase string
+		//repoTest   func(repo *m_repo.MockRepository)
+	}{
+		{
+			name:       "Decrypt Service Case 1: Decryption Success",
+			data:       "yI8jCsyTLEUnyrdTNMohL+VxjwHCyBdfWl4KhjEfGhwAem+rXw2jjz+ni+7pnfBNdFB4NuY1p7CCFtN6",
+			passphrase: "password", //password
+		},
+		{
+			name:       "Decrypt Service Case 2: Decryption Failed",
+			data:       "sdadferwwreEasda",
+			passphrase: "password", //password
+		},
+	}
+	for _, tt := range test {
+		t.Run(tt.name, func(t *testing.T) {
+			repo := m_repo.NewMockRepository(ctrl)
+			s := &service{
+				repository: repo,
+			}
+			key := s.Decrypt([]byte(tt.data), tt.passphrase)
+			fmt.Println(key)
+		})
+	}
+}
