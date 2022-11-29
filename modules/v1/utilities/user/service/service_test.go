@@ -10,7 +10,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
-	"github.com/h2non/gock"
 	"github.com/stretchr/testify/assert"
 	"github.com/tkuchiki/faketime"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -26,52 +25,6 @@ func Test_service_NewService(t *testing.T) {
 		serv := NewService(nil)
 		assert.NotNil(t, serv)
 	})
-}
-func Test_service_ConnectIPFS(t *testing.T) {
-	//server := httptest.NewServer(http.HandlerFunc())
-	defer gock.Off()
-
-	gock.New("http://localhost:5001").
-		MatchHeader("Accept", "application/json").
-		Get("/").
-		Reply(200).
-		JSON(map[string]string{"value": "fixed"})
-
-	t.Run("Case 1: Success Connect IPFS", func(t *testing.T) {
-		w := &service{
-			repository: nil,
-		}
-		sh := w.ConnectIPFS()
-		assert.NotNil(t, sh)
-		t.Log(sh)
-	})
-}
-
-func Test_service_UploadIPFS(t *testing.T) {
-	type args struct {
-		path string
-	}
-	tests := []struct {
-		name    string
-		s       *service
-		args    args
-		want    string
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := tt.s.UploadIPFS(tt.args.path)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("service.UploadIPFS() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if got != tt.want {
-				t.Errorf("service.UploadIPFS() = %v, want %v", got, tt.want)
-			}
-		})
-	}
 }
 
 func Test_service_Login(t *testing.T) {
@@ -151,9 +104,23 @@ func Test_service_Login(t *testing.T) {
 			tt.repoTest(repo)
 			s := NewService(repo)
 			_, err := s.Login(tt.input)
-			if err != nil && err == errors.New("user not found") {
+			if err == errors.New("user not found") {
 				assert.NoError(t, err)
 			}
 		})
 	}
+}
+
+func Test_service_UploadIPFS(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	t.Run("Upload File IPFS Service Case 1: Upload File in IPFS", func(t *testing.T) {
+		repo := m_repo.NewMockRepository(ctrl)
+		s := &service{
+			repository: repo,
+		}
+		cidr, _ := s.UploadIPFS("")
+		assert.Equal(t, cidr, "")
+	})
 }
