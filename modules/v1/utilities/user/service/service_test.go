@@ -787,3 +787,83 @@ func Test_service_GetLogUser(t *testing.T) {
 		})
 	}
 }
+
+func Test_service_GetUserByEmail(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
+	defer f.Undo()
+	f.Do()
+	id := primitive.NewObjectID()
+
+	test := []struct {
+		name        string
+		idsignature string
+		user        models.User
+		wanterr     bool
+		repoTest    func(repo *m_repo.MockRepository)
+	}{
+		{
+			name:        "Get User By Email Service Case 1: Get Data User By Email Success",
+			idsignature: "rizwijaya",
+			user: models.User{
+				Id:             id,
+				Idsignature:    "rizwijaya",
+				Name:           "Rizqi Wijaya",
+				Password:       "123456",
+				PasswordHash:   "$2a$04$mL8CVXcMKPOINfUgBszbgupxCC9lj0eqPvnnz/iNng/CisnSjdYdu",
+				Role:           2,
+				Publickey:      "1uFwqkgHIDZ0oNIYzQyDkSBYPfxf2jdTfq7kLEivwhI68cWQW6jeHD7TnWL6dI4rXYIZWuNfCAhuzkGCcLQHfuJmMTXeMw",
+				Identity_card:  "card-rizwijaya.peg",
+				Email:          "smartsign@rizwijaya.com",
+				Phone:          "081234567890",
+				Dateregistered: "Minggu, 27 Nop 2022 | 18:30 WIB",
+			},
+			wanterr: false,
+			repoTest: func(repo *m_repo.MockRepository) {
+				user := models.User{
+					Id:             id,
+					Idsignature:    "rizwijaya",
+					Name:           "Rizqi Wijaya",
+					Password:       "123456",
+					PasswordHash:   "$2a$04$mL8CVXcMKPOINfUgBszbgupxCC9lj0eqPvnnz/iNng/CisnSjdYdu",
+					Role:           2,
+					Publickey:      "1uFwqkgHIDZ0oNIYzQyDkSBYPfxf2jdTfq7kLEivwhI68cWQW6jeHD7TnWL6dI4rXYIZWuNfCAhuzkGCcLQHfuJmMTXeMw",
+					Identity_card:  "card-rizwijaya.peg",
+					Email:          "smartsign@rizwijaya.com",
+					Phone:          "081234567890",
+					Dateregistered: "Minggu, 27 Nop 2022 | 18:30 WIB",
+				}
+				repo.EXPECT().GetUserByEmail("smartsign@rizwijaya.com").Return(user, nil).Times(1)
+			},
+		},
+		{
+			name:        "Get User By Email Service Case 2: Error Get Data User By Email Failed",
+			idsignature: "rizwijaya",
+			user: models.User{
+				Email: "smartsign@rizwijaya.com",
+			},
+			wanterr: true,
+			repoTest: func(repo *m_repo.MockRepository) {
+				repo.EXPECT().GetUserByEmail("smartsign@rizwijaya.com").Return(models.User{}, errors.New("Failed Get Data User By Email")).Times(1)
+			},
+		},
+	}
+
+	for _, tt := range test {
+		t.Run(tt.name, func(t *testing.T) {
+			repo := m_repo.NewMockRepository(ctrl)
+			s := &service{
+				repository: repo,
+			}
+			tt.repoTest(repo)
+			user, err := s.GetUserByEmail(tt.user.Email)
+			if tt.wanterr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, user, tt.user)
+			}
+		})
+	}
+}
