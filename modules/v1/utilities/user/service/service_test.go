@@ -564,7 +564,7 @@ func Test_service_GetCardDashboard(t *testing.T) {
 		repoTest func(repo *m_repo.MockRepository)
 	}{
 		{
-			name:    "Get Card Dashboard Case 1: Get Card Dashboard Success",
+			name:    "Get Card Dashboard Service Case 1: Get Card Dashboard Success",
 			sign_id: "rizwijaya",
 			card: models.CardDashboard{
 				TotalRequest:     9,
@@ -587,6 +587,106 @@ func Test_service_GetCardDashboard(t *testing.T) {
 			s := NewService(repo)
 			card := s.GetCardDashboard(tt.sign_id)
 			assert.Equal(t, tt.card, card)
+		})
+	}
+}
+
+func Test_service_Logging(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
+	defer f.Undo()
+	f.Do()
+	location, err := time.LoadLocation("Asia/Jakarta")
+	assert.NoError(t, err)
+	times := time.Now().In(location)
+	test := []struct {
+		name     string
+		logg     models.UserLog
+		wanterr  bool
+		repoTest func(repo *m_repo.MockRepository)
+	}{
+		{
+			name: "Logging Service Case 1: Write Log Login User Access Success",
+			logg: models.UserLog{
+				Idsignature:     "rizwijaya",
+				User_agent:      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+				Ip_address:      "127.0.0.1",
+				Action:          "Mengakses Halaman Login",
+				Date_access:     times,
+				Date_access_wib: "Minggu, 27 Nop 2022 | 18:30 WIB",
+			},
+			wanterr: false,
+			repoTest: func(repo *m_repo.MockRepository) {
+				logg := models.UserLog{
+					Idsignature:     "rizwijaya",
+					User_agent:      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+					Ip_address:      "127.0.0.1",
+					Action:          "Mengakses Halaman Login",
+					Date_access:     times,
+					Date_access_wib: "Minggu, 27 Nop 2022 | 18:30 WIB",
+				}
+				repo.EXPECT().Logging(logg).Return(nil).Times(1)
+			},
+		},
+		{
+			name: "Logging Service Case 2: Write Log Dashboard Access Success",
+			logg: models.UserLog{
+				Idsignature:     "rizwijaya",
+				User_agent:      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+				Ip_address:      "127.0.0.1",
+				Action:          "Mengakses Halaman Dashboard",
+				Date_access:     times,
+				Date_access_wib: "Minggu, 27 Nop 2022 | 18:30 WIB",
+			},
+			wanterr: false,
+			repoTest: func(repo *m_repo.MockRepository) {
+				logg := models.UserLog{
+					Idsignature:     "rizwijaya",
+					User_agent:      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+					Ip_address:      "127.0.0.1",
+					Action:          "Mengakses Halaman Dashboard",
+					Date_access:     times,
+					Date_access_wib: "Minggu, 27 Nop 2022 | 18:30 WIB",
+				}
+				repo.EXPECT().Logging(logg).Return(nil).Times(1)
+			},
+		},
+		{
+			name: "Logging Service Case 3: Write Log Failed",
+			logg: models.UserLog{
+				Idsignature:     "rizwijaya",
+				User_agent:      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+				Ip_address:      "127.0.0.1",
+				Action:          "Mengakses Halaman Dashboard",
+				Date_access:     times,
+				Date_access_wib: "Minggu, 27 Nop 2022 | 18:30 WIB",
+			},
+			wanterr: true,
+			repoTest: func(repo *m_repo.MockRepository) {
+				logg := models.UserLog{
+					Idsignature:     "rizwijaya",
+					User_agent:      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+					Ip_address:      "127.0.0.1",
+					Action:          "Mengakses Halaman Dashboard",
+					Date_access:     times,
+					Date_access_wib: "Minggu, 27 Nop 2022 | 18:30 WIB",
+				}
+				repo.EXPECT().Logging(logg).Return(errors.New("Error Writing Log Failed")).Times(1)
+			},
+		},
+	}
+	for _, tt := range test {
+		t.Run(tt.name, func(t *testing.T) {
+			repo := m_repo.NewMockRepository(ctrl)
+			tt.repoTest(repo)
+			s := NewService(repo)
+			err := s.Logging(tt.logg.Action, tt.logg.Idsignature, tt.logg.Ip_address, tt.logg.User_agent)
+			if tt.wanterr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
 		})
 	}
 }
