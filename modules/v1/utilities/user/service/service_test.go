@@ -458,3 +458,41 @@ func Test_service_GetBalance(t *testing.T) {
 		})
 	}
 }
+
+func Test_service_TransferBalance(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	test := []struct {
+		name     string
+		user     models.ProfileDB
+		erors    error
+		repoTest func(repo *m_repo.MockRepository)
+	}{
+		{
+			name:  "Transfer Balance Service Case 1: Transfer Balance Success",
+			user:  models.ProfileDB{},
+			erors: nil,
+			repoTest: func(repo *m_repo.MockRepository) {
+				repo.EXPECT().TransferBalance(models.ProfileDB{}).Return(nil).Times(1)
+			},
+		},
+		{
+			name:  "Transfer Balance Service Case 2: Transfer Balance Failed",
+			user:  models.ProfileDB{},
+			erors: errors.New("Failed Transfer Balance in Blockchain"),
+			repoTest: func(repo *m_repo.MockRepository) {
+				repo.EXPECT().TransferBalance(models.ProfileDB{}).Return(errors.New("Failed Transfer Balance in Blockchain")).Times(1)
+			},
+		},
+	}
+	for _, tt := range test {
+		t.Run(tt.name, func(t *testing.T) {
+			repo := m_repo.NewMockRepository(ctrl)
+			tt.repoTest(repo)
+			s := NewService(repo)
+			err := s.TransferBalance(tt.user)
+			assert.Equal(t, tt.erors, err)
+		})
+	}
+}
