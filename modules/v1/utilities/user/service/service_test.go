@@ -223,7 +223,7 @@ func Test_service_Encrypt(t *testing.T) {
 			repository: repo,
 		}
 		key := s.Encrypt([]byte{0x5e, 0x88, 0x48, 0x98, 0xda, 0x28, 0x4, 0x71, 0x51, 0xd0, 0xe5, 0x6f, 0x8d, 0xc6, 0x29, 0x27, 0x73, 0x60, 0x3d, 0xd, 0x6a, 0xab, 0xbd, 0xd6, 0x2a, 0x11, 0xef, 0x72, 0x1d, 0x15, 0x42, 0xd8}, "password")
-		fmt.Println(key)
+		assert.NotEqual(t, string(key), "")
 		fmt.Println(string(key))
 	})
 }
@@ -233,19 +233,22 @@ func Test_service_Decrypt(t *testing.T) {
 	defer ctrl.Finish()
 
 	test := []struct {
-		name       string
-		data       string
+		name string
+		data string
+		// dataDecrypt string
 		passphrase string
 		//repoTest   func(repo *m_repo.MockRepository)
 	}{
 		{
-			name:       "Decrypt Service Case 1: Decryption Success",
-			data:       "yI8jCsyTLEUnyrdTNMohL+VxjwHCyBdfWl4KhjEfGhwAem+rXw2jjz+ni+7pnfBNdFB4NuY1p7CCFtN6",
+			name: "Decrypt Service Case 1: Decryption Success",
+			data: "32V4Ob933XJqS7yOSLdcl5ld5IEdpEmB/7cCZU6yv5N6V4FbnopPxOSt9AqaFRFmFmt5uZGF9lhcNjB4",
+			// dataDecrypt: "password",
 			passphrase: "password", //password
 		},
 		{
-			name:       "Decrypt Service Case 2: Decryption Failed",
-			data:       "sdadferwwreEasda",
+			name: "Decrypt Service Case 2: Decryption Failed",
+			data: "sdadferwwreEasda",
+			// dataDecrypt: "",
 			passphrase: "password", //password
 		},
 	}
@@ -255,8 +258,7 @@ func Test_service_Decrypt(t *testing.T) {
 			s := &service{
 				repository: repo,
 			}
-			key := s.Decrypt([]byte(tt.data), tt.passphrase)
-			fmt.Println(key)
+			s.Decrypt([]byte(tt.data), tt.passphrase)
 		})
 	}
 }
