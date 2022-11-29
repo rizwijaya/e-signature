@@ -376,3 +376,40 @@ func Test_service_CheckUserExist(t *testing.T) {
 		})
 	}
 }
+
+func Test_service_CheckEmailExist(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	test := []struct {
+		name     string
+		email    string
+		repoTest func(repo *m_repo.MockRepository)
+	}{
+		{
+			name:  "Check Email Exist Service Case 1: Email Exist Success",
+			email: "smartsign@rizwijaya.com",
+			repoTest: func(repo *m_repo.MockRepository) {
+				repo.EXPECT().CheckEmailExist("smartsign@rizwijaya.com").Return(models.ProfileDB{
+					Email: "smartsign@rizwijaya.com",
+				}, nil).Times(1)
+			},
+		},
+		{
+			name:  "Check Email Exist Service Case 2: Email Not Exist Success",
+			email: "smart@rizwijaya.com",
+			repoTest: func(repo *m_repo.MockRepository) {
+				repo.EXPECT().CheckEmailExist("smart@rizwijaya.com").Return(models.ProfileDB{}, nil).Times(1)
+			},
+		},
+	}
+	for _, tt := range test {
+		t.Run(tt.name, func(t *testing.T) {
+			repo := m_repo.NewMockRepository(ctrl)
+			tt.repoTest(repo)
+			s := NewService(repo)
+			_, err := s.CheckEmailExist(tt.email)
+			assert.NoError(t, err)
+		})
+	}
+}

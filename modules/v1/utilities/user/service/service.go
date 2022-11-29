@@ -161,12 +161,9 @@ func (s *service) CheckUserExist(idsignature string) (string, error) {
 
 func (s *service) CheckEmailExist(email string) (string, error) {
 	id, err := s.repository.CheckEmailExist(email)
-	if err != nil {
+	if err != nil || id.Email == "" {
 		log.Println(err)
 		return "no-exist", err
-	}
-	if id.Email == "" {
-		return "no-exist", nil
 	}
 	return "exist", nil
 }
