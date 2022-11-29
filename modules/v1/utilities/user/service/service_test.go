@@ -5,10 +5,12 @@ import (
 	m_repo "e-signature/modules/v1/utilities/user/repository/mock"
 	"errors"
 	"fmt"
+	"log"
 	"os"
 	"testing"
 	"time"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -493,6 +495,60 @@ func Test_service_TransferBalance(t *testing.T) {
 			s := NewService(repo)
 			err := s.TransferBalance(tt.user)
 			assert.Equal(t, tt.erors, err)
+		})
+	}
+}
+
+func Test_service_GetPublicKey(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	test := []struct {
+		name        string
+		email       []string
+		idsignature []string
+		addr        []common.Address
+		repoTest    func(repo *m_repo.MockRepository)
+	}{
+		{
+			name:        "Get Public Key Service Case 1: Get Public Key Success",
+			email:       []string{"rizqi@smartsign.com", "admin@smartsign.com"},
+			idsignature: []string{"rizqi", "admin"},
+			addr:        []common.Address{common.HexToAddress("0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"), common.HexToAddress("0x3227fc42acAF0C6Ba14A42f8dd518eDfe72cd21D")},
+			repoTest: func(repo *m_repo.MockRepository) {
+				email := []string{"rizqi@smartsign.com", "admin@smartsign.com"}
+				idsignature := []string{"rizqi", "admin"}
+				addr := []string{"1uFwqkgHIDZ0oNIYzQyDkSBYPfxf2jdTfq7kLEivwhI68cWQW6jeHD7TnWL6dI4rXYIZWuNfCAhuzkGCcLQHfuJmMTXeMw", "o8Q0o0UAIhmdoIhLD9Y6gqFuSkeBWTFmkM5BsJOc4J9o3gIxqzZHFax/pAW8Fs/hg/qbALGOxyPi0bGdBeCQC15obooKQg"}
+				for i := range email {
+					repo.EXPECT().GetUserByEmail(email[i]).Return(models.User{
+						Publickey:   addr[i],
+						Idsignature: idsignature[i],
+					}, nil)
+				}
+			},
+		},
+		{
+			name:        "Get Public Key Service Case 2: Get Public Key Failed",
+			email:       []string{"oke@smartsign.com", "failed@smartsign.com"},
+			idsignature: nil,
+			addr:        nil,
+			repoTest: func(repo *m_repo.MockRepository) {
+				email := []string{"oke@smartsign.com", "failed@smartsign.com"}
+				for i := range email {
+					repo.EXPECT().GetUserByEmail(email[i]).Return(models.User{}, errors.New("Failed Get Public Key"))
+				}
+			},
+		},
+	}
+	for _, tt := range test {
+		t.Run(tt.name, func(t *testing.T) {
+			repo := m_repo.NewMockRepository(ctrl)
+			tt.repoTest(repo)
+			s := NewService(repo)
+			addr, idsignature := s.GetPublicKey(tt.email)
+			log.Println(addr)
+			assert.Equal(t, tt.addr, addr)
+			assert.Equal(t, tt.idsignature, idsignature)
 		})
 	}
 }
