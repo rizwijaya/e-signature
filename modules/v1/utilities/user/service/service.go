@@ -152,12 +152,9 @@ func (s *service) DecryptFile(filename string, passphrase string) error {
 
 func (s *service) CheckUserExist(idsignature string) (string, error) {
 	id, err := s.repository.CheckUserExist(idsignature)
-	if err != nil {
+	if err != nil || id.Email == "" {
 		log.Println(err)
 		return "no-exist", err
-	}
-	if id.Email == "" {
-		return "no-exist", nil
 	}
 	return "exist", nil
 }

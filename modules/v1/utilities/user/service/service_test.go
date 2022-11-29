@@ -339,3 +339,40 @@ func Test_service_DecryptFile(t *testing.T) {
 		})
 	}
 }
+
+func Test_service_CheckUserExist(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	test := []struct {
+		name        string
+		idsignature string
+		repoTest    func(repo *m_repo.MockRepository)
+	}{
+		{
+			name:        "Check User Exist Service Case 1: User Exist Success",
+			idsignature: "rizwijaya",
+			repoTest: func(repo *m_repo.MockRepository) {
+				repo.EXPECT().CheckUserExist("rizwijaya").Return(models.ProfileDB{
+					Email: "smartsign@rizwijaya.com",
+				}, nil).Times(1)
+			},
+		},
+		{
+			name:        "Check User Exist Service Case 2: User Not Exist Success",
+			idsignature: "smartsign",
+			repoTest: func(repo *m_repo.MockRepository) {
+				repo.EXPECT().CheckUserExist("smartsign").Return(models.ProfileDB{}, nil).Times(1)
+			},
+		},
+	}
+	for _, tt := range test {
+		t.Run(tt.name, func(t *testing.T) {
+			repo := m_repo.NewMockRepository(ctrl)
+			tt.repoTest(repo)
+			s := NewService(repo)
+			_, err := s.CheckUserExist(tt.idsignature)
+			assert.NoError(t, err)
+		})
+	}
+}
