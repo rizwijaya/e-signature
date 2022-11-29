@@ -4,6 +4,7 @@ import (
 	"e-signature/modules/v1/utilities/user/models"
 	m_repo "e-signature/modules/v1/utilities/user/repository/mock"
 	"errors"
+	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -136,5 +137,93 @@ func Test_service_GetFileIPFS(t *testing.T) {
 		}
 		cidr, _ := s.GetFileIPFS("", "", "")
 		assert.Equal(t, cidr, "")
+	})
+}
+
+// func Test_service_CreateAccount(t *testing.T) {
+// 	ctrl := gomock.NewController(t)
+// 	defer ctrl.Finish()
+
+// 	//var err error
+// 	// f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
+// 	// defer f.Undo()
+// 	// f.Do()
+// 	// location, err := time.LoadLocation("Asia/Jakarta")
+// 	// assert.NoError(t, err)
+// 	// times := time.Now().In(location)
+// 	id := primitive.NewObjectID()
+// 	test := []struct {
+// 		name     string
+// 		id       string
+// 		err      error
+// 		user     models.User
+// 		repoTest func(repo *m_repo.MockRepository)
+// 	}{
+// 		{
+// 			//6380b5cbdc938c5fdf8e6bfe
+// 			name: "Register Service Case 1: Failed Generated Password",
+// 			id:   "",
+// 			err:  errors.New("password must be more than 6 characters"),
+// 			user: models.User{
+// 				Id:          id,
+// 				Idsignature: "rizwijaya",
+// 				Password:    "",
+// 			},
+// 		},
+// 		{
+// 			//6380b5cbdc938c5fdf8e6bfe
+// 			name: "Register Service Case 2: Failed Generated Public Key",
+// 			id:   "",
+// 			err:  nil,
+// 			user: models.User{
+// 				Id:          id,
+// 				Idsignature: "rizwijaya",
+// 				Password:    "1234567",
+// 			},
+// 			repoTest: func(repo *m_repo.MockRepository) {
+// 				user := models.User{
+// 					Id:          id,
+// 					Idsignature: "rizwijaya",
+// 					Password:    "1234567",
+// 					// PasswordHash: "$2a$04$8vhqEvMjmX0ywxFdQV2geeLKNEgzE1WEqHNYWlGHWSJbn0cZsEjbi",
+// 				}
+// 				user = repo.GeneratePublicKey(user.Password)
+// 				//repo.EXPECT().GeneratePublicKey(user.Password).Times(1)
+// 			},
+// 		},
+// 	}
+
+// 	for _, tt := range test {
+// 		t.Run(tt.name, func(t *testing.T) {
+// 			repo := m_repo.NewMockRepository(ctrl)
+// 			if tt.repoTest != nil {
+// 				tt.repoTest(repo)
+// 			}
+// 			s := &service{
+// 				repository: repo,
+// 			}
+// 			id, err := s.CreateAccount(tt.user)
+// 			assert.Equal(t, tt.id, id)
+// 			if tt.err != nil {
+// 				assert.Equal(t, tt.err, err)
+// 			} else {
+// 				assert.NoError(t, err)
+// 			}
+// 		})
+// 	}
+// }
+
+func Test_service_Encrypt(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	t.Run("Encrypt Service Case 1: Encryption Success", func(t *testing.T) {
+		repo := m_repo.NewMockRepository(ctrl)
+		s := &service{
+			repository: repo,
+		}
+		key := s.Encrypt([]byte{0x5e, 0x88, 0x48, 0x98, 0xda, 0x28, 0x4, 0x71, 0x51, 0xd0, 0xe5, 0x6f, 0x8d, 0xc6, 0x29, 0x27, 0x73, 0x60, 0x3d, 0xd, 0x6a, 0xab, 0xbd, 0xd6, 0x2a, 0x11, 0xef, 0x72, 0x1d, 0x15, 0x42, 0xd8}, "password")
+		fmt.Println(key)
+		fmt.Println(string(key))
 	})
 }
