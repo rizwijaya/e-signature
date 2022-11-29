@@ -690,3 +690,100 @@ func Test_service_Logging(t *testing.T) {
 		})
 	}
 }
+
+func Test_service_GetLogUser(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
+	defer f.Undo()
+	f.Do()
+
+	location, err := time.LoadLocation("Asia/Jakarta")
+	assert.NoError(t, err)
+	times := time.Now().In(location)
+	id := primitive.NewObjectID()
+	id2 := primitive.NewObjectID()
+
+	test := []struct {
+		name        string
+		idsignature string
+		logg        []models.UserLog
+		wanterr     bool
+		repoTest    func(repo *m_repo.MockRepository)
+	}{
+		{
+			name:        "Get Log User Case 1: Get Log User Success",
+			idsignature: "rizwijaya",
+			logg: []models.UserLog{
+				{
+					Id:              id,
+					Idsignature:     "rizwijaya",
+					User_agent:      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+					Ip_address:      "127.0.0.1",
+					Action:          "Mengakses Halaman Dashboard",
+					Date_access:     times,
+					Date_access_wib: "Minggu, 27 Nop 2022 | 18:30 WIB",
+				},
+				{
+					Id:              id2,
+					Idsignature:     "admin",
+					User_agent:      "Mozilla/5.0 (Android 11; Mobile; rv:68.0) Gecko/68.0 Firefox/68.0",
+					Ip_address:      "127.0.0.1",
+					Action:          "Mengakses Halaman Login",
+					Date_access:     times,
+					Date_access_wib: "Minggu, 27 Nop 2022 | 18:30 WIB",
+				},
+			},
+			wanterr: false,
+			repoTest: func(repo *m_repo.MockRepository) {
+				logg := []models.UserLog{
+					{
+						Id:              id,
+						Idsignature:     "rizwijaya",
+						User_agent:      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+						Ip_address:      "127.0.0.1",
+						Action:          "Mengakses Halaman Dashboard",
+						Date_access:     times,
+						Date_access_wib: "Minggu, 27 Nop 2022 | 18:30 WIB",
+					},
+					{
+						Id:              id2,
+						Idsignature:     "admin",
+						User_agent:      "Mozilla/5.0 (Android 11; Mobile; rv:68.0) Gecko/68.0 Firefox/68.0",
+						Ip_address:      "127.0.0.1",
+						Action:          "Mengakses Halaman Login",
+						Date_access:     times,
+						Date_access_wib: "Minggu, 27 Nop 2022 | 18:30 WIB",
+					},
+				}
+				repo.EXPECT().GetLogUser("rizwijaya").Return(logg, nil).Times(1)
+			},
+		},
+		{
+			name:        "Get Log User Case 2: Error Get Log User Failed",
+			idsignature: "rizwijaya",
+			logg:        []models.UserLog{},
+			wanterr:     true,
+			repoTest: func(repo *m_repo.MockRepository) {
+				repo.EXPECT().GetLogUser("rizwijaya").Return([]models.UserLog{}, errors.New("Failed to get user log")).Times(1)
+			},
+		},
+	}
+
+	for _, tt := range test {
+		t.Run(tt.name, func(t *testing.T) {
+			repo := m_repo.NewMockRepository(ctrl)
+			s := &service{
+				repository: repo,
+			}
+			tt.repoTest(repo)
+			userlog, err := s.GetLogUser(tt.idsignature)
+			if tt.wanterr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, userlog, tt.logg)
+			}
+		})
+	}
+}
