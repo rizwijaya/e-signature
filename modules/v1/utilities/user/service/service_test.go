@@ -262,3 +262,42 @@ func Test_service_Decrypt(t *testing.T) {
 		})
 	}
 }
+func Test_service_EncryptFile(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	test := []struct {
+		name       string
+		fileName   string
+		passphrase string
+		err        bool
+		//repoTest   func(repo *m_repo.MockRepository)
+	}{
+		{
+			name:       "Encrypt File Service Case 1: Encryption Success",
+			fileName:   "./public/temp/pdfsign/signed_sample_test.pdf",
+			passphrase: "password", //password
+			err:        false,
+		},
+		{
+			name:       "Encrypt File Service Case 1: Encryption Failed",
+			fileName:   "./public/temp/pdfsign/signed_test.pdf",
+			passphrase: "password", //password
+			err:        true,
+		},
+	}
+	for _, tt := range test {
+		t.Run(tt.name, func(t *testing.T) {
+			repo := m_repo.NewMockRepository(ctrl)
+			s := &service{
+				repository: repo,
+			}
+			err := s.EncryptFile(tt.fileName, tt.passphrase)
+			if !tt.err {
+				assert.NoError(t, err)
+			} else {
+				assert.NotNil(t, err)
+			}
+		})
+	}
+}
