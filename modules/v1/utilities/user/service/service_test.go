@@ -124,3 +124,17 @@ func Test_service_UploadIPFS(t *testing.T) {
 		assert.Equal(t, cidr, "")
 	})
 }
+
+func Test_service_GetFileIPFS(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	t.Run("Get File IPFS Service Case 1: Get File in IPFS", func(t *testing.T) {
+		repo := m_repo.NewMockRepository(ctrl)
+		s := &service{
+			repository: repo,
+		}
+		cidr, _ := s.GetFileIPFS("", "", "")
+		assert.Equal(t, cidr, "")
+	})
+}
