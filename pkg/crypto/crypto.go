@@ -14,7 +14,24 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func GenerateHash(pw string) (string, error) {
+type Crypto interface {
+	GenerateHash(pw string) (string, error)
+	Compare(hash string, pw string) error
+	CreateKey(key string) []byte
+	Encrypt(data []byte, passphrase string) []byte
+	Decrypt(data []byte, passphrase string) []byte
+	EncryptFile(filename string, passphrase string) error
+	DecryptFile(filename string, passphrase string) error
+}
+
+type crypto struct {
+}
+
+func NewCrypto() *crypto {
+	return &crypto{}
+}
+
+func (c *crypto) GenerateHash(pw string) (string, error) {
 	if len(pw) < 6 {
 		return "", errors.New("password must be more than 6 characters")
 	}
@@ -25,7 +42,7 @@ func GenerateHash(pw string) (string, error) {
 	return string(hash), nil
 }
 
-func Compare(hash string, pw string) error {
+func (c *crypto) Compare(hash string, pw string) error {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(pw))
 	if err != nil {
 		return errors.New("password salah")
@@ -33,13 +50,13 @@ func Compare(hash string, pw string) error {
 	return nil
 }
 
-func CreateKey(key string) []byte {
+func (c *crypto) CreateKey(key string) []byte {
 	hash := sha256.Sum256([]byte(key))
 	return hash[:]
 }
 
-func Encrypt(data []byte, passphrase string) []byte {
-	key := CreateKey(passphrase)
+func (c *crypto) Encrypt(data []byte, passphrase string) []byte {
+	key := c.CreateKey(passphrase)
 	block, _ := aes.NewCipher(key)
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
@@ -57,13 +74,13 @@ func Encrypt(data []byte, passphrase string) []byte {
 	return base64Cipher
 }
 
-func Decrypt(data []byte, passphrase string) []byte {
+func (c *crypto) Decrypt(data []byte, passphrase string) []byte {
 	cipherText := make([]byte, base64.RawStdEncoding.DecodedLen(len(data)))
 	_, err := base64.RawStdEncoding.Decode(cipherText, data)
 	if err != nil {
 		return nil
 	}
-	key := CreateKey(passphrase)
+	key := c.CreateKey(passphrase)
 	//key := "791f13d3e2552bcf31c4f8d0e5d6a1ed"
 	//fmt.Println("key", key)
 	block, err := aes.NewCipher(key)
@@ -83,13 +100,13 @@ func Decrypt(data []byte, passphrase string) []byte {
 	return plaintext
 }
 
-func EncryptFile(filename string, passphrase string) error {
+func (c *crypto) EncryptFile(filename string, passphrase string) error {
 	b, err := ioutil.ReadFile(filename) //Read the target file
 	if err != nil {
 		log.Println("Unable to open the input file!")
 		return err
 	}
-	ciphertext := Encrypt(b, passphrase)
+	ciphertext := c.Encrypt(b, passphrase)
 	err = ioutil.WriteFile(filename, ciphertext, 0644)
 	if err != nil {
 		log.Println("Unable to create encrypted file!")
@@ -99,13 +116,13 @@ func EncryptFile(filename string, passphrase string) error {
 	return nil
 }
 
-func DecryptFile(filename string, passphrase string) error {
+func (c *crypto) DecryptFile(filename string, passphrase string) error {
 	z, err := ioutil.ReadFile(filename)
 	if err != nil {
 		log.Println("Unable to open the input file!")
 		return err
 	}
-	result := Decrypt(z, passphrase)
+	result := c.Decrypt(z, passphrase)
 	//fmt.Printf("Decrypted file was created with file permissions 0777\n")
 	err = ioutil.WriteFile(filename, result, 0777)
 	if err != nil {
