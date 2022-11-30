@@ -6,6 +6,7 @@ import (
 	"e-signature/modules/v1/utilities/signatures/service"
 	repoUser "e-signature/modules/v1/utilities/user/repository"
 	serviceUser "e-signature/modules/v1/utilities/user/service"
+	pw "e-signature/pkg/crypto"
 
 	"github.com/ethereum/go-ethereum/ethclient"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -26,6 +27,7 @@ func Handler(db *mongo.Database, blockhain *api.Api, client *ethclient.Client) *
 	Service := service.NewService(Repository)
 	//User
 	RepoUser := repoUser.NewRepository(db, blockhain, client)
-	serviceUser := serviceUser.NewService(RepoUser)
+	crypto := pw.NewCrypto()
+	serviceUser := serviceUser.NewService(RepoUser, crypto)
 	return NewSignaturesHandler(Service, serviceUser)
 }

@@ -7,6 +7,7 @@ import (
 	"e-signature/modules/v1/utilities/user/repository"
 	"e-signature/modules/v1/utilities/user/service"
 	ss "e-signature/modules/v1/utilities/user/service"
+	pw "e-signature/pkg/crypto"
 
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/gin-gonic/gin"
@@ -28,7 +29,8 @@ func NewUserHandler(userService ss.Service, signatureService es.Service) *userHa
 
 func Handler(db *mongo.Database, blockhain *api.Api, client *ethclient.Client) *userHandler {
 	userRepository := repository.NewRepository(db, blockhain, client)
-	userService := service.NewService(userRepository)
+	crypto := pw.NewCrypto()
+	userService := service.NewService(userRepository, crypto)
 
 	signatureRepository := er.NewRepository(db, blockhain, client)
 	signatureService := es.NewService(signatureRepository)

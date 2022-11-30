@@ -4,6 +4,7 @@ import (
 	api "e-signature/app/contracts"
 	"e-signature/modules/v1/utilities/user/repository"
 	"e-signature/modules/v1/utilities/user/service"
+	pw "e-signature/pkg/crypto"
 	error "e-signature/pkg/http-error"
 	notif "e-signature/pkg/notification"
 	"net/http"
@@ -24,7 +25,8 @@ func NewUserView(userService service.Service) *userview {
 
 func View(db *mongo.Database, blockhain *api.Api, client *ethclient.Client) *userview {
 	Repository := repository.NewRepository(db, blockhain, client)
-	Service := service.NewService(Repository)
+	crypto := pw.NewCrypto()
+	Service := service.NewService(Repository, crypto)
 	return NewUserView(Service)
 }
 

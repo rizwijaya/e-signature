@@ -38,10 +38,11 @@ type Service interface {
 
 type service struct {
 	repository repository.Repository
+	crypto     pw.Crypto
 }
 
-func NewService(repository repository.Repository) *service {
-	return &service{repository}
+func NewService(repository repository.Repository, crypto pw.Crypto) *service {
+	return &service{repository, crypto}
 }
 
 func (s *service) UploadIPFS(path string) (string, error) {
@@ -63,7 +64,7 @@ func (s *service) Login(input models.LoginInput) (models.ProfileDB, error) {
 		return user, errors.New("user not found")
 	}
 
-	err = pw.Compare(user.Password, password)
+	err = s.crypto.Compare(user.Password, password)
 	if err != nil {
 		log.Println(err)
 		return user, errors.New("password salah")
@@ -76,7 +77,7 @@ func (s *service) CreateAccount(user models.User) (string, error) {
 	conf, _ := config.Init()
 	var err error
 	//Input Hash Password
-	user.PasswordHash, err = pw.GenerateHash(user.Password)
+	user.PasswordHash, err = s.crypto.GenerateHash(user.Password)
 	if err != nil {
 		log.Println(err)
 		return "", err
@@ -135,19 +136,19 @@ func (s *service) CreateAccount(user models.User) (string, error) {
 // }
 
 func (s *service) Encrypt(data []byte, passphrase string) []byte {
-	return pw.Encrypt(data, passphrase)
+	return s.crypto.Encrypt(data, passphrase)
 }
 
 func (s *service) Decrypt(data []byte, passphrase string) []byte {
-	return pw.Decrypt(data, passphrase)
+	return s.crypto.Decrypt(data, passphrase)
 }
 
 func (s *service) EncryptFile(filename string, passphrase string) error {
-	return pw.EncryptFile(filename, passphrase)
+	return s.crypto.EncryptFile(filename, passphrase)
 }
 
 func (s *service) DecryptFile(filename string, passphrase string) error {
-	return pw.DecryptFile(filename, passphrase)
+	return s.crypto.DecryptFile(filename, passphrase)
 }
 
 func (s *service) CheckUserExist(idsignature string) (string, error) {

@@ -7,6 +7,7 @@ import (
 	"e-signature/modules/v1/utilities/signatures/service"
 	repoUser "e-signature/modules/v1/utilities/user/repository"
 	serviceUser "e-signature/modules/v1/utilities/user/service"
+	pw "e-signature/pkg/crypto"
 	notif "e-signature/pkg/notification"
 	"fmt"
 	"log"
@@ -33,7 +34,8 @@ func View(db *mongo.Database, blockhain *api.Api, client *ethclient.Client) *sig
 	Service := service.NewService(Repository)
 	//User
 	RepoUser := repoUser.NewRepository(db, blockhain, client)
-	serviceUser := serviceUser.NewService(RepoUser)
+	crypto := pw.NewCrypto()
+	serviceUser := serviceUser.NewService(RepoUser, crypto)
 	return NewSignaturesView(Service, serviceUser)
 }
 
