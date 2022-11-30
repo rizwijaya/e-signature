@@ -47,15 +47,15 @@ func (mr *MockDocumentsMockRecorder) SignDocuments(imgpath, input interface{}) *
 }
 
 // calcImagePos mocks base method.
-func (m *MockDocuments) calcImagePos(img *creator.Image, page *model.PdfPage, input models.SignDocuments) *creator.Image {
+func (m *MockDocuments) CalcImagePos(img *creator.Image, page *model.PdfPage, input models.SignDocuments) *creator.Image {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "calcImagePos", img, page, input)
+	ret := m.ctrl.Call(m, "CalcImagePos", img, page, input)
 	ret0, _ := ret[0].(*creator.Image)
 	return ret0
 }
 
 // calcImagePos indicates an expected call of calcImagePos.
-func (mr *MockDocumentsMockRecorder) calcImagePos(img, page, input interface{}) *gomock.Call {
+func (mr *MockDocumentsMockRecorder) CalcImagePos(img, page, input interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "calcImagePos", reflect.TypeOf((*MockDocuments)(nil).calcImagePos), img, page, input)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CalcImagePos", reflect.TypeOf((*MockDocuments)(nil).CalcImagePos), img, page, input)
 }

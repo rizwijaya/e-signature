@@ -13,7 +13,7 @@ import (
 )
 
 type Documents interface {
-	calcImagePos(img *creator.Image, page *model.PdfPage, input models.SignDocuments) *creator.Image
+	CalcImagePos(img *creator.Image, page *model.PdfPage, input models.SignDocuments) *creator.Image
 	SignDocuments(imgpath string, input models.SignDocuments) string
 }
 
@@ -32,7 +32,7 @@ func init() {
 	}
 }
 
-func (d *documents) calcImagePos(img *creator.Image, page *model.PdfPage, input models.SignDocuments) *creator.Image {
+func (d *documents) CalcImagePos(img *creator.Image, page *model.PdfPage, input models.SignDocuments) *creator.Image {
 	bbox, err := page.GetMediaBox()
 
 	if err != nil {
@@ -103,7 +103,7 @@ func (d *documents) SignDocuments(imgpath string, input models.SignDocuments) st
 
 		// If the specified page, or -1, apply the image to the page.
 		if i+1 == int(input.SignPage) || int(input.SignPage) == -1 {
-			positionedImg := d.calcImagePos(img, page, input)
+			positionedImg := d.CalcImagePos(img, page, input)
 			err = c.Draw(positionedImg)
 			if err != nil {
 				log.Println(err)
