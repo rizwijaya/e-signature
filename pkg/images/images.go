@@ -66,6 +66,7 @@ func (i *images) CreateImgSignatureData(input models.AddSignature, name string, 
 	im, err := gg.LoadImage(img)
 	if err != nil {
 		log.Println(err)
+		return ""
 	}
 
 	dc := gg.NewContext(300, 300)
@@ -74,6 +75,7 @@ func (i *images) CreateImgSignatureData(input models.AddSignature, name string, 
 	dc.SetRGB255(25, 25, 112)
 	if err := dc.LoadFontFace("modules/v1/utilities/signatures/font/"+font, 11); err != nil {
 		log.Println(err)
+		return ""
 	}
 	//dc.DrawStringAnchored("Hello, world!", 460/4, 180/2, 0.5, 0.5)
 

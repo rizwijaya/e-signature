@@ -125,3 +125,75 @@ func Test_service_CreateImgSignature(t *testing.T) {
 		})
 	}
 }
+
+func Test_service_CreateImgSignatureData(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	test := []struct {
+		name      string
+		input     models.AddSignature
+		name_sign string
+		output    string
+		test      func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments)
+	}{
+		{
+			name: "Create Image Signature Data Case 1: Success Create Image Signature Data",
+			input: models.AddSignature{
+				Id: "6380b5cbdc938c5fdf8e6bfe",
+			},
+			name_sign: "Rizqi Wijaya",
+			output:    "public/images/signatures/signatures_data/signaturesdata-6380b5cbdc938c5fdf8e6bfe.png",
+			test: func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments) {
+				input := models.AddSignature{
+					Id: "6380b5cbdc938c5fdf8e6bfe",
+				}
+				images.EXPECT().CreateImgSignatureData(input, "Rizqi Wijaya", "detail_data.ttf").Return("public/images/signatures/signatures_data/signaturesdata-6380b5cbdc938c5fdf8e6bfe.png").Times(1)
+			},
+		},
+		{
+			name: "Create Image Signature Data Case 2: Failed, Font Not Found",
+			input: models.AddSignature{
+				Id: "6380b5cbdc938c5fdf8e6bfe",
+			},
+			name_sign: "Rizqi Wijaya",
+			output:    "",
+			test: func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments) {
+				input := models.AddSignature{
+					Id: "6380b5cbdc938c5fdf8e6bfe",
+				}
+				images.EXPECT().CreateImgSignatureData(input, "Rizqi Wijaya", "detail_data.ttf").Return("").Times(1)
+			},
+		},
+		{
+			name: "Create Image Signature Data Case 3: Failed, Images Signatures Not Found",
+			input: models.AddSignature{
+				Id: "6380b5cbdc938cs",
+			},
+			name_sign: "Rizqi Wijaya",
+			output:    "",
+			test: func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments) {
+				input := models.AddSignature{
+					Id: "6380b5cbdc938cs",
+				}
+				images.EXPECT().CreateImgSignatureData(input, "Rizqi Wijaya", "detail_data.ttf").Return("").Times(1)
+			},
+		},
+	}
+
+	for _, tt := range test {
+		t.Run(tt.name, func(t *testing.T) {
+			repo := m_repo.NewMockRepository(ctrl)
+			images := m_images.NewMockImages(ctrl)
+			docs := m_docs.NewMockDocuments(ctrl)
+
+			if tt.test != nil {
+				tt.test(repo, images, docs)
+			}
+
+			s := NewService(repo, images, docs)
+			ouput := s.CreateImgSignatureData(tt.input, tt.name_sign)
+			assert.Equal(t, tt.output, ouput)
+		})
+	}
+}
