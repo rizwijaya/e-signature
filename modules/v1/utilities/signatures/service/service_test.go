@@ -6,6 +6,7 @@ import (
 	modelsUser "e-signature/modules/v1/utilities/user/models"
 	m_docs "e-signature/pkg/document/mock"
 	m_images "e-signature/pkg/images/mock"
+	"errors"
 	"os"
 	"testing"
 	"time"
@@ -332,6 +333,64 @@ func Test_service_CreateLatinSignaturesData(t *testing.T) {
 			s := NewService(repo, images, docs)
 			ouput := s.CreateLatinSignaturesData(tt.input, tt.latin, tt.id)
 			assert.Equal(t, tt.output, ouput)
+		})
+	}
+}
+
+func Test_service_DefaultSignatures(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	test := []struct {
+		name  string
+		input modelsUser.User
+		id    string
+		err   error
+		test  func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments)
+	}{
+		{
+			name: "Default Signatures Case 1: Success Insert Default Signatures Users",
+			input: modelsUser.User{
+				Idsignature: "rizwijaya",
+			},
+			id:  "6380b5cbdc938c5fdf8e6bfe",
+			err: nil,
+			test: func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments) {
+				input := modelsUser.User{
+					Idsignature: "rizwijaya",
+				}
+				repo.EXPECT().DefaultSignatures(input, "6380b5cbdc938c5fdf8e6bfe").Return(nil).Times(1)
+			},
+		},
+		{
+			name: "Default Signatures Case 2: Error Failed Insert Default Signatures Users",
+			input: modelsUser.User{
+				Idsignature: "rizwijaya",
+			},
+			id:  "6380b5cbd",
+			err: errors.New("Failed Insert Default Signatures Users to Database"),
+			test: func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments) {
+				input := modelsUser.User{
+					Idsignature: "rizwijaya",
+				}
+				repo.EXPECT().DefaultSignatures(input, "6380b5cbd").Return(errors.New("Failed Insert Default Signatures Users to Database")).Times(1)
+			},
+		},
+	}
+
+	for _, tt := range test {
+		t.Run(tt.name, func(t *testing.T) {
+			repo := m_repo.NewMockRepository(ctrl)
+			images := m_images.NewMockImages(ctrl)
+			docs := m_docs.NewMockDocuments(ctrl)
+
+			if tt.test != nil {
+				tt.test(repo, images, docs)
+			}
+
+			s := NewService(repo, images, docs)
+			err := s.DefaultSignatures(tt.input, tt.id)
+			assert.Equal(t, tt.err, err)
 		})
 	}
 }

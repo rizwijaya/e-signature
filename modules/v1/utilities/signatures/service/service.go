@@ -91,8 +91,7 @@ func (s *service) CreateLatinSignaturesData(user modelsUser.User, latin string, 
 }
 
 func (s *service) DefaultSignatures(user modelsUser.User, id string) error {
-	err := s.repository.DefaultSignatures(user, id)
-	return err
+	return s.repository.DefaultSignatures(user, id)
 }
 
 func (s *service) UpdateMySignatures(signature string, signaturedata string, sign string) error {
