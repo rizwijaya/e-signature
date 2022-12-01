@@ -111,6 +111,7 @@ func (i *images) CreateLatinSignatures(user modelsUser.User, id string, font str
 	dc.SetRGB(0, 0, 0)
 	if err := dc.LoadFontFace("modules/v1/utilities/signatures/font/"+font, 75); err != nil {
 		log.Println(err)
+		return ""
 	}
 	name := user.Name
 	if len(user.Name) > 12 {
