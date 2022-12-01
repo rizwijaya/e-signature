@@ -853,3 +853,44 @@ func Test_service_SignDocuments(t *testing.T) {
 		})
 	}
 }
+
+func Test_service_InvitePeople(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	test := []struct {
+		nameTest string
+		email    string
+		signDocs models.SignDocuments
+		users    modelsUser.User
+		err      error
+	}{
+		{
+			nameTest: "Sign Documents Case 1: Success Sign Documents",
+			email:    "member@rizwijaya.com",
+			signDocs: models.SignDocuments{
+				Judul:         "Invite People Test",
+				Creator_id:    "rizwijaya",
+				Note:          "Note Invite People Test",
+				Hash_original: "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
+				Name:          "sample_test.pdf",
+			},
+			users: modelsUser.User{
+				Name: "Rizqi Wijaya",
+			},
+			err: nil,
+		},
+	}
+
+	for _, tt := range test {
+		t.Run(tt.nameTest, func(t *testing.T) {
+			repo := m_repo.NewMockRepository(ctrl)
+			images := m_images.NewMockImages(ctrl)
+			docs := m_docs.NewMockDocuments(ctrl)
+
+			s := NewService(repo, images, docs)
+			err := s.InvitePeople(tt.email, tt.signDocs, tt.users)
+			assert.Equal(t, tt.err, err)
+		})
+	}
+}

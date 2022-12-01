@@ -154,18 +154,10 @@ func (s *service) InvitePeople(email string, input models.SignDocuments, users m
 	// Parse the html file.
 	dir := "./public/templates/users/pages/email.html"
 	t := template.New("email.html")
-	var err error
-	t, err = t.ParseFiles(dir)
-	if err != nil {
-		log.Println(err)
-		return err
-	}
+	t, _ = t.ParseFiles(dir)
 
 	var tpl bytes.Buffer
-	if err := t.Execute(&tpl, emData); err != nil {
-		log.Println(err)
-		return err
-	}
+	t.Execute(&tpl, emData)
 
 	result := tpl.String()
 
