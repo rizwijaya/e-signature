@@ -559,3 +559,78 @@ func Test_service_GetMySignature(t *testing.T) {
 		})
 	}
 }
+
+func Test_service_ChangeSignatures(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	test := []struct {
+		nameTest    string
+		sign_type   string
+		idsignature string
+		err         error
+		test        func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments)
+	}{
+		{
+			nameTest:    "Change Signatures Case 1: Success Change Signatures User to Latin",
+			sign_type:   "latin",
+			idsignature: "rizwijaya",
+			err:         nil,
+			test: func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments) {
+				repo.EXPECT().ChangeSignature("latin", "rizwijaya").Return(nil).Times(1)
+			},
+		},
+		{
+			nameTest:    "Change Signatures Case 2: Success Change Signatures User to Latin Data",
+			sign_type:   "latin_data",
+			idsignature: "rizwijaya",
+			err:         nil,
+			test: func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments) {
+				repo.EXPECT().ChangeSignature("latin_data", "rizwijaya").Return(nil).Times(1)
+			},
+		},
+		{
+			nameTest:    "Change Signatures Case 3: Success Change Signatures User to Signature",
+			sign_type:   "signature",
+			idsignature: "rizwijaya",
+			err:         nil,
+			test: func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments) {
+				repo.EXPECT().ChangeSignature("signature", "rizwijaya").Return(nil).Times(1)
+			},
+		},
+		{
+			nameTest:    "Change Signatures Case 4: Success Change Signatures User to Signature Data",
+			sign_type:   "signature_data",
+			idsignature: "rizwijaya",
+			err:         nil,
+			test: func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments) {
+				repo.EXPECT().ChangeSignature("signature_data", "rizwijaya").Return(nil).Times(1)
+			},
+		},
+		{
+			nameTest:    "Change Signatures Case 5: Error Failed Change Signatures User",
+			sign_type:   "signature",
+			idsignature: "rizwijaya",
+			err:         errors.New("Error Failed Change Signatures User"),
+			test: func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments) {
+				repo.EXPECT().ChangeSignature("signature", "rizwijaya").Return(errors.New("Error Failed Change Signatures User")).Times(1)
+			},
+		},
+	}
+
+	for _, tt := range test {
+		t.Run(tt.nameTest, func(t *testing.T) {
+			repo := m_repo.NewMockRepository(ctrl)
+			images := m_images.NewMockImages(ctrl)
+			docs := m_docs.NewMockDocuments(ctrl)
+
+			if tt.test != nil {
+				tt.test(repo, images, docs)
+			}
+
+			s := NewService(repo, images, docs)
+			err := s.ChangeSignatures(tt.sign_type, tt.idsignature)
+			assert.Equal(t, tt.err, err)
+		})
+	}
+}
