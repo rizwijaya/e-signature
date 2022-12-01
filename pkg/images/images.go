@@ -35,6 +35,7 @@ func (i *images) CreateImageSignature(input models.AddSignature) string {
 	m, formatString, err := image.Decode(reader)
 	if err != nil {
 		log.Println(err)
+		return ""
 	}
 	bounds := m.Bounds()
 	fmt.Println(bounds, formatString)
