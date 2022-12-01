@@ -394,3 +394,54 @@ func Test_service_DefaultSignatures(t *testing.T) {
 		})
 	}
 }
+
+func Test_service_UpdateMySignatures(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	test := []struct {
+		name          string
+		signature     string
+		signaturedata string
+		sign          string
+		err           error
+		test          func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments)
+	}{
+		{
+			name:          "Update My Signatures Case 1: Success Update My Signatures Users",
+			signature:     "signatures-6380b5cbdc938c5fdf8e6bfe.png",
+			signaturedata: "signaturesdata-6380b5cbdc938c5fdf8e6bfe.png",
+			sign:          "6380b5cbdc938c5fdf8e6bfe",
+			err:           nil,
+			test: func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments) {
+				repo.EXPECT().UpdateMySignatures("signatures-6380b5cbdc938c5fdf8e6bfe.png", "signaturesdata-6380b5cbdc938c5fdf8e6bfe.png", "6380b5cbdc938c5fdf8e6bfe").Return(nil).Times(1)
+			},
+		},
+		{
+			name:          "Update My Signatures Case 2: Error Failed Update My Signatures Users",
+			signature:     "signatures-e.png",
+			signaturedata: "signaturesdata-e.png",
+			sign:          "6380b5cbdc938c5fdf8e6bfe",
+			err:           errors.New("Error Failed Update My Signatures Users to Database"),
+			test: func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments) {
+				repo.EXPECT().UpdateMySignatures("signatures-e.png", "signaturesdata-e.png", "6380b5cbdc938c5fdf8e6bfe").Return(errors.New("Error Failed Update My Signatures Users to Database")).Times(1)
+			},
+		},
+	}
+
+	for _, tt := range test {
+		t.Run(tt.name, func(t *testing.T) {
+			repo := m_repo.NewMockRepository(ctrl)
+			images := m_images.NewMockImages(ctrl)
+			docs := m_docs.NewMockDocuments(ctrl)
+
+			if tt.test != nil {
+				tt.test(repo, images, docs)
+			}
+
+			s := NewService(repo, images, docs)
+			err := s.UpdateMySignatures(tt.signature, tt.signaturedata, tt.sign)
+			assert.Equal(t, tt.err, err)
+		})
+	}
+}
