@@ -15,6 +15,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/tkuchiki/faketime"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func TestInit(t *testing.T) {
@@ -442,6 +443,119 @@ func Test_service_UpdateMySignatures(t *testing.T) {
 			s := NewService(repo, images, docs)
 			err := s.UpdateMySignatures(tt.signature, tt.signaturedata, tt.sign)
 			assert.Equal(t, tt.err, err)
+		})
+	}
+}
+
+func Test_service_GetMySignature(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	var err error
+	id, err := primitive.ObjectIDFromHex("6380b5cbdc938c5fdf8e6bfe")
+	assert.NoError(t, err)
+	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
+	defer f.Undo()
+	f.Do()
+	location, err := time.LoadLocation("Asia/Jakarta")
+	assert.NoError(t, err)
+	times := time.Now().In(location)
+
+	test := []struct {
+		nameTest string
+		sign     string
+		id       string
+		name     string
+		output   models.MySignatures
+		test     func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments)
+	}{
+		{
+			nameTest: "Update My Signatures Case 1: Success Update My Signatures Users",
+			sign:     "rizwijaya",
+			id:       "6380b5cbdc938c5fdf8e6bfe",
+			name:     "Rizqi Wijaya",
+			output: models.MySignatures{
+				Id:                 "6380b5cbdc938c5fdf8e6bfe",
+				Name:               "Rizqi Wijaya",
+				User_id:            "6380b5cbdc938c5fdf8e6bfe",
+				Signature:          "signatures/sign-6380b5cbdc938c5fdf8e6bfe.png",
+				Signature_id:       "sign-6380b5cbdc938c5fdf8e6bfe",
+				Signature_data:     "signatures_data/signatures_data-6380b5cbdc938c5fdf8e6bfe.png",
+				Signature_data_id:  "sign_data-6380b5cbdc938c5fdf8e6bfe",
+				Latin:              "latin/latin-6380b5cbdc938c5fdf8e6bfe.png",
+				Latin_id:           "latin-6380b5cbdc938c5fdf8e6bfe",
+				Latin_data:         "latin_data/latin_data-6380b5cbdc938c5fdf8e6bfe.png",
+				Latin_data_id:      "latin_data-6380b5cbdc938c5fdf8e6bfe",
+				Signature_selected: "latin",
+				Date_update:        "27 Nopember 2022 | 18:30 WIB",
+				Date_created:       "27 Nopember 2022 | 18:30 WIB",
+			},
+			test: func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments) {
+				sign := "rizwijaya"
+				repo.EXPECT().GetMySignature(sign).Return(models.Signatures{
+					Id:                 id,
+					User:               "rizwijaya",
+					Signature:          "sign-6380b5cbdc938c5fdf8e6bfe.png",
+					Signature_data:     "signatures_data-6380b5cbdc938c5fdf8e6bfe.png",
+					Latin:              "latin-6380b5cbdc938c5fdf8e6bfe.png",
+					Latin_data:         "latin_data-6380b5cbdc938c5fdf8e6bfe.png",
+					Signature_selected: "latin",
+					Date_update:        times,
+					Date_created:       times,
+				}, nil).Times(1)
+			},
+		},
+		{
+			nameTest: "Update My Signatures Case 2: Error Failed Update My Signatures Users",
+			sign:     "rizwijaya",
+			id:       "6380b5cbdc938c5fdf8e6bfe",
+			name:     "Rizqi Wijaya",
+			output: models.MySignatures{
+				Id:                 "6380b5cbdc938c5fdf8e6bfe",
+				Name:               "Rizqi Wijaya",
+				User_id:            "6380b5cbdc938c5fdf8e6bfe",
+				Signature:          "signatures/sign-6380b5cbdc938c5fdf8e6bfe.png",
+				Signature_id:       "sign-6380b5cbdc938c5fdf8e6bfe",
+				Signature_data:     "signatures_data/signatures_data-6380b5cbdc938c5fdf8e6bfe.png",
+				Signature_data_id:  "sign_data-6380b5cbdc938c5fdf8e6bfe",
+				Latin:              "latin/latin-6380b5cbdc938c5fdf8e6bfe.png",
+				Latin_id:           "latin-6380b5cbdc938c5fdf8e6bfe",
+				Latin_data:         "latin_data/latin_data-6380b5cbdc938c5fdf8e6bfe.png",
+				Latin_data_id:      "latin_data-6380b5cbdc938c5fdf8e6bfe",
+				Signature_selected: "latin",
+				Date_update:        "27 Nopember 2022 | 18:30 WIB",
+				Date_created:       "27 Nopember 2022 | 18:30 WIB",
+			},
+			test: func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments) {
+				sign := "rizwijaya"
+				repo.EXPECT().GetMySignature(sign).Return(models.Signatures{
+					Id:                 id,
+					User:               "rizwijaya",
+					Signature:          "sign-6380b5cbdc938c5fdf8e6bfe.png",
+					Signature_data:     "signatures_data-6380b5cbdc938c5fdf8e6bfe.png",
+					Latin:              "latin-6380b5cbdc938c5fdf8e6bfe.png",
+					Latin_data:         "latin_data-6380b5cbdc938c5fdf8e6bfe.png",
+					Signature_selected: "latin",
+					Date_update:        times,
+					Date_created:       times,
+				}, errors.New("Error Failed Update My Signatures Users")).Times(1)
+			},
+		},
+	}
+
+	for _, tt := range test {
+		t.Run(tt.nameTest, func(t *testing.T) {
+			repo := m_repo.NewMockRepository(ctrl)
+			images := m_images.NewMockImages(ctrl)
+			docs := m_docs.NewMockDocuments(ctrl)
+
+			if tt.test != nil {
+				tt.test(repo, images, docs)
+			}
+
+			s := NewService(repo, images, docs)
+			output := s.GetMySignature(tt.sign, tt.id, tt.name)
+			assert.Equal(t, tt.output, output)
 		})
 	}
 }
