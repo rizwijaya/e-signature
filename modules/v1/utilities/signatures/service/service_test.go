@@ -894,3 +894,41 @@ func Test_service_InvitePeople(t *testing.T) {
 		})
 	}
 }
+
+func Test_service_GenerateHashDocument(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	test := []struct {
+		nameTest string
+		input    string
+		output   string
+	}{
+		{
+			nameTest: "Generate Hash Document Case 1: Success Generate Hash Document",
+			input:    "./public/unit_testing/sample_test.pdf",
+			output:   "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+		},
+		{
+			nameTest: "Generate Hash Document Case 2: Error Failed Generate Hash Document PDF file not found",
+			input:    "samp.pdf",
+			output:   "",
+		},
+	}
+
+	for _, tt := range test {
+		t.Run(tt.nameTest, func(t *testing.T) {
+			repo := m_repo.NewMockRepository(ctrl)
+			images := m_images.NewMockImages(ctrl)
+			docs := m_docs.NewMockDocuments(ctrl)
+
+			s := NewService(repo, images, docs)
+			output := s.GenerateHashDocument(tt.input)
+			if tt.output == "" {
+				assert.Equal(t, tt.output, output)
+			} else {
+				assert.NotEqual(t, tt.output, output)
+			}
+		})
+	}
+}

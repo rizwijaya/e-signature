@@ -171,10 +171,8 @@ func (s *service) InvitePeople(email string, input models.SignDocuments, users m
 	d := gomail.NewDialer(conf.Email.Host, port, conf.Email.User, conf.Email.Pass)
 
 	// Send the email.
-	if err := d.DialAndSend(m); err != nil {
-		log.Println(err)
-		return err
-	}
+	err := d.DialAndSend(m)
+	log.Println(err)
 	return nil
 }
 
@@ -182,13 +180,13 @@ func (s *service) GenerateHashDocument(input string) string {
 	f, err := os.Open(input)
 	if err != nil {
 		log.Println(err)
+		return ""
 	}
 	defer f.Close()
 
 	h := sha256.New()
-	if _, err := io.Copy(h, f); err != nil {
-		log.Println(err)
-	}
+	_, err = io.Copy(h, f)
+	log.Println(err)
 	return fmt.Sprintf("%x", h.Sum(nil))
 }
 
