@@ -713,3 +713,143 @@ func Test_service_ResizeImages(t *testing.T) {
 		})
 	}
 }
+
+func Test_service_SignDocuments(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	test := []struct {
+		nameTest string
+		imgpath  string
+		signDocs models.SignDocuments
+		output   string
+		test     func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments)
+	}{
+		{
+			nameTest: "Sign Documents Case 1: Success Sign Documents",
+			imgpath:  "./public/temp/sizes-latin.png",
+			signDocs: models.SignDocuments{
+				Name:    "sample_test.pdf",
+				X_coord: 350,
+				Y_coord: 310,
+				Height:  200.3,
+				Width:   143.6,
+			},
+			output: "./public/temp/pdfsign/signed_sample_test.pdf",
+			test: func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments) {
+				signDocs := models.SignDocuments{
+					Name:    "sample_test.pdf",
+					X_coord: 350,
+					Y_coord: 310,
+					Height:  200.3,
+					Width:   143.6,
+				}
+				docs.EXPECT().SignDocuments("./public/temp/sizes-latin.png", signDocs).Return("./public/temp/pdfsign/signed_sample_test.pdf").Times(1)
+			},
+		},
+		{
+			nameTest: "Sign Documents Case 2: Failed Sign Documents because image path is empty",
+			imgpath:  "",
+			signDocs: models.SignDocuments{
+				Name:    "sample_test.pdf",
+				X_coord: 350,
+				Y_coord: 310,
+				Height:  200.3,
+				Width:   143.6,
+			},
+			output: "",
+			test: func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments) {
+				signDocs := models.SignDocuments{
+					Name:    "sample_test.pdf",
+					X_coord: 350,
+					Y_coord: 310,
+					Height:  200.3,
+					Width:   143.6,
+				}
+				docs.EXPECT().SignDocuments("", signDocs).Return("").Times(1)
+			},
+		},
+		{
+			nameTest: "Sign Documents Case 3: Failed Sign Documents because cannot read and write document pdf",
+			imgpath:  "./public/temp/sizes-latin.png",
+			signDocs: models.SignDocuments{
+				Name:    "sample_test.pdf",
+				X_coord: 350,
+				Y_coord: 310,
+				Height:  200.3,
+				Width:   143.6,
+			},
+			output: "",
+			test: func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments) {
+				signDocs := models.SignDocuments{
+					Name:    "sample_test.pdf",
+					X_coord: 350,
+					Y_coord: 310,
+					Height:  200.3,
+					Width:   143.6,
+				}
+				docs.EXPECT().SignDocuments("./public/temp/sizes-latin.png", signDocs).Return("").Times(1)
+			},
+		},
+		{
+			nameTest: "Sign Documents Case 4: Failed Sign Documents because cannot get pages from document pdf",
+			imgpath:  "./public/temp/sizes-latin.png",
+			signDocs: models.SignDocuments{
+				Name:    "sample_test.pdf",
+				X_coord: 350,
+				Y_coord: 310,
+				Height:  200.3,
+				Width:   143.6,
+			},
+			output: "",
+			test: func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments) {
+				signDocs := models.SignDocuments{
+					Name:    "sample_test.pdf",
+					X_coord: 350,
+					Y_coord: 310,
+					Height:  200.3,
+					Width:   143.6,
+				}
+				docs.EXPECT().SignDocuments("./public/temp/sizes-latin.png", signDocs).Return("").Times(1)
+			},
+		},
+		{
+			nameTest: "Sign Documents Case 5: Failed Sign Documents because cannot add images signatures to document pdf",
+			imgpath:  "./public/temp/sizes-latin.png",
+			signDocs: models.SignDocuments{
+				Name:    "sample_test.pdf",
+				X_coord: 350,
+				Y_coord: 310,
+				Height:  200.3,
+				Width:   143.6,
+			},
+			output: "",
+			test: func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments) {
+				signDocs := models.SignDocuments{
+					Name:    "sample_test.pdf",
+					X_coord: 350,
+					Y_coord: 310,
+					Height:  200.3,
+					Width:   143.6,
+				}
+				docs.EXPECT().SignDocuments("./public/temp/sizes-latin.png", signDocs).Return("").Times(1)
+			},
+		},
+	}
+
+	for _, tt := range test {
+		t.Run(tt.nameTest, func(t *testing.T) {
+			repo := m_repo.NewMockRepository(ctrl)
+			images := m_images.NewMockImages(ctrl)
+			docs := m_docs.NewMockDocuments(ctrl)
+
+			if tt.test != nil {
+				tt.test(repo, images, docs)
+			}
+
+			s := NewService(repo, images, docs)
+			output := s.SignDocuments(tt.imgpath, tt.signDocs)
+			assert.Equal(t, tt.output, output)
+		})
+	}
+}
