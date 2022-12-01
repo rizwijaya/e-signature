@@ -634,3 +634,82 @@ func Test_service_ChangeSignatures(t *testing.T) {
 		})
 	}
 }
+
+func Test_service_ResizeImages(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	test := []struct {
+		nameTest string
+		mysign   models.MySignatures
+		signDocs models.SignDocuments
+		output   string
+		test     func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments)
+	}{
+		{
+			nameTest: "Resize Images Case 1: Success Resize Images Signatures",
+			mysign: models.MySignatures{
+				Id:                 "6380b5cbdc938c5fdf8e6bfe",
+				Name:               "Rizqi Wijaya",
+				User_id:            "6380b5cbdc938c5fdf8e6bfe",
+				Signature:          "signatures/sign-6380b5cbdc938c5fdf8e6bfe.png",
+				Signature_id:       "sign-6380b5cbdc938c5fdf8e6bfe",
+				Signature_data:     "signatures_data/signatures_data-6380b5cbdc938c5fdf8e6bfe.png",
+				Signature_data_id:  "sign_data-6380b5cbdc938c5fdf8e6bfe",
+				Latin:              "latin/latin-6380b5cbdc938c5fdf8e6bfe.png",
+				Latin_id:           "latin-6380b5cbdc938c5fdf8e6bfe",
+				Latin_data:         "latin_data/latin_data-6380b5cbdc938c5fdf8e6bfe.png",
+				Latin_data_id:      "latin_data-6380b5cbdc938c5fdf8e6bfe",
+				Signature_selected: "latin",
+				Date_update:        "27 Nopember 2022 | 18:30 WIB",
+				Date_created:       "27 Nopember 2022 | 18:30 WIB",
+			},
+			signDocs: models.SignDocuments{
+				Height: 200.3,
+				Width:  143.6,
+			},
+			output: "./public/temp/sizes-latin.png",
+			test: func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments) {
+				mysign := models.MySignatures{
+					Id:                 "6380b5cbdc938c5fdf8e6bfe",
+					Name:               "Rizqi Wijaya",
+					User_id:            "6380b5cbdc938c5fdf8e6bfe",
+					Signature:          "signatures/sign-6380b5cbdc938c5fdf8e6bfe.png",
+					Signature_id:       "sign-6380b5cbdc938c5fdf8e6bfe",
+					Signature_data:     "signatures_data/signatures_data-6380b5cbdc938c5fdf8e6bfe.png",
+					Signature_data_id:  "sign_data-6380b5cbdc938c5fdf8e6bfe",
+					Latin:              "latin/latin-6380b5cbdc938c5fdf8e6bfe.png",
+					Latin_id:           "latin-6380b5cbdc938c5fdf8e6bfe",
+					Latin_data:         "latin_data/latin_data-6380b5cbdc938c5fdf8e6bfe.png",
+					Latin_data_id:      "latin_data-6380b5cbdc938c5fdf8e6bfe",
+					Signature_selected: "latin",
+					Date_update:        "27 Nopember 2022 | 18:30 WIB",
+					Date_created:       "27 Nopember 2022 | 18:30 WIB",
+				}
+
+				signDocs := models.SignDocuments{
+					Height: 200.3,
+					Width:  143.6,
+				}
+
+				images.EXPECT().ResizeImages(mysign, signDocs).Return("./public/temp/sizes-latin.png").Times(1)
+			},
+		},
+	}
+
+	for _, tt := range test {
+		t.Run(tt.nameTest, func(t *testing.T) {
+			repo := m_repo.NewMockRepository(ctrl)
+			images := m_images.NewMockImages(ctrl)
+			docs := m_docs.NewMockDocuments(ctrl)
+
+			if tt.test != nil {
+				tt.test(repo, images, docs)
+			}
+
+			s := NewService(repo, images, docs)
+			output := s.ResizeImages(tt.mysign, tt.signDocs)
+			assert.Equal(t, tt.output, output)
+		})
+	}
+}
