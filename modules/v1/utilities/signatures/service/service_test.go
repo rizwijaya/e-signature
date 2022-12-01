@@ -256,3 +256,82 @@ func Test_service_CreateLatinSignatures(t *testing.T) {
 		})
 	}
 }
+
+func Test_service_CreateLatinSignaturesData(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	test := []struct {
+		name   string
+		input  modelsUser.User
+		id     string
+		latin  string
+		output string
+		test   func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments)
+	}{
+		{
+			name: "Create Latin Signatures Case 1: Success Create Latin Signatures",
+			input: modelsUser.User{
+				Name: "Rizqi Wijaya",
+			},
+			id:     "6380b5cbdc938c5fdf8e6bfe",
+			latin:  "public/images/signatures/latin/latin-6380b5cbdc938c5fdf8e6bfe.png",
+			output: "public/images/signatures/latin_data/latindata-6380b5cbdc938c5fdf8e6bfe.png",
+			test: func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments) {
+				input := modelsUser.User{
+					Name: "Rizqi Wijaya",
+				}
+				latin := "public/images/signatures/latin/latin-6380b5cbdc938c5fdf8e6bfe.png"
+				images.EXPECT().CreateLatinSignaturesData(input, latin, "6380b5cbdc938c5fdf8e6bfe", "detail_data.ttf").Return("public/images/signatures/latin_data/latindata-6380b5cbdc938c5fdf8e6bfe.png").Times(1)
+			},
+		},
+		{
+			name: "Create Latin Signatures Case 2: Failed Images Not Found",
+			input: modelsUser.User{
+				Name: "Rizqi Wijaya",
+			},
+			id:     "6380b5cbdc938c5fdf8e6bfe",
+			latin:  "public/images/signatures/latin/latin-e.png",
+			output: "",
+			test: func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments) {
+				input := modelsUser.User{
+					Name: "Rizqi Wijaya",
+				}
+				latin := "public/images/signatures/latin/latin-e.png"
+				images.EXPECT().CreateLatinSignaturesData(input, latin, "6380b5cbdc938c5fdf8e6bfe", "detail_data.ttf").Return("").Times(1)
+			},
+		},
+		{
+			name: "Create Latin Signatures Case 3: Failed Font Not Found",
+			input: modelsUser.User{
+				Name: "Rizqi Wijaya",
+			},
+			id:     "6380b5cbdc938c5fdf8e6bfe",
+			latin:  "public/images/signatures/latin/latin-6380b5cbdc938c5fdf8e6bfe.png",
+			output: "",
+			test: func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments) {
+				input := modelsUser.User{
+					Name: "Rizqi Wijaya",
+				}
+				latin := "public/images/signatures/latin/latin-6380b5cbdc938c5fdf8e6bfe.png"
+				images.EXPECT().CreateLatinSignaturesData(input, latin, "6380b5cbdc938c5fdf8e6bfe", "detail_data.ttf").Return("").Times(1)
+			},
+		},
+	}
+
+	for _, tt := range test {
+		t.Run(tt.name, func(t *testing.T) {
+			repo := m_repo.NewMockRepository(ctrl)
+			images := m_images.NewMockImages(ctrl)
+			docs := m_docs.NewMockDocuments(ctrl)
+
+			if tt.test != nil {
+				tt.test(repo, images, docs)
+			}
+
+			s := NewService(repo, images, docs)
+			ouput := s.CreateLatinSignaturesData(tt.input, tt.latin, tt.id)
+			assert.Equal(t, tt.output, ouput)
+		})
+	}
+}

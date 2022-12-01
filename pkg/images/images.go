@@ -129,6 +129,7 @@ func (i *images) CreateLatinSignaturesData(user modelsUser.User, latin string, i
 	im, err := gg.LoadImage(latin)
 	if err != nil {
 		log.Println(err)
+		return ""
 	}
 
 	dc := gg.NewContext(300, 300)
@@ -137,6 +138,7 @@ func (i *images) CreateLatinSignaturesData(user modelsUser.User, latin string, i
 	dc.SetRGB255(25, 25, 112)
 	if err := dc.LoadFontFace("modules/v1/utilities/signatures/font/"+font, 11); err != nil {
 		log.Println(err)
+		return ""
 	}
 
 	dc.DrawImage(im, 0, 0)
