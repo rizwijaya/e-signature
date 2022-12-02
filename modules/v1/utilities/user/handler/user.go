@@ -7,6 +7,8 @@ import (
 	"e-signature/modules/v1/utilities/user/repository"
 	"e-signature/modules/v1/utilities/user/service"
 	ss "e-signature/modules/v1/utilities/user/service"
+
+	bl "e-signature/pkg/blockchain"
 	pw "e-signature/pkg/crypto"
 	docs "e-signature/pkg/document"
 	images "e-signature/pkg/images"
@@ -29,12 +31,13 @@ func NewUserHandler(userService ss.Service, signatureService es.Service) *userHa
 	return &userHandler{userService, signatureService}
 }
 
-func Handler(db *mongo.Database, blockhain *api.Api, client *ethclient.Client) *userHandler {
-	userRepository := repository.NewRepository(db, blockhain, client)
+func Handler(db *mongo.Database, contracts *api.Api, client *ethclient.Client) *userHandler {
+	blockchain := bl.NewBlockchain(contracts, client)
+	userRepository := repository.NewRepository(db, blockchain)
 	crypto := pw.NewCrypto()
 	userService := service.NewService(userRepository, crypto)
 
-	signatureRepository := er.NewRepository(db, blockhain, client)
+	signatureRepository := er.NewRepository(db, blockchain)
 	documents := docs.NewDocuments()
 	images := images.NewImages()
 	signatureService := es.NewService(signatureRepository, images, documents)

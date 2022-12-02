@@ -4,6 +4,7 @@ import (
 	api "e-signature/app/contracts"
 	"e-signature/modules/v1/utilities/user/repository"
 	"e-signature/modules/v1/utilities/user/service"
+	bl "e-signature/pkg/blockchain"
 	pw "e-signature/pkg/crypto"
 	error "e-signature/pkg/http-error"
 	notif "e-signature/pkg/notification"
@@ -23,8 +24,9 @@ func NewUserView(userService service.Service) *userview {
 	return &userview{userService}
 }
 
-func View(db *mongo.Database, blockhain *api.Api, client *ethclient.Client) *userview {
-	Repository := repository.NewRepository(db, blockhain, client)
+func View(db *mongo.Database, contracts *api.Api, client *ethclient.Client) *userview {
+	blockchain := bl.NewBlockchain(contracts, client)
+	Repository := repository.NewRepository(db, blockchain)
 	crypto := pw.NewCrypto()
 	Service := service.NewService(Repository, crypto)
 	return NewUserView(Service)

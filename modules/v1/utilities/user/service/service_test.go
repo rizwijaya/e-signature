@@ -530,90 +530,90 @@ func Test_service_CheckEmailExist(t *testing.T) {
 	}
 }
 
-func Test_service_GetBalance(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
+// func Test_service_GetBalance(t *testing.T) {
+// 	ctrl := gomock.NewController(t)
+// 	defer ctrl.Finish()
 
-	test := []struct {
-		name     string
-		user     models.ProfileDB
-		password string
-		balance  string
-		erors    error
-		repoTest func(repo *m_repo.MockRepository, crypto *m_crypto.MockCrypto)
-	}{
-		{
-			name:     "Get Balance Service Case 1: Get Balance Success",
-			user:     models.ProfileDB{},
-			password: "password",
-			balance:  "100",
-			erors:    nil,
-			repoTest: func(repo *m_repo.MockRepository, crypto *m_crypto.MockCrypto) {
-				repo.EXPECT().GetBalance(models.ProfileDB{}, "password").Return("100", nil).Times(1)
-			},
-		},
-		{
-			name:     "Get Balance Service Case 2: Get Balance Failed",
-			user:     models.ProfileDB{},
-			password: "password",
-			balance:  "",
-			erors:    errors.New("Failed Get Balance from Blockchain"),
-			repoTest: func(repo *m_repo.MockRepository, crypto *m_crypto.MockCrypto) {
-				repo.EXPECT().GetBalance(models.ProfileDB{}, "password").Return("", errors.New("Failed Get Balance from Blockchain")).Times(1)
-			},
-		},
-	}
-	for _, tt := range test {
-		t.Run(tt.name, func(t *testing.T) {
-			repo := m_repo.NewMockRepository(ctrl)
-			crypto := m_crypto.NewMockCrypto(ctrl)
-			tt.repoTest(repo, crypto)
-			s := NewService(repo, crypto)
-			balance, err := s.GetBalance(tt.user, tt.password)
-			assert.Equal(t, tt.erors, err)
-			assert.Equal(t, tt.balance, balance)
-		})
-	}
-}
+// 	test := []struct {
+// 		name     string
+// 		user     models.ProfileDB
+// 		password string
+// 		balance  string
+// 		erors    error
+// 		repoTest func(repo *m_repo.MockRepository, crypto *m_crypto.MockCrypto)
+// 	}{
+// 		{
+// 			name:     "Get Balance Service Case 1: Get Balance Success",
+// 			user:     models.ProfileDB{},
+// 			password: "password",
+// 			balance:  "100",
+// 			erors:    nil,
+// 			repoTest: func(repo *m_repo.MockRepository, crypto *m_crypto.MockCrypto) {
+// 				repo.EXPECT().GetBalance(models.ProfileDB{}, "password").Return("100", nil).Times(1)
+// 			},
+// 		},
+// 		{
+// 			name:     "Get Balance Service Case 2: Get Balance Failed",
+// 			user:     models.ProfileDB{},
+// 			password: "password",
+// 			balance:  "",
+// 			erors:    errors.New("Failed Get Balance from Blockchain"),
+// 			repoTest: func(repo *m_repo.MockRepository, crypto *m_crypto.MockCrypto) {
+// 				repo.EXPECT().GetBalance(models.ProfileDB{}, "password").Return("", errors.New("Failed Get Balance from Blockchain")).Times(1)
+// 			},
+// 		},
+// 	}
+// 	for _, tt := range test {
+// 		t.Run(tt.name, func(t *testing.T) {
+// 			repo := m_repo.NewMockRepository(ctrl)
+// 			crypto := m_crypto.NewMockCrypto(ctrl)
+// 			tt.repoTest(repo, crypto)
+// 			s := NewService(repo, crypto)
+// 			balance, err := s.GetBalance(tt.user, tt.password)
+// 			assert.Equal(t, tt.erors, err)
+// 			assert.Equal(t, tt.balance, balance)
+// 		})
+// 	}
+// }
 
-func Test_service_TransferBalance(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
+// func Test_service_TransferBalance(t *testing.T) {
+// 	ctrl := gomock.NewController(t)
+// 	defer ctrl.Finish()
 
-	test := []struct {
-		name     string
-		user     models.ProfileDB
-		erors    error
-		repoTest func(repo *m_repo.MockRepository, crypto *m_crypto.MockCrypto)
-	}{
-		{
-			name:  "Transfer Balance Service Case 1: Transfer Balance Success",
-			user:  models.ProfileDB{},
-			erors: nil,
-			repoTest: func(repo *m_repo.MockRepository, crypto *m_crypto.MockCrypto) {
-				repo.EXPECT().TransferBalance(models.ProfileDB{}).Return(nil).Times(1)
-			},
-		},
-		{
-			name:  "Transfer Balance Service Case 2: Transfer Balance Failed",
-			user:  models.ProfileDB{},
-			erors: errors.New("Failed Transfer Balance in Blockchain"),
-			repoTest: func(repo *m_repo.MockRepository, crypto *m_crypto.MockCrypto) {
-				repo.EXPECT().TransferBalance(models.ProfileDB{}).Return(errors.New("Failed Transfer Balance in Blockchain")).Times(1)
-			},
-		},
-	}
-	for _, tt := range test {
-		t.Run(tt.name, func(t *testing.T) {
-			repo := m_repo.NewMockRepository(ctrl)
-			crypto := m_crypto.NewMockCrypto(ctrl)
-			tt.repoTest(repo, crypto)
-			s := NewService(repo, crypto)
-			err := s.TransferBalance(tt.user)
-			assert.Equal(t, tt.erors, err)
-		})
-	}
-}
+// 	test := []struct {
+// 		name     string
+// 		user     models.ProfileDB
+// 		erors    error
+// 		repoTest func(repo *m_repo.MockRepository, crypto *m_crypto.MockCrypto)
+// 	}{
+// 		{
+// 			name:  "Transfer Balance Service Case 1: Transfer Balance Success",
+// 			user:  models.ProfileDB{},
+// 			erors: nil,
+// 			repoTest: func(repo *m_repo.MockRepository, crypto *m_crypto.MockCrypto) {
+// 				repo.EXPECT().TransferBalance(models.ProfileDB{}).Return(nil).Times(1)
+// 			},
+// 		},
+// 		{
+// 			name:  "Transfer Balance Service Case 2: Transfer Balance Failed",
+// 			user:  models.ProfileDB{},
+// 			erors: errors.New("Failed Transfer Balance in Blockchain"),
+// 			repoTest: func(repo *m_repo.MockRepository, crypto *m_crypto.MockCrypto) {
+// 				repo.EXPECT().TransferBalance(models.ProfileDB{}).Return(errors.New("Failed Transfer Balance in Blockchain")).Times(1)
+// 			},
+// 		},
+// 	}
+// 	for _, tt := range test {
+// 		t.Run(tt.name, func(t *testing.T) {
+// 			repo := m_repo.NewMockRepository(ctrl)
+// 			crypto := m_crypto.NewMockCrypto(ctrl)
+// 			tt.repoTest(repo, crypto)
+// 			s := NewService(repo, crypto)
+// 			err := s.TransferBalance(tt.user)
+// 			assert.Equal(t, tt.erors, err)
+// 		})
+// 	}
+// }
 
 func Test_service_GetPublicKey(t *testing.T) {
 	ctrl := gomock.NewController(t)

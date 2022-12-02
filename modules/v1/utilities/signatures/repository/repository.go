@@ -2,20 +2,15 @@ package repository
 
 import (
 	"context"
-	blockhainAuth "e-signature/app/blockhain"
-	"e-signature/app/config"
-	api "e-signature/app/contracts"
 	"e-signature/modules/v1/utilities/signatures/models"
 	modelsUser "e-signature/modules/v1/utilities/user/models"
+	bl "e-signature/pkg/blockchain"
 	tm "e-signature/pkg/time"
 	"fmt"
 	"log"
 	"math/big"
 	"time"
 
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/ethclient"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"gopkg.in/mgo.v2/bson"
@@ -43,12 +38,11 @@ type Repository interface {
 
 type repository struct {
 	db         *mongo.Database
-	blockchain *api.Api
-	client     *ethclient.Client
+	blockchain bl.Blockchain
 }
 
-func NewRepository(db *mongo.Database, blockchain *api.Api, client *ethclient.Client) *repository {
-	return &repository{db, blockchain, client}
+func NewRepository(db *mongo.Database, blockchain bl.Blockchain) *repository {
+	return &repository{db, blockchain}
 }
 
 func (r *repository) LogTransactions(address string, tx_hash string, nonce string, desc string, prices string) error {
@@ -166,15 +160,7 @@ func (r *repository) ChangeSignature(sign_type string, sign string) error {
 }
 
 func (r *repository) AddToBlockhain(input models.SignDocuments, times *big.Int) error {
-	conf, _ := config.Init()
-	mode := new(big.Int)
-	mode.SetString(input.Mode, 10)
-	auth := blockhainAuth.GetAccountAuth(blockhainAuth.Connect(), conf.Blockhain.Secret_key)
-	document, err := r.blockchain.Create(auth, input.Hash_original, common.HexToAddress(input.Creator), input.Creator_id, input.Name, input.Hash, input.IPFS, big.NewInt(1), mode, times, input.Address, input.IdSignature)
-	if err != nil {
-		log.Println(err)
-	}
-	//Logging transaksi.
+	document, auth, err := r.blockchain.AddToBlockhain(input, times)
 	r.LogTransactions(input.Creator, document.Hash().Hex(), auth.Nonce.String(), "Membuat Dokumen "+input.Name+" untuk tanda tangan", document.Cost().String())
 	return err
 }
@@ -223,10 +209,7 @@ func (r *repository) AddUserDocs(input models.SignDocuments) error {
 }
 
 func (r *repository) DocumentSigned(sign models.SignDocs, timeSign *big.Int) error {
-	conf, _ := config.Init()
-	auth := blockhainAuth.GetAccountAuth(blockhainAuth.Connect(), conf.Blockhain.Secret_key)
-	signDocs, err := r.blockchain.SignDoc(auth, sign.Hash_original, common.HexToAddress(sign.Creator), sign.Hash, sign.IPFS, timeSign)
-	//Logging Transaction
+	signDocs, auth, err := r.blockchain.DocumentSigned(sign, timeSign)
 	r.LogTransactions(sign.Creator, signDocs.Hash().Hex(), auth.Nonce.String(), "Menandatangani Dokumen dengan kode : "+sign.Hash_original, signDocs.Cost().String())
 	return err
 }
@@ -250,44 +233,15 @@ func (r *repository) ListDocumentNoSign(publickey string) []models.ListDocument 
 }
 
 func (r *repository) GetDocument(hash string, publickey string) models.DocumentBlockchain {
-	var doc models.DocumentBlockchain
-	var err error
-	var document_id, state, Createdtime, Completedtime, Mode *big.Int
-	document_id, doc.Creator, doc.Creator_id, doc.Metadata, doc.Hash_ori, doc.Hash, doc.IPFS, state, Mode, Createdtime, Completedtime, doc.Exist, err = r.blockchain.GetDoc(&bind.CallOpts{From: common.HexToAddress(publickey)}, hash)
-	if err != nil {
-		log.Println("Error Get Document")
-	}
-	doc.Document_id = document_id.String()
-	doc.State = state.String()
-	doc.Createdtime = Createdtime.String()
-	doc.Completedtime = Completedtime.String()
-	doc.Mode = Mode.String()
-	doc.Creator_string = doc.Creator.String()
-
-	return doc
+	return r.blockchain.GetDocument(hash, publickey)
 }
 
 func (r *repository) GetSigners(hash string, publickey string) models.Signers {
-	var signers models.Signers
-	var err error
-	var sign_id, sign_time *big.Int
-	sign_id, signers.Signers_id, signers.Signers_hash, signers.Signers_state, sign_time, err = r.blockchain.GetSign(&bind.CallOpts{From: common.HexToAddress(publickey)}, hash, common.HexToAddress(publickey))
-	if err != nil {
-		log.Println("Error Get Signers")
-	}
-	signers.Sign_id = sign_id.String()
-	signers.Sign_time = sign_time.String()
-
-	return signers
+	return r.blockchain.GetSigners(hash, publickey)
 }
 
 func (r *repository) GetHashOriginal(hash string, publickey string) string {
-	hash_ori, err := r.blockchain.GetDocSigned(&bind.CallOpts{From: common.HexToAddress(publickey)}, hash)
-	if err != nil {
-		log.Println(err)
-		log.Println("Error Get Hash Original")
-	}
-	return hash_ori
+	return r.blockchain.GetHashOriginal(hash, publickey)
 }
 
 func (r *repository) GetListSign(hash string) []models.SignersData {
@@ -321,13 +275,7 @@ func (r *repository) GetUserByIdSignatures(idsignature string) modelsUser.Profil
 }
 
 func (r *repository) VerifyDoc(hash string) bool {
-	conf, _ := config.Init()
-	publickey := "0x" + conf.Blockhain.Public
-	check, err := r.blockchain.VerifyDoc(&bind.CallOpts{From: common.HexToAddress(publickey)}, hash)
-	if err != nil {
-		log.Println(err)
-	}
-	return check
+	return r.blockchain.VerifyDoc(hash)
 }
 
 func (r *repository) GetTransactions() []models.Transac {
