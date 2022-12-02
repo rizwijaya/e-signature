@@ -273,7 +273,7 @@ func (s *service) GetDocumentAllSign(hash string) (models.DocumentAllSign, bool)
 				Sign_time:     s.TimeFormating(signer.Sign_time),
 				Sign_name:     signDB.Name,
 				Sign_email:    signDB.Email,
-				Sign_id_db:    signDB.Id.String(),
+				Sign_id_db:    signDB.Id.Hex(),
 			}
 			docSigned.Signers = append(docSigned.Signers, SignersData)
 		}
