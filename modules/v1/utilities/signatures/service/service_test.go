@@ -1367,3 +1367,108 @@ func Test_service_GetListDocument(t *testing.T) {
 	}
 
 }
+
+func Test_service_GetDocument(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	var err error
+	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
+	defer f.Undo()
+	f.Do()
+	location, err := time.LoadLocation("Asia/Jakarta")
+	assert.NoError(t, err)
+	times := time.Now().In(location)
+	timeSign := new(big.Int)
+	timeFormat := times.Format("15040502012006")
+	timeSign, _ = timeSign.SetString(timeFormat, 10)
+
+	test := []struct {
+		nameTest  string
+		docs      models.DocumentBlockchain
+		hash      string
+		publickey string
+		test      func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments)
+	}{
+		{
+			nameTest: "Get Document Case 1: Success Get Document from Blockchain",
+			docs: models.DocumentBlockchain{
+				Document_id:    "0x1",
+				Creator:        common.HexToAddress("0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"),
+				Creator_string: "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
+				Creator_id:     "rizwijaya",
+				Metadata:       "sample_test.pdf",
+				Hash_ori:       "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
+				Hash:           "u798sc537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
+				IPFS:           "d9sj84msl02ndm93d8df4d2u43soj3bdsds",
+				State:          "2",
+				Mode:           "1",
+				Createdtime:    timeSign.String(),
+				Completedtime:  timeSign.String(),
+				Exist:          true,
+				Signers: models.Signers{
+					Sign_addr:     common.HexToAddress("0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"),
+					Sign_id:       "1",
+					Signers_id:    "rizwijaya",
+					Signers_hash:  "9f1bf51bd36a4c244e82419f9d725e15d9cc537106cb54u798sc272b66cda64b",
+					Signers_state: true,
+					Sign_time:     timeSign.String(),
+				},
+			},
+			hash:      "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
+			publickey: "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
+			test: func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments) {
+				document := models.DocumentBlockchain{
+					Document_id:    "0x1",
+					Creator:        common.HexToAddress("0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"),
+					Creator_string: "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
+					Creator_id:     "rizwijaya",
+					Metadata:       "sample_test.pdf",
+					Hash_ori:       "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
+					Hash:           "u798sc537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
+					IPFS:           "d9sj84msl02ndm93d8df4d2u43soj3bdsds",
+					State:          "2",
+					Mode:           "1",
+					Createdtime:    timeSign.String(),
+					Completedtime:  timeSign.String(),
+					Exist:          true,
+				}
+				Signers := models.Signers{
+					Sign_addr:     common.HexToAddress("0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"),
+					Sign_id:       "1",
+					Signers_id:    "rizwijaya",
+					Signers_hash:  "9f1bf51bd36a4c244e82419f9d725e15d9cc537106cb54u798sc272b66cda64b",
+					Signers_state: true,
+					Sign_time:     timeSign.String(),
+				}
+				repo.EXPECT().GetDocument("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b", "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a").Return(document).Times(1)
+				repo.EXPECT().GetSigners("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b", "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a").Return(Signers).Times(1)
+			},
+		},
+		{
+			nameTest:  "Get Document Case 2: Error Failed Get Document from Blockchain",
+			docs:      models.DocumentBlockchain{},
+			hash:      "84637c537106cb54272b66cda69f1bf51bd36a4c244e82c4b",
+			publickey: "0x414651DBE3c99443cF7aaD6f9132Ca8A449f528a",
+			test: func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments) {
+				repo.EXPECT().GetDocument("84637c537106cb54272b66cda69f1bf51bd36a4c244e82c4b", "0x414651DBE3c99443cF7aaD6f9132Ca8A449f528a").Return(models.DocumentBlockchain{}).Times(1)
+				repo.EXPECT().GetSigners("84637c537106cb54272b66cda69f1bf51bd36a4c244e82c4b", "0x414651DBE3c99443cF7aaD6f9132Ca8A449f528a").Return(models.Signers{}).Times(1)
+			},
+		},
+	}
+
+	for _, tt := range test {
+		t.Run(tt.nameTest, func(t *testing.T) {
+			repo := m_repo.NewMockRepository(ctrl)
+			images := m_images.NewMockImages(ctrl)
+			docs := m_docs.NewMockDocuments(ctrl)
+			if tt.test != nil {
+				tt.test(repo, images, docs)
+			}
+			s := NewService(repo, images, docs)
+			output := s.GetDocument(tt.hash, tt.publickey)
+			assert.Equal(t, tt.docs, output)
+		})
+	}
+
+}
