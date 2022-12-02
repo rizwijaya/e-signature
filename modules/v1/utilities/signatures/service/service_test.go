@@ -1057,3 +1057,113 @@ func Test_service_AddToBlockhain(t *testing.T) {
 		})
 	}
 }
+
+func Test_service_AddUserDocs(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	test := []struct {
+		nameTest string
+		input    models.SignDocuments
+		err      error
+		test     func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments)
+	}{
+		{
+			nameTest: "Add User and Documents Case 1: Success Add Data User and Documents",
+			input: models.SignDocuments{
+				Name:          "sample_test.pdf",
+				SignPage:      1.0,
+				X_coord:       1.3,
+				Y_coord:       1.2,
+				Height:        4.2,
+				Width:         5.3,
+				Invite_sts:    true,
+				Email:         []string{"admin@rizwijaya.com", "smartsign@rizwijaya.com"},
+				Note:          "Note Test",
+				Judul:         "Judul Test",
+				Mode:          "1",
+				IPFS:          "d9sj84msl02ndm93d8df4d2u43soj3bdsds",
+				Hash:          "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
+				Hash_original: "u798sc537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
+				Creator:       "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
+				Creator_id:    "rizwijaya",
+				Address:       []common.Address{common.HexToAddress("0xAyysae6513c99443cF32Ca8A449f5287aaD6f91a"), common.HexToAddress("0xBha62e6513c99443cF32Ca8A449f5287aaD6f91a")},
+				IdSignature:   []string{"signed_1", "signed2"},
+			},
+			err: nil,
+			test: func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments) {
+				input := models.SignDocuments{
+					Name:          "sample_test.pdf",
+					SignPage:      1.0,
+					X_coord:       1.3,
+					Y_coord:       1.2,
+					Height:        4.2,
+					Width:         5.3,
+					Invite_sts:    true,
+					Email:         []string{"admin@rizwijaya.com", "smartsign@rizwijaya.com"},
+					Note:          "Note Test",
+					Judul:         "Judul Test",
+					Mode:          "1",
+					IPFS:          "d9sj84msl02ndm93d8df4d2u43soj3bdsds",
+					Hash:          "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
+					Hash_original: "u798sc537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
+					Creator:       "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
+					Creator_id:    "rizwijaya",
+					Address:       []common.Address{common.HexToAddress("0xAyysae6513c99443cF32Ca8A449f5287aaD6f91a"), common.HexToAddress("0xBha62e6513c99443cF32Ca8A449f5287aaD6f91a")},
+					IdSignature:   []string{"signed_1", "signed2"},
+				}
+				repo.EXPECT().AddUserDocs(input).Return(nil).Times(1)
+			},
+		},
+		{
+			nameTest: "Add User and Documents Case 2: Error Failed Add Data User and Documents",
+			input: models.SignDocuments{
+				Name:       "sample_test.pdf",
+				SignPage:   1.0,
+				X_coord:    1.3,
+				Y_coord:    1.2,
+				Height:     4.2,
+				Width:      5.3,
+				Invite_sts: true,
+				Email:      []string{"admin@rizwijaya.com", "smartsign@rizwijaya.com"},
+				Note:       "Note Test",
+				Judul:      "Judul Test",
+				Mode:       "1",
+				IPFS:       "d9sj84msl02ndm93d8df4d2u43soj3bdsds",
+			},
+			err: errors.New("Failed Add User and Documents Data"),
+			test: func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments) {
+				input := models.SignDocuments{
+					Name:       "sample_test.pdf",
+					SignPage:   1.0,
+					X_coord:    1.3,
+					Y_coord:    1.2,
+					Height:     4.2,
+					Width:      5.3,
+					Invite_sts: true,
+					Email:      []string{"admin@rizwijaya.com", "smartsign@rizwijaya.com"},
+					Note:       "Note Test",
+					Judul:      "Judul Test",
+					Mode:       "1",
+					IPFS:       "d9sj84msl02ndm93d8df4d2u43soj3bdsds",
+				}
+				repo.EXPECT().AddUserDocs(input).Return(errors.New("Failed Add User and Documents Data")).Times(1)
+			},
+		},
+	}
+
+	for _, tt := range test {
+		t.Run(tt.nameTest, func(t *testing.T) {
+			repo := m_repo.NewMockRepository(ctrl)
+			images := m_images.NewMockImages(ctrl)
+			docs := m_docs.NewMockDocuments(ctrl)
+			if tt.test != nil {
+				tt.test(repo, images, docs)
+			}
+			s := NewService(repo, images, docs)
+			err := s.AddUserDocs(tt.input)
+			assert.Equal(t, tt.err, err)
+		})
+	}
+
+}
