@@ -1167,3 +1167,81 @@ func Test_service_AddUserDocs(t *testing.T) {
 	}
 
 }
+
+func Test_service_DocumentSigned(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	var err error
+	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
+	defer f.Undo()
+	f.Do()
+	location, err := time.LoadLocation("Asia/Jakarta")
+	assert.NoError(t, err)
+	times := time.Now().In(location)
+
+	test := []struct {
+		nameTest string
+		sign     models.SignDocs
+		err      error
+		test     func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments)
+	}{
+		{
+			nameTest: "Document Signed Case 1: Success Sign Document in Blockchain",
+			sign: models.SignDocs{
+				Hash_original: "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
+				Creator:       "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
+				Hash:          "u798sc537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
+				IPFS:          "d9sj84msl02ndm93d8df4d2u43soj3bdsds",
+			},
+			err: nil,
+			test: func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments) {
+				sign := models.SignDocs{
+					Hash_original: "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
+					Creator:       "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
+					Hash:          "u798sc537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
+					IPFS:          "d9sj84msl02ndm93d8df4d2u43soj3bdsds",
+				}
+				timeSign := new(big.Int)
+				timeFormat := times.Format("15040502012006")
+				timeSign, _ = timeSign.SetString(timeFormat, 10)
+				repo.EXPECT().DocumentSigned(sign, timeSign).Return(nil).Times(1)
+			},
+		},
+		{
+			nameTest: "Document Signed Case 2: Failed Sign Document Because No Hash Original Data",
+			sign: models.SignDocs{
+				Creator: "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
+				Hash:    "u798sc537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
+				IPFS:    "d9sj84msl02ndm93d8df4d2u43soj3bdsds",
+			},
+			err: errors.New("Failed Sign Document in Blockchain"),
+			test: func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments) {
+				sign := models.SignDocs{
+					Creator: "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
+					Hash:    "u798sc537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
+					IPFS:    "d9sj84msl02ndm93d8df4d2u43soj3bdsds",
+				}
+				timeSign := new(big.Int)
+				timeFormat := times.Format("15040502012006")
+				timeSign, _ = timeSign.SetString(timeFormat, 10)
+				repo.EXPECT().DocumentSigned(sign, timeSign).Return(errors.New("Failed Sign Document in Blockchain")).Times(1)
+			},
+		},
+	}
+
+	for _, tt := range test {
+		t.Run(tt.nameTest, func(t *testing.T) {
+			repo := m_repo.NewMockRepository(ctrl)
+			images := m_images.NewMockImages(ctrl)
+			docs := m_docs.NewMockDocuments(ctrl)
+			if tt.test != nil {
+				tt.test(repo, images, docs)
+			}
+			s := NewService(repo, images, docs)
+			err := s.DocumentSigned(tt.sign)
+			assert.Equal(t, tt.err, err)
+		})
+	}
+
+}

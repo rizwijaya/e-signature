@@ -207,15 +207,11 @@ func (s *service) AddUserDocs(input models.SignDocuments) error {
 
 func (s *service) DocumentSigned(sign models.SignDocs) error {
 	timeSign := new(big.Int)
-	location, err := time.LoadLocation("Asia/Jakarta")
-	if err != nil {
-		log.Println(err)
-		return err
-	}
+	location, _ := time.LoadLocation("Asia/Jakarta")
 	timeNow := time.Now().In(location)
 	timeFormat := timeNow.Format("15040502012006")
 	timeSign, _ = timeSign.SetString(timeFormat, 10)
-	err = s.repository.DocumentSigned(sign, timeSign)
+	err := s.repository.DocumentSigned(sign, timeSign)
 	if err != nil {
 		log.Println(err)
 		return err
