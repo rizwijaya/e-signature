@@ -1708,3 +1708,92 @@ func Test_service_GetDocumentNoSigners(t *testing.T) {
 		})
 	}
 }
+
+func Test_service_GetTransactions(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	var err error
+	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
+	defer f.Undo()
+	f.Do()
+	location, err := time.LoadLocation("Asia/Jakarta")
+	assert.NoError(t, err)
+	times := time.Now().In(location)
+
+	id1, err := primitive.ObjectIDFromHex("60b9f9b5b9b5b9b5b9b5b9b5")
+	assert.NoError(t, err)
+	id2, err := primitive.ObjectIDFromHex("5b60b9f9b5b95b9b5b9b6b9b")
+	assert.NoError(t, err)
+	test := []struct {
+		nameTest string
+		transac  []models.Transac
+		test     func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments)
+	}{
+		{
+			nameTest: "Get Transactions Case 1: Get Data Transactions Success",
+			transac: []models.Transac{
+				{
+					Id:               id1,
+					Ids:              "60b9f9b5b9b5b9b5b9b5b9b5",
+					Address:          "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
+					Tx_hash:          "0x5f44e265dbf57984ffb9a833ba9cde9c51a6bec419c44f8e40b64a9ee7033c83",
+					Nonce:            "31",
+					Prices:           "30000",
+					Description:      "Membuat Dokumen sample.pdf untuk tanda tangan",
+					Date_created:     times,
+					Date_created_wib: times.String(),
+				},
+				{
+					Id:               id2,
+					Ids:              "5b60b9f9b5b95b9b5b9b6b9b",
+					Address:          "0x32CaaD6f91418A447aDBE3cF49f5286513c9944a",
+					Tx_hash:          "0xe256839ab4b8ad5e57a3955d446025b00dd296750102d6f9cc6aa38c5ab45f9e",
+					Nonce:            "32",
+					Prices:           "20000",
+					Description:      "Menandatangani Dokumen dengan kode : cbad53ee065af3beab98fd85062076cd9d1cf38fac5760d5051080c3096bf69c",
+					Date_created:     times,
+					Date_created_wib: times.String(),
+				},
+			},
+			test: func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments) {
+				repo.EXPECT().GetTransactions().Return([]models.Transac{
+					{
+						Id:               id1,
+						Address:          "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
+						Tx_hash:          "0x5f44e265dbf57984ffb9a833ba9cde9c51a6bec419c44f8e40b64a9ee7033c83",
+						Nonce:            "31",
+						Prices:           "30000",
+						Description:      "Membuat Dokumen sample.pdf untuk tanda tangan",
+						Date_created:     times,
+						Date_created_wib: times.String(),
+					},
+					{
+						Id:               id2,
+						Address:          "0x32CaaD6f91418A447aDBE3cF49f5286513c9944a",
+						Tx_hash:          "0xe256839ab4b8ad5e57a3955d446025b00dd296750102d6f9cc6aa38c5ab45f9e",
+						Nonce:            "32",
+						Prices:           "20000",
+						Description:      "Menandatangani Dokumen dengan kode : cbad53ee065af3beab98fd85062076cd9d1cf38fac5760d5051080c3096bf69c",
+						Date_created:     times,
+						Date_created_wib: times.String(),
+					},
+				}).Times(1)
+			},
+		},
+	}
+
+	for _, tt := range test {
+		t.Run(tt.nameTest, func(t *testing.T) {
+			repo := m_repo.NewMockRepository(ctrl)
+			images := m_images.NewMockImages(ctrl)
+			docs := m_docs.NewMockDocuments(ctrl)
+			if tt.test != nil {
+				tt.test(repo, images, docs)
+			}
+			s := NewService(repo, images, docs)
+			output := s.GetTransactions()
+			assert.Equal(t, tt.transac, output)
+		})
+	}
+}
