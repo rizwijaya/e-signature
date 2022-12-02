@@ -7,10 +7,12 @@ import (
 	m_docs "e-signature/pkg/document/mock"
 	m_images "e-signature/pkg/images/mock"
 	"errors"
+	"math/big"
 	"os"
 	"testing"
 	"time"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -929,6 +931,129 @@ func Test_service_GenerateHashDocument(t *testing.T) {
 			} else {
 				assert.NotEqual(t, tt.output, output)
 			}
+		})
+	}
+}
+
+func Test_service_AddToBlockhain(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	var err error
+	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
+	defer f.Undo()
+	f.Do()
+	location, err := time.LoadLocation("Asia/Jakarta")
+	assert.NoError(t, err)
+	times := time.Now().In(location)
+
+	test := []struct {
+		nameTest string
+		input    models.SignDocuments
+		err      error
+		test     func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments)
+	}{
+		{
+			nameTest: "Add To Blockchain Case 1: Success Add Data Signatures and Document To Blockchain",
+			input: models.SignDocuments{
+				Name:          "sample_test.pdf",
+				SignPage:      1.0,
+				X_coord:       1.3,
+				Y_coord:       1.2,
+				Height:        4.2,
+				Width:         5.3,
+				Invite_sts:    true,
+				Email:         []string{"admin@rizwijaya.com", "smartsign@rizwijaya.com"},
+				Note:          "Note Test Add To Blockchain",
+				Judul:         "Judul Test Add To Blockchain",
+				Mode:          "1",
+				IPFS:          "d9sj84msl02ndm93d8df4d2u43soj3bdsds",
+				Hash:          "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
+				Hash_original: "u798sc537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
+				Creator:       "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
+				Creator_id:    "rizwijaya",
+				Address:       []common.Address{common.HexToAddress("0xAyysae6513c99443cF32Ca8A449f5287aaD6f91a"), common.HexToAddress("0xBha62e6513c99443cF32Ca8A449f5287aaD6f91a")},
+				IdSignature:   []string{"signed_1", "signed2"},
+			},
+			err: nil,
+			test: func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments) {
+				input := models.SignDocuments{
+					Name:          "sample_test.pdf",
+					SignPage:      1.0,
+					X_coord:       1.3,
+					Y_coord:       1.2,
+					Height:        4.2,
+					Width:         5.3,
+					Invite_sts:    true,
+					Email:         []string{"admin@rizwijaya.com", "smartsign@rizwijaya.com"},
+					Note:          "Note Test Add To Blockchain",
+					Judul:         "Judul Test Add To Blockchain",
+					Mode:          "1",
+					IPFS:          "d9sj84msl02ndm93d8df4d2u43soj3bdsds",
+					Hash:          "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
+					Hash_original: "u798sc537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
+					Creator:       "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
+					Creator_id:    "rizwijaya",
+					Address:       []common.Address{common.HexToAddress("0xAyysae6513c99443cF32Ca8A449f5287aaD6f91a"), common.HexToAddress("0xBha62e6513c99443cF32Ca8A449f5287aaD6f91a")},
+					IdSignature:   []string{"signed_1", "signed2"},
+				}
+				timeSign := new(big.Int)
+				timeFormat := times.Format("15040502012006")
+				timeSign, _ = timeSign.SetString(timeFormat, 10)
+				repo.EXPECT().AddToBlockhain(input, timeSign).Return(nil).Times(1)
+			},
+		},
+		{
+			nameTest: "Add To Blockchain Case 2: Error Failed Add Data Signatures and Document To Blockchain",
+			input: models.SignDocuments{
+				Name:       "sample_test.pdf",
+				SignPage:   1.0,
+				X_coord:    1.3,
+				Y_coord:    1.2,
+				Height:     4.2,
+				Width:      5.3,
+				Invite_sts: true,
+				Email:      []string{"admin@rizwijaya.com", "smartsign@rizwijaya.com"},
+				Note:       "Note Test Add To Blockchain",
+				Judul:      "Judul Test Add To Blockchain",
+				Mode:       "1",
+				IPFS:       "d9sj84msl02ndm93d8df4d2u43soj3bdsds",
+			},
+			err: errors.New("Failed Insert Data to Blockchain"),
+			test: func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments) {
+				input := models.SignDocuments{
+					Name:       "sample_test.pdf",
+					SignPage:   1.0,
+					X_coord:    1.3,
+					Y_coord:    1.2,
+					Height:     4.2,
+					Width:      5.3,
+					Invite_sts: true,
+					Email:      []string{"admin@rizwijaya.com", "smartsign@rizwijaya.com"},
+					Note:       "Note Test Add To Blockchain",
+					Judul:      "Judul Test Add To Blockchain",
+					Mode:       "1",
+					IPFS:       "d9sj84msl02ndm93d8df4d2u43soj3bdsds",
+				}
+				timeSign := new(big.Int)
+				timeFormat := times.Format("15040502012006")
+				timeSign, _ = timeSign.SetString(timeFormat, 10)
+				repo.EXPECT().AddToBlockhain(input, timeSign).Return(errors.New("Failed Insert Data to Blockchain")).Times(1)
+			},
+		},
+	}
+
+	for _, tt := range test {
+		t.Run(tt.nameTest, func(t *testing.T) {
+			repo := m_repo.NewMockRepository(ctrl)
+			images := m_images.NewMockImages(ctrl)
+			docs := m_docs.NewMockDocuments(ctrl)
+			if tt.test != nil {
+				tt.test(repo, images, docs)
+			}
+			s := NewService(repo, images, docs)
+			err := s.AddToBlockhain(tt.input)
+			assert.Equal(t, tt.err, err)
 		})
 	}
 }

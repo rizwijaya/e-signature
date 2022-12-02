@@ -192,14 +192,11 @@ func (s *service) GenerateHashDocument(input string) string {
 
 func (s *service) AddToBlockhain(input models.SignDocuments) error {
 	timeSign := new(big.Int)
-	location, err := time.LoadLocation("Asia/Jakarta")
-	if err != nil {
-		return err
-	}
+	location, _ := time.LoadLocation("Asia/Jakarta")
 	timeNow := time.Now().In(location)
 	timeFormat := timeNow.Format("15040502012006")
 	timeSign, _ = timeSign.SetString(timeFormat, 10)
-	err = s.repository.AddToBlockhain(input, timeSign)
+	err := s.repository.AddToBlockhain(input, timeSign)
 	return err
 }
 
