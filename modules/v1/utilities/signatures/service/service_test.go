@@ -1731,7 +1731,37 @@ func Test_service_GetTransactions(t *testing.T) {
 		test     func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments)
 	}{
 		{
-			nameTest: "Get Transactions Case 1: Get Data Transactions Success",
+			nameTest: "Get Transactions Case 1: Get One Data Transactions Success",
+			transac: []models.Transac{
+				{
+					Id:               id1,
+					Ids:              "60b9f9b5b9b5b9b5b9b5b9b5",
+					Address:          "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
+					Tx_hash:          "0x5f44e265dbf57984ffb9a833ba9cde9c51a6bec419c44f8e40b64a9ee7033c83",
+					Nonce:            "31",
+					Prices:           "30000",
+					Description:      "Membuat Dokumen sample.pdf untuk tanda tangan",
+					Date_created:     times,
+					Date_created_wib: times.String(),
+				},
+			},
+			test: func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments) {
+				repo.EXPECT().GetTransactions().Return([]models.Transac{
+					{
+						Id:               id1,
+						Address:          "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
+						Tx_hash:          "0x5f44e265dbf57984ffb9a833ba9cde9c51a6bec419c44f8e40b64a9ee7033c83",
+						Nonce:            "31",
+						Prices:           "30000",
+						Description:      "Membuat Dokumen sample.pdf untuk tanda tangan",
+						Date_created:     times,
+						Date_created_wib: times.String(),
+					},
+				}).Times(1)
+			},
+		},
+		{
+			nameTest: "Get Transactions Case 2: Get Many Data Transactions Success",
 			transac: []models.Transac{
 				{
 					Id:               id1,
@@ -1794,6 +1824,52 @@ func Test_service_GetTransactions(t *testing.T) {
 			s := NewService(repo, images, docs)
 			output := s.GetTransactions()
 			assert.Equal(t, tt.transac, output)
+		})
+	}
+}
+
+func Test_service_CheckSignature(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	test := []struct {
+		nameTest  string
+		hash      string
+		publickey string
+		output    bool
+		test      func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments)
+	}{
+		{
+			nameTest:  "Check Signatures Case 1: Signers Allow to Sign",
+			hash:      "5f44e265dbf57984ffb9a833ba9cde9c51a6bec419c44f8e40b64a9ee7033c83",
+			publickey: "0x32CaaD6f91418A447aDBE3cF49f5286513c9944a",
+			output:    true,
+			test: func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments) {
+				repo.EXPECT().CheckSignature("5f44e265dbf57984ffb9a833ba9cde9c51a6bec419c44f8e40b64a9ee7033c83", "0x32CaaD6f91418A447aDBE3cF49f5286513c9944a").Return(true).Times(1)
+			},
+		},
+		{
+			nameTest:  "Check Signatures Case 2: Signers Not Allow to Sign",
+			hash:      "f8e40b64aa833c44bfb9f57984fba9cde9c51a6bec4195f44e265d9ee7033c83",
+			publickey: "0x1432Caa49f528651D6f918A447aDBE3cF3c9944a",
+			output:    false,
+			test: func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments) {
+				repo.EXPECT().CheckSignature("f8e40b64aa833c44bfb9f57984fba9cde9c51a6bec4195f44e265d9ee7033c83", "0x1432Caa49f528651D6f918A447aDBE3cF3c9944a").Return(false).Times(1)
+			},
+		},
+	}
+
+	for _, tt := range test {
+		t.Run(tt.nameTest, func(t *testing.T) {
+			repo := m_repo.NewMockRepository(ctrl)
+			images := m_images.NewMockImages(ctrl)
+			docs := m_docs.NewMockDocuments(ctrl)
+			if tt.test != nil {
+				tt.test(repo, images, docs)
+			}
+			s := NewService(repo, images, docs)
+			output := s.CheckSignature(tt.hash, tt.publickey)
+			assert.Equal(t, tt.output, output)
 		})
 	}
 }
