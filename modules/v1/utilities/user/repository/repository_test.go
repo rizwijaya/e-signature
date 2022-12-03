@@ -345,3 +345,80 @@ func Test_repository_CheckEmailExist(t *testing.T) {
 		})
 	}
 }
+
+func Test_repository_GetUserByEmail(t *testing.T) {
+	mt := mtest.New(t, mtest.NewOptions().ClientType(mtest.Mock))
+	defer mt.Close()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	id := primitive.NewObjectID()
+
+	test := []struct {
+		nameTest string
+		email    string
+		output   models.User
+		response primitive.D
+		err      error
+	}{
+		{
+			nameTest: "Get User By Email Case 1: Success User Exist",
+			email:    "smartsign@rizwijaya.com",
+			output: models.User{
+				Id:             id,
+				Idsignature:    "admin",
+				Name:           "Rizqi Wijaya",
+				Password:       "DAJSLDA79DAS9UDWQJEJWOEKkeSDADA",
+				PasswordHash:   "",
+				Role:           2,
+				Publickey:      "dsaknkdlak8ywq8jlasm4342wasdas234214wdsa",
+				Identity_card:  "jskjdsa903ejwkldjlaskdsa",
+				Email:          "smartsign@rizwijaya.com",
+				Phone:          "081234567890",
+				Dateregistered: "",
+			},
+			response: mtest.CreateCursorResponse(1, "foo.bar", mtest.FirstBatch, primitive.D{
+				{Key: "_id", Value: id},
+				{Key: "idsignature", Value: "admin"},
+				{Key: "name", Value: "Rizqi Wijaya"},
+				{Key: "email", Value: "smartsign@rizwijaya.com"},
+				{Key: "phone", Value: "081234567890"},
+				{Key: "identity_card", Value: "jskjdsa903ejwkldjlaskdsa"},
+				{Key: "password", Value: "DAJSLDA79DAS9UDWQJEJWOEKkeSDADA"},
+				{Key: "public_key", Value: "dsaknkdlak8ywq8jlasm4342wasdas234214wdsa"},
+				{Key: "role", Value: 2},
+			}),
+			err: nil,
+		},
+		{
+			nameTest: "Get User By Email Case 2: Success User Not Exist",
+			email:    "admin@smart.com",
+			output:   models.User{},
+			response: mtest.CreateCursorResponse(1, "foo.bar", mtest.FirstBatch, primitive.D{}),
+			err:      nil,
+		},
+		{
+			nameTest: "Get User By Email Case 3: Error Failed Decoded Data User",
+			email:    "sembada@smartsign.com",
+			output:   models.User{},
+			response: mtest.CreateCommandErrorResponse(mtest.CommandError{
+				Code:    1,
+				Message: "Failed decoded",
+			}),
+			err: errors.New("Failed decoded"),
+		},
+	}
+	for _, tt := range test {
+		mt.Run(tt.nameTest, func(mt *mtest.T) {
+			mt.AddMockResponses(tt.response)
+			blockchain := m_blockchain.NewMockBlockchain(ctrl)
+			repo := NewRepository(mt.DB, blockchain)
+			user, err := repo.GetUserByEmail(tt.email)
+			if err != nil {
+				assert.Equal(t, err.Error(), tt.err.Error())
+			} else {
+				assert.Equal(t, err, tt.err)
+			}
+			assert.Equal(t, tt.output, user)
+		})
+	}
+}
