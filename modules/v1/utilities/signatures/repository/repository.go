@@ -156,11 +156,7 @@ func (r *repository) AddUserDocs(input models.SignDocuments) error {
 	if input.Note == "" {
 		input.Note = "Tidak ada catatan"
 	}
-	location, err := time.LoadLocation("Asia/Jakarta")
-	if err != nil {
-		log.Println(err)
-		return err
-	}
+	location, _ := time.LoadLocation("Asia/Jakarta")
 	for _, v := range input.Address {
 		signedDocuments := struct {
 			Id               primitive.ObjectID `bson:"_id,omitempty"`

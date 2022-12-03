@@ -5,10 +5,12 @@ import (
 	modelsUser "e-signature/modules/v1/utilities/user/models"
 	m_blockchain "e-signature/pkg/blockchain/mock"
 	"errors"
+	"log"
 	"os"
 	"testing"
 	"time"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -355,6 +357,94 @@ func Test_repository_ChangeSignatures(t *testing.T) {
 			err := repo.ChangeSignature(tt.sign_type, tt.sign)
 			if err != nil {
 				assert.Equal(t, "write exception: write errors: ["+tt.err.Error()+"]", err.Error())
+			} else {
+				assert.Equal(t, tt.err, err)
+			}
+		})
+	}
+}
+
+// func Test_repository_AddToBlockhain(t *testing.T) {
+// 	type args struct {
+// 		input models.SignDocuments
+// 		times *big.Int
+// 	}
+// 	tests := []struct {
+// 		name    string
+// 		r       *repository
+// 		args    args
+// 		wantErr bool
+// 	}{
+// 		// TODO: Add test cases.
+// 	}
+// 	for _, tt := range tests {
+// 		t.Run(tt.name, func(t *testing.T) {
+// 			if err := tt.r.AddToBlockhain(tt.args.input, tt.args.times); (err != nil) != tt.wantErr {
+// 				t.Errorf("repository.AddToBlockhain() error = %v, wantErr %v", err, tt.wantErr)
+// 			}
+// 		})
+// 	}
+// }
+
+func Test_repository_AddUserDocs(t *testing.T) {
+	mt := mtest.New(t, mtest.NewOptions().ClientType(mtest.Mock))
+	defer mt.Close()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
+	defer f.Undo()
+	f.Do()
+
+	test := []struct {
+		nameTest string
+		input    models.SignDocuments
+		response primitive.D
+		err      error
+	}{
+		{
+			nameTest: "Add User Document Case 1: Success Insert Data Document and User",
+			input: models.SignDocuments{
+				Name:          "test_sample.pdf",
+				Hash_original: "doasdjihqwoyrno3y981n234mbxjlwnalksdmlasdp93uejrk3e213",
+				Hash:          "dsjaldajsdoasjdopwud09aud98peu21j3newndaksdnlaskjdasodjkasd",
+				Judul:         "",
+				Note:          "",
+				Address:       []common.Address{common.HexToAddress("0xAyysae6513c99443cF32Ca8A449f5287aaD6f91a")},
+			},
+			response: mtest.CreateSuccessResponse(),
+			err:      nil,
+		},
+		{
+			nameTest: "Add User Document Case 2: Error Failed Insert Data Document and User Duplicate Key",
+			input: models.SignDocuments{
+				Name:          "test.pdf",
+				Hash_original: "rnn234mbxjldjihqwoywndoasalksdo3y981mlasdp93uejrk3e213",
+				Hash:          "eusdnlaskjdasodjkasddsj21j3newndakaldajsdoasjdopwud09aud98p",
+				Judul:         "",
+				Note:          "",
+				Address:       []common.Address{common.HexToAddress("0xF32CaA449f52ae6513c8Ayys99443c87aaD6f91a"), common.HexToAddress("0xBha62e9443cF32Ca86f916513c9aA449f5287aaD")},
+			},
+			response: mtest.CreateWriteErrorsResponse(mtest.WriteError{
+				Index:   1,
+				Code:    11000,
+				Message: "Duplicate Key Error",
+			}),
+			err: errors.New("Duplicate Key Error"),
+		},
+	}
+
+	for _, tt := range test {
+		mt.Run(tt.nameTest, func(mt *mtest.T) {
+			mt.AddMockResponses(tt.response)
+			blockchain := m_blockchain.NewMockBlockchain(ctrl)
+			repo := NewRepository(mt.DB, blockchain)
+			err := repo.AddUserDocs(tt.input)
+			if err != nil {
+				log.Println(err)
+				if tt.err.Error() == "Duplicate Key Error" {
+					assert.True(t, mongo.IsDuplicateKeyError(err))
+				}
 			} else {
 				assert.Equal(t, tt.err, err)
 			}
