@@ -69,11 +69,7 @@ func (r *repository) LogTransactions(address string, tx_hash string, nonce strin
 }
 
 func (r *repository) DefaultSignatures(user modelsUser.User, id string) error {
-	location, err := time.LoadLocation("Asia/Jakarta")
-	if err != nil {
-		log.Println(err)
-		return err
-	}
+	location, _ := time.LoadLocation("Asia/Jakarta")
 	signatures := models.Signatures{
 		Id:                 primitive.NewObjectID(),
 		User:               user.Idsignature,
@@ -87,7 +83,7 @@ func (r *repository) DefaultSignatures(user modelsUser.User, id string) error {
 	}
 
 	c := r.db.Collection("signatures")
-	_, err = c.InsertOne(context.Background(), &signatures)
+	_, err := c.InsertOne(context.Background(), &signatures)
 	if err != nil {
 		log.Println(err)
 		return err
