@@ -364,27 +364,9 @@ func Test_repository_ChangeSignatures(t *testing.T) {
 	}
 }
 
-// func Test_repository_AddToBlockhain(t *testing.T) {
-// 	type args struct {
-// 		input models.SignDocuments
-// 		times *big.Int
-// 	}
-// 	tests := []struct {
-// 		name    string
-// 		r       *repository
-// 		args    args
-// 		wantErr bool
-// 	}{
-// 		// TODO: Add test cases.
-// 	}
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			if err := tt.r.AddToBlockhain(tt.args.input, tt.args.times); (err != nil) != tt.wantErr {
-// 				t.Errorf("repository.AddToBlockhain() error = %v, wantErr %v", err, tt.wantErr)
-// 			}
-// 		})
-// 	}
-// }
+func Test_repository_AddToBlockhain(t *testing.T) {
+	t.Skip("Skip Test Add To Blockchain")
+}
 
 func Test_repository_AddUserDocs(t *testing.T) {
 	mt := mtest.New(t, mtest.NewOptions().ClientType(mtest.Mock))
@@ -448,6 +430,103 @@ func Test_repository_AddUserDocs(t *testing.T) {
 			} else {
 				assert.Equal(t, tt.err, err)
 			}
+		})
+	}
+}
+
+func Test_repository_DocumentSigned(t *testing.T) {
+	t.Skip("Skip Test Document Signed")
+}
+
+func Test_repository_ListDocumentNoSign(t *testing.T) {
+	t.Skip("Skip Test List Document No Sign")
+}
+
+func Test_repository_GetDocument(t *testing.T) {
+	t.Skip("Skip Test Get Document")
+}
+
+func Test_repository_GetListSign(t *testing.T) {
+	t.Skip("Skip Test Get List Sign")
+}
+
+func Test_repository_GetHashOriginal(t *testing.T) {
+	t.Skip("Skip Test Get Hash Original")
+}
+
+func Test_repository_GetUserByIdSignatures(t *testing.T) {
+	mt := mtest.New(t, mtest.NewOptions().ClientType(mtest.Mock))
+	defer mt.Close()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	id := primitive.NewObjectID()
+
+	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
+	defer f.Undo()
+	f.Do()
+	times := time.Now()
+
+	test := []struct {
+		nameTest    string
+		idsignature string
+		output      modelsUser.ProfileDB
+		response    primitive.D
+		err         error
+	}{
+		{
+			nameTest:    "Get User By Id Signature Case 1: Success Get User Data Exist",
+			idsignature: "admin",
+			output: modelsUser.ProfileDB{
+				Id:            id,
+				Idsignature:   "admin",
+				Name:          "Rizqi Wijaya",
+				Email:         "smartsign@rizwijaya.com",
+				Phone:         "081234567890",
+				Identity_card: "jskjdsa903ejwkldjlaskdsa",
+				Password:      "DAJSLDA79DAS9UDWQJEJWOEKkeSDADA",
+				PublicKey:     "dsaknkdlak8ywq8jlasm4342wasdas234214wdsa",
+				Role_id:       2,
+				Date_created:  times,
+			},
+			response: mtest.CreateCursorResponse(1, "foo.bar", mtest.FirstBatch, primitive.D{
+				{Key: "_id", Value: id},
+				{Key: "idsignature", Value: "admin"},
+				{Key: "name", Value: "Rizqi Wijaya"},
+				{Key: "email", Value: "smartsign@rizwijaya.com"},
+				{Key: "phone", Value: "081234567890"},
+				{Key: "identity_card", Value: "jskjdsa903ejwkldjlaskdsa"},
+				{Key: "password", Value: "DAJSLDA79DAS9UDWQJEJWOEKkeSDADA"},
+				{Key: "public_key", Value: "dsaknkdlak8ywq8jlasm4342wasdas234214wdsa"},
+				{Key: "role", Value: 2},
+				{Key: "date_created", Value: times},
+			}),
+			err: nil,
+		},
+		{
+			nameTest:    "Get User By Id Signature Case 1: Success Get User Data Not Exist",
+			idsignature: "admin23",
+			output:      modelsUser.ProfileDB{},
+			response:    mtest.CreateCursorResponse(1, "foo.bar", mtest.FirstBatch, primitive.D{}),
+			err:         nil,
+		},
+		{
+			nameTest:    "Get User By Id Signature Case 1: Error Failed Decoded Data User",
+			idsignature: "adminbrow",
+			output:      modelsUser.ProfileDB{},
+			response: mtest.CreateCommandErrorResponse(mtest.CommandError{
+				Code:    1,
+				Message: "Failed decoded",
+			}),
+			err: errors.New("Failed decoded"),
+		},
+	}
+	for _, tt := range test {
+		mt.Run(tt.nameTest, func(mt *mtest.T) {
+			mt.AddMockResponses(tt.response)
+			blockchain := m_blockchain.NewMockBlockchain(ctrl)
+			repo := NewRepository(mt.DB, blockchain)
+			user := repo.GetUserByIdSignatures(tt.idsignature)
+			assert.Equal(t, tt.output, user)
 		})
 	}
 }
