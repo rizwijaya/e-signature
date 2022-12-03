@@ -528,3 +528,72 @@ func Test_repository_GetTotalRequestUser(t *testing.T) {
 		})
 	}
 }
+
+func Test_repository_Logging(t *testing.T) {
+	mt := mtest.New(t, mtest.NewOptions().ClientType(mtest.Mock))
+	defer mt.Close()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	id := primitive.NewObjectID()
+
+	var err error
+	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
+	defer f.Undo()
+	f.Do()
+	location, err := time.LoadLocation("Asia/Jakarta")
+	assert.NoError(t, err)
+	times := time.Now().In(location)
+
+	test := []struct {
+		nameTest string
+		input    models.UserLog
+		response primitive.D
+		err      error
+	}{
+		{
+			nameTest: "Logging Case 1: Success Insert User Log",
+			input: models.UserLog{
+				Id:          id,
+				Idsignature: "admin",
+				User_agent:  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36",
+				Ip_address:  "127.0.0.1",
+				Action:      "Mengakses halaman dashboard",
+				Date_access: times,
+			},
+			response: mtest.CreateSuccessResponse(),
+			err:      nil,
+		},
+		{
+			nameTest: "Logging Case 2: Error Failed Insert User Log",
+			input: models.UserLog{
+				Id:          id,
+				Idsignature: "admin",
+				User_agent:  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36",
+				Ip_address:  "127.0.0.1",
+				Action:      "Mengakses halaman dashboard",
+				Date_access: times,
+			},
+			response: mtest.CreateWriteErrorsResponse(mtest.WriteError{
+				Index:   1,
+				Code:    11000,
+				Message: "Duplicate Key Error",
+			}),
+			err: errors.New("Duplicate Key Error"),
+		},
+	}
+	for _, tt := range test {
+		mt.Run(tt.nameTest, func(mt *mtest.T) {
+			mt.AddMockResponses(tt.response)
+			blockchain := m_blockchain.NewMockBlockchain(ctrl)
+			repo := NewRepository(mt.DB, blockchain)
+			err := repo.Logging(tt.input)
+			if err != nil {
+				if tt.err.Error() == "Duplicate Key Error" {
+					assert.True(t, mongo.IsDuplicateKeyError(err))
+				}
+			} else {
+				assert.Equal(t, tt.err, err)
+			}
+		})
+	}
+}
