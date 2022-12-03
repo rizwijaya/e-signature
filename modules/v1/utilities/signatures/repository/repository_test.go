@@ -287,3 +287,77 @@ func Test_repository_GetMySignature(t *testing.T) {
 		})
 	}
 }
+
+func Test_repository_ChangeSignatures(t *testing.T) {
+	mt := mtest.New(t, mtest.NewOptions().ClientType(mtest.Mock))
+	defer mt.Close()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
+	defer f.Undo()
+	f.Do()
+
+	test := []struct {
+		nameTest  string
+		sign_type string
+		sign      string
+		response  primitive.D
+		err       error
+	}{
+		{
+			nameTest:  "Change Signatures Case 1: Success Change Signatures to Signature",
+			sign_type: "signature",
+			sign:      "rizwijaya",
+			response:  mtest.CreateSuccessResponse(),
+			err:       nil,
+		},
+		{
+			nameTest:  "Change Signatures Case 2: Success Change Signatures to Signature Data",
+			sign_type: "signature_data",
+			sign:      "rizwijaya",
+			response:  mtest.CreateSuccessResponse(),
+			err:       nil,
+		},
+		{
+			nameTest:  "Change Signatures Case 4: Success Change Signatures to Latin",
+			sign_type: "latin",
+			sign:      "rizwijaya",
+			response:  mtest.CreateSuccessResponse(),
+			err:       nil,
+		},
+		{
+			nameTest:  "Change Signatures Case 5: Success Change Signatures to Latin Data",
+			sign_type: "latin_data",
+			sign:      "rizwijaya",
+			response:  mtest.CreateSuccessResponse(),
+			err:       nil,
+		},
+		{
+			nameTest:  "Change Signatures Case 5: Error Failed Change Signatures Data Not Found",
+			sign_type: "signatursse",
+			sign:      "admin12",
+			response: mtest.CreateWriteErrorsResponse(
+				mtest.WriteError{
+					Index:   1,
+					Code:    0,
+					Message: "Data Not Found",
+				},
+			),
+			err: errors.New("Data Not Found"),
+		},
+	}
+	for _, tt := range test {
+		mt.Run(tt.nameTest, func(mt *mtest.T) {
+			mt.AddMockResponses(tt.response)
+			blockchain := m_blockchain.NewMockBlockchain(ctrl)
+			repo := NewRepository(mt.DB, blockchain)
+			err := repo.ChangeSignature(tt.sign_type, tt.sign)
+			if err != nil {
+				assert.Equal(t, "write exception: write errors: ["+tt.err.Error()+"]", err.Error())
+			} else {
+				assert.Equal(t, tt.err, err)
+			}
+		})
+	}
+}

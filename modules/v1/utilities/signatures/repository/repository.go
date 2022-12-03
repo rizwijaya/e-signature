@@ -125,11 +125,7 @@ func (r *repository) GetMySignature(sign string) (models.Signatures, error) {
 }
 
 func (r *repository) ChangeSignature(sign_type string, sign string) error {
-	location, err := time.LoadLocation("Asia/Jakarta")
-	if err != nil {
-		log.Println(err)
-		return err
-	}
+	location, _ := time.LoadLocation("Asia/Jakarta")
 	filter := map[string]interface{}{"user": sign}
 	update := map[string]interface{}{
 		"$set": map[string]interface{}{
@@ -139,7 +135,7 @@ func (r *repository) ChangeSignature(sign_type string, sign string) error {
 	}
 
 	c := r.db.Collection("signatures")
-	_, err = c.UpdateOne(context.Background(), filter, update)
+	_, err := c.UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		log.Println(err)
 		return err
