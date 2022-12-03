@@ -189,12 +189,9 @@ func Test_repository_CheckUserExist(t *testing.T) {
 	defer ctrl.Finish()
 	id := primitive.NewObjectID()
 
-	//var err error
 	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
 	defer f.Undo()
 	f.Do()
-	// location, err := time.LoadLocation("Asia/Jakarta")
-	// assert.NoError(t, err)
 	times := time.Now()
 
 	test := []struct {
@@ -235,14 +232,14 @@ func Test_repository_CheckUserExist(t *testing.T) {
 		},
 		{
 			nameTest:    "Check User Exist Case 2: Success User Not Exist",
-			idsignature: "admin",
+			idsignature: "admin23",
 			output:      models.ProfileDB{},
 			response:    mtest.CreateCursorResponse(1, "foo.bar", mtest.FirstBatch, primitive.D{}),
 			err:         nil,
 		},
 		{
 			nameTest:    "Check User Exist Case 3: Error Failed Decoded Data User",
-			idsignature: "admin",
+			idsignature: "adminbrow",
 			output:      models.ProfileDB{},
 			response: mtest.CreateCommandErrorResponse(mtest.CommandError{
 				Code:    1,
@@ -257,6 +254,88 @@ func Test_repository_CheckUserExist(t *testing.T) {
 			blockchain := m_blockchain.NewMockBlockchain(ctrl)
 			repo := NewRepository(mt.DB, blockchain)
 			user, err := repo.CheckUserExist(tt.idsignature)
+			if err != nil {
+				assert.Equal(t, err.Error(), tt.err.Error())
+			} else {
+				assert.Equal(t, err, tt.err)
+			}
+			assert.Equal(t, tt.output, user)
+		})
+	}
+}
+
+func Test_repository_CheckEmailExist(t *testing.T) {
+	mt := mtest.New(t, mtest.NewOptions().ClientType(mtest.Mock))
+	defer mt.Close()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	id := primitive.NewObjectID()
+
+	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
+	defer f.Undo()
+	f.Do()
+	times := time.Now()
+
+	test := []struct {
+		nameTest string
+		email    string
+		output   models.ProfileDB
+		response primitive.D
+		err      error
+	}{
+		{
+			nameTest: "Check Email Exist Case 1: Success User Exist",
+			email:    "smartsign@rizwijaya.com",
+			output: models.ProfileDB{
+				Id:            id,
+				Idsignature:   "admin",
+				Name:          "Rizqi Wijaya",
+				Email:         "smartsign@rizwijaya.com",
+				Phone:         "081234567890",
+				Identity_card: "jskjdsa903ejwkldjlaskdsa",
+				Password:      "DAJSLDA79DAS9UDWQJEJWOEKkeSDADA",
+				PublicKey:     "dsaknkdlak8ywq8jlasm4342wasdas234214wdsa",
+				Role_id:       2,
+				Date_created:  times,
+			},
+			response: mtest.CreateCursorResponse(1, "foo.bar", mtest.FirstBatch, primitive.D{
+				{Key: "_id", Value: id},
+				{Key: "idsignature", Value: "admin"},
+				{Key: "name", Value: "Rizqi Wijaya"},
+				{Key: "email", Value: "smartsign@rizwijaya.com"},
+				{Key: "phone", Value: "081234567890"},
+				{Key: "identity_card", Value: "jskjdsa903ejwkldjlaskdsa"},
+				{Key: "password", Value: "DAJSLDA79DAS9UDWQJEJWOEKkeSDADA"},
+				{Key: "public_key", Value: "dsaknkdlak8ywq8jlasm4342wasdas234214wdsa"},
+				{Key: "role", Value: 2},
+				{Key: "date_created", Value: times},
+			}),
+			err: nil,
+		},
+		{
+			nameTest: "Check Email Exist Case 2: Success User Not Exist",
+			email:    "admin@smart.com",
+			output:   models.ProfileDB{},
+			response: mtest.CreateCursorResponse(1, "foo.bar", mtest.FirstBatch, primitive.D{}),
+			err:      nil,
+		},
+		{
+			nameTest: "Check Email Exist Case 3: Error Failed Decoded Data User",
+			email:    "sembada@smartsign.com",
+			output:   models.ProfileDB{},
+			response: mtest.CreateCommandErrorResponse(mtest.CommandError{
+				Code:    1,
+				Message: "Failed decoded",
+			}),
+			err: errors.New("Failed decoded"),
+		},
+	}
+	for _, tt := range test {
+		mt.Run(tt.nameTest, func(mt *mtest.T) {
+			mt.AddMockResponses(tt.response)
+			blockchain := m_blockchain.NewMockBlockchain(ctrl)
+			repo := NewRepository(mt.DB, blockchain)
+			user, err := repo.CheckEmailExist(tt.email)
 			if err != nil {
 				assert.Equal(t, err.Error(), tt.err.Error())
 			} else {
