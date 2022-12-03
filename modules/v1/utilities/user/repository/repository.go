@@ -40,11 +40,7 @@ func (r *repository) GeneratePublicKey(user models.User) (models.User, error) {
 }
 
 func (r *repository) Register(user models.User) (interface{}, error) {
-	location, err := time.LoadLocation("Asia/Jakarta")
-	if err != nil {
-		log.Println(err)
-		return nil, err
-	}
+	location, _ := time.LoadLocation("Asia/Jakarta")
 	user.Id = primitive.NewObjectID()
 	profile := models.ProfileDB{
 		Id:            user.Id,

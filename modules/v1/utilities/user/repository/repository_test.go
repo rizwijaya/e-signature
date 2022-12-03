@@ -6,12 +6,15 @@ import (
 	"errors"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+	"github.com/tkuchiki/faketime"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/integration/mtest"
 )
 
 func TestInit(t *testing.T) {
@@ -92,6 +95,7 @@ func Test_repository_GeneratePublicKey(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			blockchain := m_blockchain.NewMockBlockchain(ctrl)
 			db := &mongo.Database{}
+			//collection := mtest.NewMockCollection(ctrl)
 			repo := NewRepository(db, blockchain)
 			tt.testing(db, blockchain)
 			output, err := repo.GeneratePublicKey(tt.input)
@@ -101,21 +105,79 @@ func Test_repository_GeneratePublicKey(t *testing.T) {
 	}
 }
 
-// func Test_repository_Register(t *testing.T) {
-// 	mt := mtest.New(t, mtest.NewOptions().ClientType(mtest.Mock))
-// 	defer mt.Close()
+func Test_repository_Register(t *testing.T) {
+	mt := mtest.New(t, mtest.NewOptions().ClientType(mtest.Mock))
+	defer mt.Close()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	id := primitive.NewObjectID()
 
-// 	mt.Run("Register Case 1: Success Register", func(mt *mtest.T) {
-// 		// mt.AddMockResponses(bson.D{{"ok", 1.0}, {"n", 1}})
+	var err error
+	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
+	defer f.Undo()
+	f.Do()
+	location, err := time.LoadLocation("Asia/Jakarta")
+	assert.NoError(t, err)
+	times := time.Now().In(location)
 
-// 		// repo := NewRepository(&mongo.Database{}, nil)
-// 		// user := models.User{}
-// 		// _, err := repo.Register(user)
-// 		// assert.Nil(t, err)
-// 		userCollection := mt.Coll
-// 		userCollection.InsertOne(nil, bson.M{
-// 			"name": "test",
-// 		})
-// 	})
-
-// }
+	test := []struct {
+		nameTest string
+		input    models.User
+		response primitive.D
+		err      error
+	}{
+		{
+			nameTest: "Register Case 1: Success Register",
+			input: models.User{
+				Id:             id,
+				Idsignature:    "admin",
+				Name:           "Rizqi Wijaya",
+				Email:          "smartsign@rizwijaya.com",
+				Phone:          "081234567890",
+				Identity_card:  "jskjdsa903ejwkldjlaskdsa",
+				Password:       "DAJSLDA79DAS9UDWQJEJWOEKkeSDADA",
+				Publickey:      "xjisud98di46o8hw9nei2yeiakjn3asm2dkd2121qwelkh67an8da",
+				Role:           2,
+				Dateregistered: times.String(),
+			},
+			response: mtest.CreateSuccessResponse(),
+			err:      nil,
+		},
+		{
+			nameTest: "Register Case 2: Failed Register Duplicate Key Error",
+			input: models.User{
+				Id:             id,
+				Idsignature:    "admin",
+				Name:           "Rizqi Wijaya",
+				Email:          "smartsign@rizwijaya.com",
+				Phone:          "081234567890",
+				Identity_card:  "jskjdsa903ejwkldjlaskdsa",
+				Password:       "DAJSLDA79DAS9UDWQJEJWOEKkeSDADA",
+				Publickey:      "xjisud98di46o8hw9nei2yeiakjn3asm2dkd2121qwelkh67an8da",
+				Role:           2,
+				Dateregistered: times.String(),
+			},
+			response: mtest.CreateWriteErrorsResponse(mtest.WriteError{
+				Index:   1,
+				Code:    11000,
+				Message: "Duplicate Key Error",
+			}),
+			err: errors.New("Duplicate Key Error"),
+		},
+	}
+	for _, tt := range test {
+		mt.Run(tt.nameTest, func(mt *mtest.T) {
+			mt.AddMockResponses(tt.response)
+			blockchain := m_blockchain.NewMockBlockchain(ctrl)
+			repo := NewRepository(mt.DB, blockchain)
+			_, err := repo.Register(tt.input)
+			if err != nil {
+				if tt.err.Error() == "Duplicate Key Error" {
+					assert.True(t, mongo.IsDuplicateKeyError(err))
+				}
+			} else {
+				assert.Equal(t, tt.err, err)
+			}
+		})
+	}
+}
