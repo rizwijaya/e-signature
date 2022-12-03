@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"e-signature/modules/v1/utilities/signatures/models"
 	modelsUser "e-signature/modules/v1/utilities/user/models"
 	m_blockchain "e-signature/pkg/blockchain/mock"
 	"errors"
@@ -203,6 +204,86 @@ func Test_repository_UpdateMySignatures(t *testing.T) {
 			} else {
 				assert.Equal(t, tt.err, err)
 			}
+		})
+	}
+}
+
+func Test_repository_GetMySignature(t *testing.T) {
+	mt := mtest.New(t, mtest.NewOptions().ClientType(mtest.Mock))
+	defer mt.Close()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	id := primitive.NewObjectID()
+
+	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
+	defer f.Undo()
+	f.Do()
+	times := time.Now()
+
+	test := []struct {
+		nameTest string
+		sign     string
+		output   models.Signatures
+		response primitive.D
+		err      error
+	}{
+		{
+			nameTest: "Get My Signature Case 1: Success Get My Signature Data",
+			sign:     "admin",
+			output: models.Signatures{
+				Id:                 id,
+				User:               "admin",
+				Signature:          "default.png",
+				Signature_data:     "default.png",
+				Latin:              "latin-signature.png",
+				Latin_data:         "latindata-signature.png",
+				Signature_selected: "signature",
+				Date_update:        times,
+				Date_created:       times,
+			},
+			response: mtest.CreateCursorResponse(1, "foo.bar", mtest.FirstBatch, primitive.D{
+				{Key: "_id", Value: id},
+				{Key: "user", Value: "admin"},
+				{Key: "signature", Value: "default.png"},
+				{Key: "signature_data", Value: "default.png"},
+				{Key: "latin", Value: "latin-signature.png"},
+				{Key: "latin_data", Value: "latindata-signature.png"},
+				{Key: "signature_selected", Value: "signature"},
+				{Key: "date_update", Value: times},
+				{Key: "date_created", Value: times},
+			}),
+			err: nil,
+		},
+		{
+			nameTest: "Get My Signature Case 2: Signature Data Not Found",
+			sign:     "admin23",
+			output:   models.Signatures{},
+			response: mtest.CreateCursorResponse(1, "foo.bar", mtest.FirstBatch, primitive.D{}),
+			err:      nil,
+		},
+		{
+			nameTest: "Get My Signature Case 3: Error Failed Decode Data My Signature",
+			sign:     "adminbrow",
+			output:   models.Signatures{},
+			response: mtest.CreateCommandErrorResponse(mtest.CommandError{
+				Code:    1,
+				Message: "Failed decoded",
+			}),
+			err: errors.New("Failed decoded"),
+		},
+	}
+	for _, tt := range test {
+		mt.Run(tt.nameTest, func(mt *mtest.T) {
+			mt.AddMockResponses(tt.response)
+			blockchain := m_blockchain.NewMockBlockchain(ctrl)
+			repo := NewRepository(mt.DB, blockchain)
+			signatures, err := repo.GetMySignature(tt.sign)
+			if err != nil {
+				assert.Equal(t, err.Error(), tt.err.Error())
+			} else {
+				assert.Equal(t, err, tt.err)
+			}
+			assert.Equal(t, tt.output, signatures)
 		})
 	}
 }
