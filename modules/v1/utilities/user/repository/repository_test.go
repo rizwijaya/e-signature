@@ -597,3 +597,138 @@ func Test_repository_Logging(t *testing.T) {
 		})
 	}
 }
+
+func Test_repository_GetLogUser(t *testing.T) {
+	mt := mtest.New(t, mtest.NewOptions().ClientType(mtest.Mock))
+	defer mt.Close()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	id := primitive.NewObjectID()
+	id2 := primitive.NewObjectID()
+	id3 := primitive.NewObjectID()
+	id4 := primitive.NewObjectID()
+
+	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
+	defer f.Undo()
+	f.Do()
+	times := time.Now()
+
+	test := []struct {
+		nameTest    string
+		idsignature string
+		output      []models.UserLog
+		response1   primitive.D
+		response2   primitive.D
+		response3   primitive.D
+		response4   primitive.D
+		err         error
+	}{
+		{
+			nameTest:    "Get Log User Case 1: Success Get Log User",
+			idsignature: "admin",
+			output: []models.UserLog{
+				{
+					Id:          id,
+					Idsignature: "admin",
+					User_agent:  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36",
+					Ip_address:  "127.0.0.1",
+					Action:      "Mengakses halaman dashboard",
+					Date_access: times,
+				},
+				{
+					Id:          id2,
+					Idsignature: "admin",
+					User_agent:  "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1)",
+					Ip_address:  "127.0.0.1",
+					Action:      "Mengakses halaman my signature",
+					Date_access: times,
+				},
+				{
+					Id:          id3,
+					Idsignature: "admin",
+					User_agent:  "Chrome/95.0.4638.69 Safari/537.36",
+					Ip_address:  "127.0.0.1",
+					Action:      "Mengakses halaman tanda tangan sekarang",
+					Date_access: times,
+				},
+				{
+					Id:          id4,
+					Idsignature: "admin",
+					User_agent:  "Mozilla/6.0 (Android 10; Mobile; rv:68.0) Gecko/68.0 Firefox/68.0",
+					Ip_address:  "127.0.0.1",
+					Action:      "Mengakses halaman riwayat tanda tangan",
+					Date_access: times,
+				},
+			},
+			response1: mtest.CreateCursorResponse(1, "foo.bar", mtest.FirstBatch, primitive.D{
+				{Key: "_id", Value: id},
+				{Key: "idsignature", Value: "admin"},
+				{Key: "user_agent", Value: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"},
+				{Key: "ip_address", Value: "127.0.0.1"},
+				{Key: "action", Value: "Mengakses halaman dashboard"},
+				{Key: "date_accessed", Value: times},
+			}),
+			response2: mtest.CreateCursorResponse(1, "foo.bar", mtest.NextBatch, primitive.D{
+				{Key: "_id", Value: id2},
+				{Key: "idsignature", Value: "admin"},
+				{Key: "user_agent", Value: "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1)"},
+				{Key: "ip_address", Value: "127.0.0.1"},
+				{Key: "action", Value: "Mengakses halaman my signature"},
+				{Key: "date_accessed", Value: times},
+			}),
+			response3: mtest.CreateCursorResponse(1, "foo.bar", mtest.NextBatch, primitive.D{
+				{Key: "_id", Value: id3},
+				{Key: "idsignature", Value: "admin"},
+				{Key: "user_agent", Value: "Chrome/95.0.4638.69 Safari/537.36"},
+				{Key: "ip_address", Value: "127.0.0.1"},
+				{Key: "action", Value: "Mengakses halaman tanda tangan sekarang"},
+				{Key: "date_accessed", Value: times},
+			}),
+			response4: mtest.CreateCursorResponse(0, "foo.bar", mtest.NextBatch, primitive.D{
+				{Key: "_id", Value: id4},
+				{Key: "idsignature", Value: "admin"},
+				{Key: "user_agent", Value: "Mozilla/6.0 (Android 10; Mobile; rv:68.0) Gecko/68.0 Firefox/68.0"},
+				{Key: "ip_address", Value: "127.0.0.1"},
+				{Key: "action", Value: "Mengakses halaman riwayat tanda tangan"},
+				{Key: "date_accessed", Value: times},
+			}),
+			err: nil,
+		},
+		{
+			nameTest:    "Get Log User Case 2: Error Failed Get Log User",
+			idsignature: "admin",
+			output:      []models.UserLog(nil),
+			response1: mtest.CreateCommandErrorResponse(mtest.CommandError{
+				Code:    50,
+				Message: "Database Timeout",
+			}),
+			err: errors.New("Database Timeout"),
+		},
+		{
+			nameTest:    "Get Log User Case 3: No Data Log User",
+			idsignature: "admin",
+			output: []models.UserLog{
+				{
+					Id: primitive.ObjectID{},
+				},
+			},
+			response1: mtest.CreateCursorResponse(0, "foo.bar", mtest.FirstBatch, primitive.D{}),
+			err:       nil,
+		},
+	}
+	for _, tt := range test {
+		mt.Run(tt.nameTest, func(mt *mtest.T) {
+			mt.AddMockResponses(tt.response1, tt.response2, tt.response3, tt.response4)
+
+			blockchain := m_blockchain.NewMockBlockchain(ctrl)
+			repo := NewRepository(mt.DB, blockchain)
+			log, err := repo.GetLogUser(tt.idsignature)
+			if err != nil {
+				assert.Equal(t, tt.err.Error(), err.Error())
+			} else {
+				assert.Equal(t, err, tt.err)
+			}
+			assert.Equal(t, tt.output, log)
+		})
+	}
+}
