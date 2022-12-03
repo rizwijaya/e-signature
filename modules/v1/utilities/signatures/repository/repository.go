@@ -46,11 +46,7 @@ func NewRepository(db *mongo.Database, blockchain bl.Blockchain) *repository {
 }
 
 func (r *repository) LogTransactions(address string, tx_hash string, nonce string, desc string, prices string) error {
-	location, err := time.LoadLocation("Asia/Jakarta")
-	if err != nil {
-		log.Println(err)
-		return err
-	}
+	location, _ := time.LoadLocation("Asia/Jakarta")
 	tim := time.Now().In(location)
 	ctx := context.TODO()
 	trans := models.Transac{
@@ -64,7 +60,7 @@ func (r *repository) LogTransactions(address string, tx_hash string, nonce strin
 		Date_created_wib: tm.TanggalJam(tim),
 	}
 	c := r.db.Collection("transactions")
-	_, err = c.InsertOne(ctx, &trans)
+	_, err := c.InsertOne(ctx, &trans)
 	if err != nil {
 		log.Println(err)
 		return err

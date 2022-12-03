@@ -173,16 +173,16 @@ func (r *repository) GetLogUser(idsignature string) ([]models.UserLog, error) {
 	defer cur.Close(context.Background())
 	for cur.Next(context.Background()) {
 		var result models.UserLog
-		err := cur.Decode(&result)
-		if err != nil {
-			log.Println(err)
-			return logg, err
-		}
+		cur.Decode(&result)
+		// if err != nil {
+		// 	log.Println(err)
+		// 	return logg, err
+		// }
 		logg = append(logg, result)
 	}
-	if err := cur.Err(); err != nil {
-		log.Println(err)
-		return logg, err
-	}
+	// if err := cur.Err(); err != nil {
+	// 	log.Println(err)
+	// 	return logg, err
+	// }
 	return logg, nil
 }
