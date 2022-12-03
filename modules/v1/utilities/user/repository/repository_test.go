@@ -422,3 +422,65 @@ func Test_repository_GetUserByEmail(t *testing.T) {
 		})
 	}
 }
+
+func Test_repository_GetTotal(t *testing.T) {
+	mt := mtest.New(t, mtest.NewOptions().ClientType(mtest.Mock))
+	defer mt.Close()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	//id := primitive.NewObjectID()
+
+	test := []struct {
+		nameTest string
+		db       string
+		output   int
+		response primitive.D
+		err      error
+	}{
+		{
+			nameTest: "Get Total Data Case 1: Success Get Total SignedDocuments",
+			db:       "signedDocuments",
+			output:   430,
+			response: mtest.CreateCursorResponse(1, "foo.bar", mtest.FirstBatch, primitive.D{
+				{Key: "n", Value: 430},
+			}),
+			err: nil,
+		},
+		{
+			nameTest: "Get Total Data Case 2: Success Get Total Users",
+			db:       "users",
+			output:   123,
+			response: mtest.CreateCursorResponse(1, "foo.bar", mtest.FirstBatch, primitive.D{
+				{Key: "n", Value: 123},
+			}),
+			err: nil,
+		},
+		{
+			nameTest: "Get Total Data Case 3: Success Get Total Transactions",
+			db:       "transactions",
+			output:   743,
+			response: mtest.CreateCursorResponse(1, "foo.bar", mtest.FirstBatch, primitive.D{
+				{Key: "n", Value: 743},
+			}),
+			err: nil,
+		},
+		{
+			nameTest: "Get Total Data Case 4: Error Failed Get Total Data",
+			db:       "signss",
+			output:   0,
+			response: mtest.CreateCommandErrorResponse(mtest.CommandError{
+				Code:    1,
+				Message: "Failed get total data",
+			}),
+		},
+	}
+	for _, tt := range test {
+		mt.Run(tt.nameTest, func(mt *mtest.T) {
+			mt.AddMockResponses(tt.response)
+			blockchain := m_blockchain.NewMockBlockchain(ctrl)
+			repo := NewRepository(mt.DB, blockchain)
+			total := repo.GetTotal(tt.db)
+			assert.Equal(t, tt.output, total)
+		})
+	}
+}
