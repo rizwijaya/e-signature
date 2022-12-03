@@ -150,3 +150,59 @@ func Test_repository_DefaultSignatures(t *testing.T) {
 		})
 	}
 }
+
+func Test_repository_UpdateMySignatures(t *testing.T) {
+	mt := mtest.New(t, mtest.NewOptions().ClientType(mtest.Mock))
+	defer mt.Close()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
+	defer f.Undo()
+	f.Do()
+
+	test := []struct {
+		nameTest      string
+		signature     string
+		signaturedata string
+		sign          string
+		response      primitive.D
+		err           error
+	}{
+		{
+			nameTest:      "Update My Signatures Case 1: Success Update My Signatures",
+			signature:     "default.png",
+			signaturedata: "default.png",
+			sign:          "rizwijaya",
+			response:      mtest.CreateSuccessResponse(),
+			err:           nil,
+		},
+		{
+			nameTest:      "Update My Signatures Case 2: Error Failed Update My Signatures Data Not Found",
+			signature:     "default.png",
+			signaturedata: "default.png",
+			sign:          "rizwijaya",
+			response: mtest.CreateWriteErrorsResponse(
+				mtest.WriteError{
+					Index:   1,
+					Code:    0,
+					Message: "Data Not Found",
+				},
+			),
+			err: errors.New("Data Not Found"),
+		},
+	}
+	for _, tt := range test {
+		mt.Run(tt.nameTest, func(mt *mtest.T) {
+			mt.AddMockResponses(tt.response)
+			blockchain := m_blockchain.NewMockBlockchain(ctrl)
+			repo := NewRepository(mt.DB, blockchain)
+			err := repo.UpdateMySignatures(tt.signature, tt.signaturedata, tt.sign)
+			if err != nil {
+				assert.Equal(t, "write exception: write errors: ["+tt.err.Error()+"]", err.Error())
+			} else {
+				assert.Equal(t, tt.err, err)
+			}
+		})
+	}
+}

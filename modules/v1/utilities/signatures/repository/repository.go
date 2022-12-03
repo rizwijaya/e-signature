@@ -92,11 +92,7 @@ func (r *repository) DefaultSignatures(user modelsUser.User, id string) error {
 }
 
 func (r *repository) UpdateMySignatures(signature string, signaturedata string, sign string) error {
-	location, err := time.LoadLocation("Asia/Jakarta")
-	if err != nil {
-		log.Println(err)
-		return err
-	}
+	location, _ := time.LoadLocation("Asia/Jakarta")
 	filter := map[string]interface{}{"user": sign}
 	update := map[string]interface{}{
 		"$set": map[string]interface{}{
@@ -108,7 +104,7 @@ func (r *repository) UpdateMySignatures(signature string, signaturedata string, 
 	}
 
 	c := r.db.Collection("signatures")
-	_, err = c.UpdateOne(context.Background(), filter, update)
+	_, err := c.UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		log.Println(err)
 		return err
