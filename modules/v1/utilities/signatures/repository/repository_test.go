@@ -823,7 +823,107 @@ func Test_repository_ListDocumentNoSign(t *testing.T) {
 }
 
 func Test_repository_GetDocument(t *testing.T) {
-	t.Skip("Skip Test Get Document")
+	mt := mtest.New(t, mtest.NewOptions().ClientType(mtest.Mock))
+	defer mt.Close()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
+	defer f.Undo()
+	f.Do()
+	times := time.Now()
+	timeSign := new(big.Int)
+	timeFormat := times.Format("15040502012006")
+	timeSign, _ = timeSign.SetString(timeFormat, 10)
+
+	test := []struct {
+		nameTest  string
+		hash      string
+		publickey string
+		output    models.DocumentBlockchain
+		testing   func(blockchain *m_blockchain.MockBlockchain, repo Repository)
+	}{
+		{
+			nameTest:  "Get Document Case 1: Success Get Document in Blockchain",
+			hash:      "doa8lasdp93ue3jrkrnn234mbxjldjie21mhs9qwoywnalksdo3y13",
+			publickey: "0x8a9c4dfe8b62e51b88291c37e0d6dc15d34dbf1e",
+			output: models.DocumentBlockchain{
+				Document_id:    "0x1",
+				Creator:        common.HexToAddress("0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"),
+				Creator_string: "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
+				Creator_id:     "rizwijaya",
+				Metadata:       "sample_test.pdf",
+				Hash_ori:       "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
+				Hash:           "doa8lasdp93ue3jrkrnn234mbxjldjie21mhs9qwoywnalksdo3y13",
+				IPFS:           "d9sj84msl02ndm93d8df4d2u43soj3bdsds",
+				State:          "2",
+				Mode:           "1",
+				Createdtime:    timeSign.String(),
+				Completedtime:  timeSign.String(),
+				Exist:          true,
+				Signers: models.Signers{
+					Sign_addr:     common.HexToAddress("0x8a9c4dfe8b62e51b88291c37e0d6dc15d34dbf1e"),
+					Sign_id:       "1",
+					Signers_id:    "rizwijaya",
+					Signers_hash:  "9f1bf51bd36a4c244e82419f9d725e15d9cc537106cb54u798sc272b66cda64b",
+					Signers_state: true,
+					Sign_time:     timeSign.String(),
+				},
+			},
+			testing: func(blockchain *m_blockchain.MockBlockchain, repo Repository) {
+				output := models.DocumentBlockchain{
+					Document_id:    "0x1",
+					Creator:        common.HexToAddress("0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"),
+					Creator_string: "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
+					Creator_id:     "rizwijaya",
+					Metadata:       "sample_test.pdf",
+					Hash_ori:       "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
+					Hash:           "doa8lasdp93ue3jrkrnn234mbxjldjie21mhs9qwoywnalksdo3y13",
+					IPFS:           "d9sj84msl02ndm93d8df4d2u43soj3bdsds",
+					State:          "2",
+					Mode:           "1",
+					Createdtime:    timeSign.String(),
+					Completedtime:  timeSign.String(),
+					Exist:          true,
+					Signers: models.Signers{
+						Sign_addr:     common.HexToAddress("0x8a9c4dfe8b62e51b88291c37e0d6dc15d34dbf1e"),
+						Sign_id:       "1",
+						Signers_id:    "rizwijaya",
+						Signers_hash:  "9f1bf51bd36a4c244e82419f9d725e15d9cc537106cb54u798sc272b66cda64b",
+						Signers_state: true,
+						Sign_time:     timeSign.String(),
+					},
+				}
+				hash := "doa8lasdp93ue3jrkrnn234mbxjldjie21mhs9qwoywnalksdo3y13"
+				public_key := "0x8a9c4dfe8b62e51b88291c37e0d6dc15d34dbf1e"
+				blockchain.EXPECT().GetDocument(hash, public_key).Return(output).Times(1)
+			},
+		},
+		{
+			nameTest:  "Get Document Case 2: Error Failed Get Document in Blockchain",
+			hash:      "e3jrkrnn234mbxjldoywnalksdo3y13jie21mhsdoa8lasdp93u9qw",
+			publickey: "0x2e51b88291c37e0d6dc15d34db8a9c4dfe8b6f1e",
+			output:    models.DocumentBlockchain{},
+			testing: func(blockchain *m_blockchain.MockBlockchain, repo Repository) {
+				output := models.DocumentBlockchain{}
+				hash := "e3jrkrnn234mbxjldoywnalksdo3y13jie21mhsdoa8lasdp93u9qw"
+				public_key := "0x2e51b88291c37e0d6dc15d34db8a9c4dfe8b6f1e"
+				blockchain.EXPECT().GetDocument(hash, public_key).Return(output).Times(1)
+			},
+		},
+	}
+	for _, tt := range test {
+		mt.Run(tt.nameTest, func(mt *mtest.T) {
+			blockchain := m_blockchain.NewMockBlockchain(ctrl)
+			repo := NewRepository(mt.DB, blockchain)
+			if tt.testing != nil {
+				tt.testing(blockchain, repo)
+			}
+
+			output := repo.GetDocument(tt.hash, tt.publickey)
+			assert.Equal(t, output, tt.output)
+		})
+	}
 }
 
 func Test_repository_GetListSign(t *testing.T) {
