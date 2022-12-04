@@ -25,11 +25,12 @@ func ValidateToken(encodedToken string) (*jwt.Token, error) {
 	return token, nil
 }
 
-func GenerateToken(userID int) (string, error) {
+func GenerateToken(email string, pw string) (string, error) {
 	conf, _ := config.Init()
 	SECRET_KEY := []byte(conf.App.Secret_key)
 	claim := jwt.MapClaims{}
-	claim["user_id"] = userID
+	claim["email"] = email
+	claim["pw"] = pw
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claim)
 
