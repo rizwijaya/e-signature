@@ -926,6 +926,80 @@ func Test_repository_GetDocument(t *testing.T) {
 	}
 }
 
+func Test_repository_GetSigners(t *testing.T) {
+	mt := mtest.New(t, mtest.NewOptions().ClientType(mtest.Mock))
+	defer mt.Close()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
+	defer f.Undo()
+	f.Do()
+	times := time.Now()
+	timeSign := new(big.Int)
+	timeFormat := times.Format("15040502012006")
+	timeSign, _ = timeSign.SetString(timeFormat, 10)
+
+	test := []struct {
+		nameTest  string
+		hash      string
+		publickey string
+		output    models.Signers
+		testing   func(blockchain *m_blockchain.MockBlockchain, repo Repository)
+	}{
+		{
+			nameTest:  "Get Signers Case 1: Success Get Signers Data in Blockchain",
+			hash:      "doa8lasdp93ue3jrkrnn234mbxjldjie21mhs9qwoywnalksdo3y13",
+			publickey: "0x8a9c4dfe8b62e51b88291c37e0d6dc15d34dbf1e",
+			output: models.Signers{
+				Sign_addr:     common.HexToAddress("0x8a9c4dfe8b62e51b88291c37e0d6dc15d34dbf1e"),
+				Sign_id:       "1",
+				Signers_id:    "rizwijaya",
+				Signers_hash:  "9f1bf51bd36a4c244e82419f9d725e15d9cc537106cb54u798sc272b66cda64b",
+				Signers_state: true,
+				Sign_time:     timeSign.String(),
+			},
+			testing: func(blockchain *m_blockchain.MockBlockchain, repo Repository) {
+				output := models.Signers{
+					Sign_addr:     common.HexToAddress("0x8a9c4dfe8b62e51b88291c37e0d6dc15d34dbf1e"),
+					Sign_id:       "1",
+					Signers_id:    "rizwijaya",
+					Signers_hash:  "9f1bf51bd36a4c244e82419f9d725e15d9cc537106cb54u798sc272b66cda64b",
+					Signers_state: true,
+					Sign_time:     timeSign.String(),
+				}
+				hash := "doa8lasdp93ue3jrkrnn234mbxjldjie21mhs9qwoywnalksdo3y13"
+				public_key := "0x8a9c4dfe8b62e51b88291c37e0d6dc15d34dbf1e"
+				blockchain.EXPECT().GetSigners(hash, public_key).Return(output).Times(1)
+			},
+		},
+		{
+			nameTest:  "Get Signers Case 2: Error Failed Get Signers Data in Blockchain",
+			hash:      "e3jrkrnn234mbxjldoywnalksdo3y13jie21mhsdoa8lasdp93u9qw",
+			publickey: "0x2e51b88291c37e0d6dc15d34db8a9c4dfe8b6f1e",
+			output:    models.Signers{},
+			testing: func(blockchain *m_blockchain.MockBlockchain, repo Repository) {
+				output := models.Signers{}
+				hash := "e3jrkrnn234mbxjldoywnalksdo3y13jie21mhsdoa8lasdp93u9qw"
+				public_key := "0x2e51b88291c37e0d6dc15d34db8a9c4dfe8b6f1e"
+				blockchain.EXPECT().GetSigners(hash, public_key).Return(output).Times(1)
+			},
+		},
+	}
+	for _, tt := range test {
+		mt.Run(tt.nameTest, func(mt *mtest.T) {
+			blockchain := m_blockchain.NewMockBlockchain(ctrl)
+			repo := NewRepository(mt.DB, blockchain)
+			if tt.testing != nil {
+				tt.testing(blockchain, repo)
+			}
+
+			output := repo.GetSigners(tt.hash, tt.publickey)
+			assert.Equal(t, output, tt.output)
+		})
+	}
+}
+
 func Test_repository_GetListSign(t *testing.T) {
 	mt := mtest.New(t, mtest.NewOptions().ClientType(mtest.Mock))
 	defer mt.Close()
