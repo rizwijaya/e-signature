@@ -439,7 +439,148 @@ func Test_repository_DocumentSigned(t *testing.T) {
 }
 
 func Test_repository_ListDocumentNoSign(t *testing.T) {
-	t.Skip("Skip Test List Document No Sign")
+	mt := mtest.New(t, mtest.NewOptions().ClientType(mtest.Mock))
+	defer mt.Close()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	id := primitive.NewObjectID()
+	id2 := primitive.NewObjectID()
+	id3 := primitive.NewObjectID()
+	id4 := primitive.NewObjectID()
+
+	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
+	defer f.Undo()
+	f.Do()
+
+	test := []struct {
+		nameTest  string
+		publickey string
+		output    []models.ListDocument
+		response1 primitive.D
+		response2 primitive.D
+		response3 primitive.D
+		response4 primitive.D
+		err       error
+	}{
+		{
+			nameTest:  "List Document No Sign Case 1: Success Get List Document Data",
+			publickey: "0x8a9c4dfe8b62e51b88291c37e0d6dc15d34dbf1e",
+			output: []models.ListDocument{
+				{
+					Id:               id,
+					Address:          "0x8a9c4dfe8b62e51b88291c37e0d6dc15d34dbf1e",
+					Hash:             "eusdnlaskjdasodjkasddsj21j3newndakaldajsdoasjdopwud09aud98p",
+					Hash_original:    "rnn234mbxjldjihqwoywndoasalksdo3y981mlasdp93uejrk3e213",
+					Judul:            "Test Judul 1",
+					Note:             "Test Note 1",
+					Date_created:     time.Now(),
+					Date_created_WIB: "Minggu, 27 Nop 2022 | 11:30 WIB",
+				},
+				{
+					Id:               id2,
+					Address:          "0x8a9c4dfe8b62e51b88291c37e0d6dc15d34dbf1e",
+					Hash:             "wndakaldajsdoasjdopwud09aud98peus3nednlaskjdasodjkasddsj21j",
+					Hash_original:    "hqwoywndoasalksdo3y981mlasdp93ue3jrkrnn234mbxjldjie213",
+					Judul:            "Test Judul 2",
+					Note:             "Test Note 2",
+					Date_created:     time.Now(),
+					Date_created_WIB: "Minggu, 27 Nop 2022 | 11:30 WIB",
+				},
+				{
+					Id:               id3,
+					Address:          "0x8a9c4dfe8b62e51b88291c37e0d6dc15d34dbf1e",
+					Hash:             "dakaldajsdoasjdasddud09audjdasodjkwn98peus3nednlaskjsj21opw",
+					Hash_original:    "9qwoywndoasalksdo3y1381mlasdp93ue3jrkrnn234mbxjldjie2h",
+					Judul:            "Test Judul 3",
+					Note:             "Test Note 3",
+					Date_created:     time.Now(),
+					Date_created_WIB: "Minggu, 27 Nop 2022 | 11:30 WIB",
+				},
+				{
+					Id:               id4,
+					Address:          "0x8a9c4dfe8b62e51b88291c37e0d6dc15d34dbf1e",
+					Hash:             "wn98peus3nednlaskjsj21opwdjdasodjkdakaldajsdoasjdasddud09au",
+					Hash_original:    "doa8lasdp93ue3jrkrnn234mbxjldjie21mhs9qwoywnalksdo3y13",
+					Judul:            "Test Judul 4",
+					Note:             "Test Note 4",
+					Date_created:     time.Now(),
+					Date_created_WIB: "Minggu, 27 Nop 2022 | 11:30 WIB",
+				},
+			},
+			response1: mtest.CreateCursorResponse(1, "foo.bar", mtest.FirstBatch, primitive.D{
+				{Key: "_id", Value: id},
+				{Key: "address", Value: "0x8a9c4dfe8b62e51b88291c37e0d6dc15d34dbf1e"},
+				{Key: "hash", Value: "eusdnlaskjdasodjkasddsj21j3newndakaldajsdoasjdopwud09aud98p"},
+				{Key: "hash_ori", Value: "rnn234mbxjldjihqwoywndoasalksdo3y981mlasdp93uejrk3e213"},
+				{Key: "judul", Value: "Test Judul 1"},
+				{Key: "note", Value: "Test Note 1"},
+				{Key: "date_created", Value: time.Now()},
+				{Key: "date_created_WIB", Value: "Minggu, 27 Nop 2022 | 11:30 WIB"},
+			}),
+			response2: mtest.CreateCursorResponse(1, "foo.bar", mtest.NextBatch, primitive.D{
+				{Key: "_id", Value: id2},
+				{Key: "address", Value: "0x8a9c4dfe8b62e51b88291c37e0d6dc15d34dbf1e"},
+				{Key: "hash", Value: "wndakaldajsdoasjdopwud09aud98peus3nednlaskjdasodjkasddsj21j"},
+				{Key: "hash_ori", Value: "hqwoywndoasalksdo3y981mlasdp93ue3jrkrnn234mbxjldjie213"},
+				{Key: "judul", Value: "Test Judul 2"},
+				{Key: "note", Value: "Test Note 2"},
+				{Key: "date_created", Value: time.Now()},
+				{Key: "date_created_WIB", Value: "Minggu, 27 Nop 2022 | 11:30 WIB"},
+			}),
+			response3: mtest.CreateCursorResponse(1, "foo.bar", mtest.NextBatch, primitive.D{
+				{Key: "_id", Value: id3},
+				{Key: "address", Value: "0x8a9c4dfe8b62e51b88291c37e0d6dc15d34dbf1e"},
+				{Key: "hash", Value: "dakaldajsdoasjdasddud09audjdasodjkwn98peus3nednlaskjsj21opw"},
+				{Key: "hash_ori", Value: "9qwoywndoasalksdo3y1381mlasdp93ue3jrkrnn234mbxjldjie2h"},
+				{Key: "judul", Value: "Test Judul 3"},
+				{Key: "note", Value: "Test Note 3"},
+				{Key: "date_created", Value: time.Now()},
+				{Key: "date_created_WIB", Value: "Minggu, 27 Nop 2022 | 11:30 WIB"},
+			}),
+			response4: mtest.CreateCursorResponse(0, "foo.bar", mtest.NextBatch, primitive.D{
+				{Key: "_id", Value: id4},
+				{Key: "address", Value: "0x8a9c4dfe8b62e51b88291c37e0d6dc15d34dbf1e"},
+				{Key: "hash", Value: "wn98peus3nednlaskjsj21opwdjdasodjkdakaldajsdoasjdasddud09au"},
+				{Key: "hash_ori", Value: "doa8lasdp93ue3jrkrnn234mbxjldjie21mhs9qwoywnalksdo3y13"},
+				{Key: "judul", Value: "Test Judul 4"},
+				{Key: "note", Value: "Test Note 4"},
+				{Key: "date_created", Value: time.Now()},
+				{Key: "date_created_WIB", Value: "Minggu, 27 Nop 2022 | 11:30 WIB"},
+			}),
+			err: nil,
+		},
+		{
+			nameTest:  "List Document No Sign Case 2: Error Failed Get List Document Data",
+			publickey: "0x8a9c4dfe8b62e51b88291c37e0d6dc15d34dbf1e",
+			output:    []models.ListDocument(nil),
+			response1: mtest.CreateCommandErrorResponse(mtest.CommandError{
+				Code:    50,
+				Message: "Database Timeout",
+			}),
+			err: errors.New("Database Timeout"),
+		},
+		{
+			nameTest:  "List Document No Sign Case 3: Success Get List Document Data Empty",
+			publickey: "0x8a9c4dfe8b62e51b88291c37e0d6dc15d34dbf1e",
+			output: []models.ListDocument{
+				{
+					Id: primitive.ObjectID{},
+				},
+			},
+			response1: mtest.CreateCursorResponse(0, "foo.bar", mtest.FirstBatch, primitive.D{}),
+			err:       nil,
+		},
+	}
+	for _, tt := range test {
+		mt.Run(tt.nameTest, func(mt *mtest.T) {
+			mt.AddMockResponses(tt.response1, tt.response2, tt.response3, tt.response4)
+
+			blockchain := m_blockchain.NewMockBlockchain(ctrl)
+			repo := NewRepository(mt.DB, blockchain)
+			signers := repo.ListDocumentNoSign(tt.publickey)
+			assert.Equal(t, tt.output, signers)
+		})
+	}
 }
 
 func Test_repository_GetDocument(t *testing.T) {

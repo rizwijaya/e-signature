@@ -200,13 +200,14 @@ func (r *repository) ListDocumentNoSign(publickey string) []models.ListDocument 
 	cursor, err := c.Find(context.Background(), bson.M{"address": publickey})
 	if err != nil {
 		log.Println(err)
+		return listDocument
 	}
 	for cursor.Next(context.Background()) {
 		var document models.ListDocument
-		err := cursor.Decode(&document)
-		if err != nil {
-			log.Println(err)
-		}
+		cursor.Decode(&document)
+		// if err != nil {
+		// 	log.Println(err)
+		// }
 		listDocument = append(listDocument, document)
 	}
 	return listDocument
