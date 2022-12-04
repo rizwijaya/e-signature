@@ -40,6 +40,7 @@ func Init(db *mongo.Database, conf config.Conf, router *gin.Engine) *gin.Engine 
 	signaturesViewV1 := signaturesViewV1.View(db, blockchain, client)
 	userHandlerV1 := userHandlerV1.Handler(db, blockchain, client)
 	userViewV1 := userViewV1.View(db, blockchain, client)
+
 	// Routing Website Service
 	user := router.Group("")
 	user.GET("/", userViewV1.Index)
@@ -50,6 +51,7 @@ func Init(db *mongo.Database, conf config.Conf, router *gin.Engine) *gin.Engine 
 	user.POST("/login", userHandlerV1.Login)
 	user.GET("/logout", userHandlerV1.Logout)
 	user.GET("/log-user", userViewV1.Logg)
+
 	//Routing Signature Service
 	signature := router.Group("")
 	signature.GET("/my-signatures", mid.Permission(), signaturesViewV1.MySignatures)
@@ -68,15 +70,20 @@ func Init(db *mongo.Database, conf config.Conf, router *gin.Engine) *gin.Engine 
 	signature.GET("/download/:hash", mid.Permission(), signaturesHandlerV1.Download)
 	signature.GET("/history", mid.Permission(), signaturesViewV1.History)
 	signature.GET("/transactions", signaturesViewV1.Transactions)
+
 	//Testing and Checking Data
 	//signature.GET("/verification_result", signaturesViewV1.VerificationResult)
 	//signature.GET("/docs/:hash/:id", signaturesHandlerV1.GetDocs)
 	//signature.GET("/verif/:hash", signaturesHandlerV1.Verif)
-	//Analisis Integritas Data
+
+	//Create JWT Token Authentication
 	apiV1 := router.Group("/api/v1")
 	apiV1.POST("/create-token", userHandlerV1.CreateToken)
-	analisis := apiV1.Group("/analysis")
-	analisis.POST("/integrity-document", mid.AuthAPI(db), signaturesHandlerV1.Integrity)
+
+	//Analysis Integrity Data
+	analysis := apiV1.Group("/analysis")
+	analysis.POST("/integrity-document", mid.AuthAPI(db), signaturesHandlerV1.Integrity)
+	analysis.GET("/download-document/:hash", mid.AuthAPI(db), signaturesHandlerV1.Download)
 
 	router = ParseTmpl(router)
 	return router
