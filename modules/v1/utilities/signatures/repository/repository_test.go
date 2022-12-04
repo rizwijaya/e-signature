@@ -1009,10 +1009,6 @@ func Test_repository_GetHashOriginal(t *testing.T) {
 	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
 	defer f.Undo()
 	f.Do()
-	times := time.Now()
-	timeSign := new(big.Int)
-	timeFormat := times.Format("15040502012006")
-	timeSign, _ = timeSign.SetString(timeFormat, 10)
 
 	test := []struct {
 		nameTest  string
@@ -1267,7 +1263,62 @@ func Test_repository_GetUserByIdSignatures(t *testing.T) {
 }
 
 func Test_repository_VerifyDoc(t *testing.T) {
-	t.Skip("Skip Test Verify Doc")
+	mt := mtest.New(t, mtest.NewOptions().ClientType(mtest.Mock))
+	defer mt.Close()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
+	defer f.Undo()
+	f.Do()
+
+	test := []struct {
+		nameTest  string
+		hash      string
+		publickey string
+		output    bool
+		testing   func(blockchain *m_blockchain.MockBlockchain, repo Repository)
+	}{
+		{
+			nameTest: "Verification Document Case 1: Success Document is Verified",
+			hash:     "doa8lasdp93ue3jrkrnn234mbxjldjie21mhs9qwoywnalksdo3y13",
+			output:   true,
+			testing: func(blockchain *m_blockchain.MockBlockchain, repo Repository) {
+				hash := "doa8lasdp93ue3jrkrnn234mbxjldjie21mhs9qwoywnalksdo3y13"
+				blockchain.EXPECT().VerifyDoc(hash).Return(true).Times(1)
+			},
+		},
+		{
+			nameTest: "Verification Document Case 2: Success Document is Not Verified",
+			hash:     "e3jrkrnn234xjldjie21mhs9qwoywnalksdo3y13mbdoa8lasdp93u",
+			output:   false,
+			testing: func(blockchain *m_blockchain.MockBlockchain, repo Repository) {
+				hash := "e3jrkrnn234xjldjie21mhs9qwoywnalksdo3y13mbdoa8lasdp93u"
+				blockchain.EXPECT().VerifyDoc(hash).Return(false).Times(1)
+			},
+		},
+		{
+			nameTest: "Verification Document Case 2: Error Failed Verification Document in Blockchain",
+			hash:     "xjldoywnae21mh3ji34mbsdoa8lasdp93u9qwlksdo3y1e3jrkrnn2",
+			output:   false,
+			testing: func(blockchain *m_blockchain.MockBlockchain, repo Repository) {
+				hash := "xjldoywnae21mh3ji34mbsdoa8lasdp93u9qwlksdo3y1e3jrkrnn2"
+				blockchain.EXPECT().VerifyDoc(hash).Return(false).Times(1)
+			},
+		},
+	}
+	for _, tt := range test {
+		mt.Run(tt.nameTest, func(mt *mtest.T) {
+			blockchain := m_blockchain.NewMockBlockchain(ctrl)
+			repo := NewRepository(mt.DB, blockchain)
+			if tt.testing != nil {
+				tt.testing(blockchain, repo)
+			}
+
+			output := repo.VerifyDoc(tt.hash)
+			assert.Equal(t, output, tt.output)
+		})
+	}
 }
 
 func Test_repository_GetTransactions(t *testing.T) {
