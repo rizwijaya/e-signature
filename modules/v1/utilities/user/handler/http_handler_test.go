@@ -6,6 +6,7 @@ import (
 	"e-signature/modules/v1/utilities/user/models"
 	m_serviceUser "e-signature/modules/v1/utilities/user/service/mock"
 	"e-signature/pkg/html"
+	"encoding/json"
 	"errors"
 	"io"
 	"io/ioutil"
@@ -17,14 +18,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/tkuchiki/faketime"
-
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+	"github.com/tkuchiki/faketime"
 )
 
 func TestInit(t *testing.T) {
@@ -430,6 +430,107 @@ func Test_userHandler_Register(t *testing.T) {
 				assert.NoError(t, err)
 				assert.Contains(t, string(responseData), "Pendaftaran - SmartSign")
 			}
+		})
+	}
+}
+
+func Test_userHandler_CreateToken(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	type Meta struct {
+		Message string `json:"message"`
+		Code    int    `json:"code"`
+		Status  string `json:"status"`
+	}
+	type Response struct {
+		Meta Meta `json:"meta"`
+	}
+
+	test := []struct {
+		name         string
+		idsignature  string
+		password     string
+		formValidate bool
+		ResponseCode int
+		message      string
+		beforeTest   func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService)
+	}{
+		{
+			name:         "Create Token Case 1: Create Token Success",
+			idsignature:  "admin",
+			password:     "admin",
+			formValidate: true,
+			ResponseCode: http.StatusOK,
+			message:      "Berhasil Membuat Token API",
+			beforeTest: func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService) {
+				serviceUser.EXPECT().Login(gomock.Any()).Return(models.ProfileDB{
+					Name: "admin",
+				}, nil).Times(1)
+				serviceUser.EXPECT().Logging("admin membuat Token API", "", gomock.Any(), gomock.Any()).Times(1)
+			},
+		},
+		{
+			name:         "Create Token Case 2: Failed Create Token Input Invalid",
+			idsignature:  "admin",
+			password:     "admin",
+			formValidate: false,
+			ResponseCode: http.StatusNonAuthoritativeInfo,
+			message:      "ID Signature/Password Salah",
+		},
+		{
+			name:         "Create Token Case 3: Failed Create Token Because Idsignature/Password is Wrong",
+			idsignature:  "admin",
+			password:     "admin",
+			formValidate: true,
+			ResponseCode: http.StatusNonAuthoritativeInfo,
+			message:      "ID Signature/Password Salah",
+			beforeTest: func(serviceSignature *m_serviceSignature.MockService, serviceUser *m_serviceUser.MockService) {
+				serviceUser.EXPECT().Login(gomock.Any()).Return(models.ProfileDB{}, errors.New("ID Signature/Password salah!")).Times(1)
+			},
+		},
+	}
+	for _, tt := range test {
+		t.Run(tt.name, func(t *testing.T) {
+			serviceUser := m_serviceUser.NewMockService(ctrl)
+			serviceSignature := m_serviceSignature.NewMockService(ctrl)
+			w := &userHandler{
+				userService:      serviceUser,
+				signatureService: serviceSignature,
+			}
+			if tt.beforeTest != nil {
+				tt.beforeTest(serviceSignature, serviceUser)
+			}
+
+			got := w.CreateToken
+
+			router := NewRouter()
+			router.POST("/api/v1/create-token", got)
+			payload := &bytes.Buffer{}
+			writer := multipart.NewWriter(payload)
+			_ = writer.WriteField("idsignature", tt.idsignature)
+			_ = writer.WriteField("password", tt.password)
+			err := writer.Close()
+			assert.Nil(t, err)
+
+			req, err := http.NewRequest("POST", "/api/v1/create-token", payload)
+			assert.NoError(t, err)
+			if tt.formValidate {
+				req.Header.Set("Content-Type", writer.FormDataContentType())
+			}
+			resp := httptest.NewRecorder()
+			router.ServeHTTP(resp, req)
+
+			responseData, err := ioutil.ReadAll(resp.Body)
+			assert.NoError(t, err)
+
+			var response Response
+			err = json.Unmarshal(responseData, &response)
+			assert.NoError(t, err)
+
+			assert.Equal(t, tt.ResponseCode, resp.Code)
+			assert.Equal(t, resp.Code, response.Meta.Code)
+			assert.Equal(t, tt.message, response.Meta.Message)
 		})
 	}
 }
