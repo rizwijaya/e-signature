@@ -145,8 +145,12 @@ func (r *repository) ChangeSignature(sign_type string, sign string) error {
 
 func (r *repository) AddToBlockhain(input models.SignDocuments, times *big.Int) error {
 	document, auth, err := r.blockchain.AddToBlockhain(input, times)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
 	r.LogTransactions(input.Creator, document.Hash().Hex(), auth.Nonce.String(), "Membuat Dokumen "+input.Name+" untuk tanda tangan", document.Cost().String())
-	return err
+	return nil
 }
 
 func (r *repository) AddUserDocs(input models.SignDocuments) error {

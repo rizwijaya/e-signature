@@ -6,11 +6,14 @@ import (
 	m_blockchain "e-signature/pkg/blockchain/mock"
 	"errors"
 	"log"
+	"math/big"
 	"os"
 	"testing"
 	"time"
 
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -365,7 +368,137 @@ func Test_repository_ChangeSignatures(t *testing.T) {
 }
 
 func Test_repository_AddToBlockhain(t *testing.T) {
-	t.Skip("Skip Test Add To Blockchain")
+	mt := mtest.New(t, mtest.NewOptions().ClientType(mtest.Mock))
+	defer mt.Close()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
+	defer f.Undo()
+	f.Do()
+	times := time.Now()
+	timeSign := new(big.Int)
+	timeFormat := times.Format("15040502012006")
+	timeSign, _ = timeSign.SetString(timeFormat, 10)
+
+	test := []struct {
+		nameTest string
+		input    models.SignDocuments
+		times    *big.Int
+		testing  func(blockchain *m_blockchain.MockBlockchain, repo Repository)
+		err      error
+	}{
+		{
+			nameTest: "Add To Blockchain Case 1: Success Insert Data To Blockchain",
+			input: models.SignDocuments{
+				Name:       "sample_test.pdf",
+				SignPage:   1.0,
+				X_coord:    1.3,
+				Y_coord:    1.2,
+				Height:     4.2,
+				Width:      5.3,
+				Invite_sts: true,
+				Email:      []string{"admin@smartsign.com"},
+				Creator:    "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
+				Creator_id: "rizwijaya",
+			},
+			times: timeSign,
+			testing: func(blockchain *m_blockchain.MockBlockchain, repo Repository) {
+				input := models.SignDocuments{
+					Name:       "sample_test.pdf",
+					SignPage:   1.0,
+					X_coord:    1.3,
+					Y_coord:    1.2,
+					Height:     4.2,
+					Width:      5.3,
+					Invite_sts: true,
+					Email:      []string{"admin@smartsign.com"},
+					Creator:    "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
+					Creator_id: "rizwijaya",
+				}
+				testAddr := common.HexToAddress("b94f5374fce5edbc8e2a8697c15331677e6ebf0b")
+				tx := types.NewTx(&types.AccessListTx{
+					ChainID:  big.NewInt(1),
+					Nonce:    3,
+					To:       &testAddr,
+					Value:    big.NewInt(10),
+					Gas:      25000,
+					GasPrice: big.NewInt(1),
+					Data:     common.FromHex("0xc4d57bb9b9f95452da96c5d2ca8e3e477672c01afea8362348406a4236fb942f"),
+				})
+				auth := &bind.TransactOpts{
+					From:     common.HexToAddress("0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"),
+					Signer:   nil,
+					GasLimit: 0,
+					Value:    big.NewInt(0),
+					Nonce:    big.NewInt(1),
+				}
+				blockchain.EXPECT().AddToBlockhain(input, timeSign).Return(tx, auth, nil).Times(1)
+			},
+			err: nil,
+		},
+		{
+			nameTest: "Add To Blockchain Case 2: Error Failed Insert Data To Blockchain",
+			input: models.SignDocuments{
+				Name:       "testing.pdf",
+				SignPage:   1.0,
+				X_coord:    24.3,
+				Y_coord:    369.2,
+				Height:     400.2,
+				Width:      500.3,
+				Invite_sts: true,
+				Email:      []string{"admin@smartsign.com"},
+				Creator:    "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
+				Creator_id: "admin",
+			},
+			times: timeSign,
+			testing: func(blockchain *m_blockchain.MockBlockchain, repo Repository) {
+				input := models.SignDocuments{
+					Name:       "testing.pdf",
+					SignPage:   1.0,
+					X_coord:    24.3,
+					Y_coord:    369.2,
+					Height:     400.2,
+					Width:      500.3,
+					Invite_sts: true,
+					Email:      []string{"admin@smartsign.com"},
+					Creator:    "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
+					Creator_id: "admin",
+				}
+				testAddr := common.HexToAddress("b94f5374fce5edbc8e2a8697c15331677e6ebf0b")
+				tx := types.NewTx(&types.AccessListTx{
+					ChainID:  big.NewInt(1),
+					Nonce:    4,
+					To:       &testAddr,
+					Value:    big.NewInt(25),
+					Gas:      20,
+					GasPrice: big.NewInt(30000),
+					Data:     common.FromHex("0xc4d57bb9b9f95452da96c5d2ca8e3e477672c01afea8362348406a4236fb942f"),
+				})
+				auth := &bind.TransactOpts{
+					From:     common.HexToAddress("0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"),
+					Signer:   nil,
+					GasLimit: 20,
+					Value:    big.NewInt(0),
+					Nonce:    big.NewInt(1),
+				}
+				blockchain.EXPECT().AddToBlockhain(input, timeSign).Return(tx, auth, types.ErrGasFeeCapTooLow).Times(1)
+			},
+			err: types.ErrGasFeeCapTooLow,
+		},
+	}
+	for _, tt := range test {
+		mt.Run(tt.nameTest, func(mt *mtest.T) {
+			blockchain := m_blockchain.NewMockBlockchain(ctrl)
+			repo := NewRepository(mt.DB, blockchain)
+			if tt.testing != nil {
+				tt.testing(blockchain, repo)
+			}
+
+			err := repo.AddToBlockhain(tt.input, tt.times)
+			assert.Equal(t, err, tt.err)
+		})
+	}
 }
 
 func Test_repository_AddUserDocs(t *testing.T) {
