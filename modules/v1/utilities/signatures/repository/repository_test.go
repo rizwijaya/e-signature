@@ -536,7 +536,149 @@ func Test_repository_VerifyDoc(t *testing.T) {
 }
 
 func Test_repository_GetTransactions(t *testing.T) {
-	t.Skip("Skip Test Get Transactions")
+	mt := mtest.New(t, mtest.NewOptions().ClientType(mtest.Mock))
+	defer mt.Close()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	id := primitive.NewObjectID()
+	id2 := primitive.NewObjectID()
+	id3 := primitive.NewObjectID()
+	id4 := primitive.NewObjectID()
+
+	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
+	defer f.Undo()
+	f.Do()
+	times := time.Now()
+
+	test := []struct {
+		nameTest    string
+		idsignature string
+		output      []models.Transac
+		response1   primitive.D
+		response2   primitive.D
+		response3   primitive.D
+		response4   primitive.D
+		err         error
+	}{
+		{
+			nameTest:    "Get Transactions Case 1: Success Get Transactions Data",
+			idsignature: "admin",
+			output: []models.Transac{
+				{
+					Id:               id,
+					Address:          "0x5B38Da6a701c568545dCfcB03FcB875f56beddC4",
+					Tx_hash:          "0x5f44e265dbf57984ffb9a833ba9cde9c51a6bec419c44f8e40b64a9ee7033c83",
+					Nonce:            "3",
+					Prices:           "30000",
+					Description:      "Membuat Dokumen sample.pdf untuk tanda tangan",
+					Date_created:     times,
+					Date_created_wib: "Minggu, 27 Nop 2022 | 11:30 WIB",
+				},
+				{
+					Id:               id2,
+					Address:          "0xDB5Ad0D8c8acE3A9eB8fD530eD8F5254044c9fA0",
+					Tx_hash:          "0x5c53f765f935ae06dfdbaf820f066ce01ad30acb77bcb4d6a013d9cfe68c2b5a",
+					Nonce:            "4",
+					Prices:           "30000",
+					Description:      "Membuat Dokumen Sample_testing.pdf untuk tanda tangan",
+					Date_created:     times,
+					Date_created_wib: "Minggu, 27 Nop 2022 | 11:30 WIB",
+				},
+				{
+					Id:               id3,
+					Address:          "0xy5B38Da6a701c568545dCfcB03FcB875f56beddC4",
+					Tx_hash:          "0x4b47a3f5c24db6363dd841c9e009c238274bf6f0439389f9654e90395d9e7388",
+					Nonce:            "5",
+					Prices:           "30000",
+					Description:      "Menandatangani Dokumen dengan kode : 3a0233f815f46edd8afae31413b62c6a55861ab47bc90db4dbd085735ae47ff1",
+					Date_created:     times,
+					Date_created_wib: "Minggu, 27 Nop 2022 | 11:30 WIB",
+				},
+				{
+					Id:               id4,
+					Address:          "0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef",
+					Tx_hash:          "0xe1301136ace8d8a780df304dad4525d244fc13dc9f316bafe92e2734d2f369e8",
+					Nonce:            "6",
+					Prices:           "30000",
+					Description:      "Menandatangani Dokumen dengan kode : cbad53ee065af3beab98fd85062076cd9d1cf38fac5760d5051080c3096bf69c",
+					Date_created:     times,
+					Date_created_wib: "Minggu, 27 Nop 2022 | 11:30 WIB",
+				},
+			},
+			response1: mtest.CreateCursorResponse(1, "foo.bar", mtest.FirstBatch, primitive.D{
+				{Key: "_id", Value: id},
+				{Key: "address", Value: "0x5B38Da6a701c568545dCfcB03FcB875f56beddC4"},
+				{Key: "tx_hash", Value: "0x5f44e265dbf57984ffb9a833ba9cde9c51a6bec419c44f8e40b64a9ee7033c83"},
+				{Key: "nonce", Value: "3"},
+				{Key: "prices", Value: "30000"},
+				{Key: "description", Value: "Membuat Dokumen sample.pdf untuk tanda tangan"},
+				{Key: "date_created", Value: times},
+				{Key: "date_created_wib", Value: "Minggu, 27 Nop 2022 | 11:30 WIB"},
+			}),
+			response2: mtest.CreateCursorResponse(1, "foo.bar", mtest.NextBatch, primitive.D{
+				{Key: "_id", Value: id2},
+				{Key: "address", Value: "0xDB5Ad0D8c8acE3A9eB8fD530eD8F5254044c9fA0"},
+				{Key: "tx_hash", Value: "0x5c53f765f935ae06dfdbaf820f066ce01ad30acb77bcb4d6a013d9cfe68c2b5a"},
+				{Key: "nonce", Value: "4"},
+				{Key: "prices", Value: "30000"},
+				{Key: "description", Value: "Membuat Dokumen Sample_testing.pdf untuk tanda tangan"},
+				{Key: "date_created", Value: times},
+				{Key: "date_created_wib", Value: "Minggu, 27 Nop 2022 | 11:30 WIB"},
+			}),
+			response3: mtest.CreateCursorResponse(1, "foo.bar", mtest.NextBatch, primitive.D{
+				{Key: "_id", Value: id3},
+				{Key: "address", Value: "0xy5B38Da6a701c568545dCfcB03FcB875f56beddC4"},
+				{Key: "tx_hash", Value: "0x4b47a3f5c24db6363dd841c9e009c238274bf6f0439389f9654e90395d9e7388"},
+				{Key: "nonce", Value: "5"},
+				{Key: "prices", Value: "30000"},
+				{Key: "description", Value: "Menandatangani Dokumen dengan kode : 3a0233f815f46edd8afae31413b62c6a55861ab47bc90db4dbd085735ae47ff1"},
+				{Key: "date_created", Value: times},
+				{Key: "date_created_wib", Value: "Minggu, 27 Nop 2022 | 11:30 WIB"},
+			}),
+			response4: mtest.CreateCursorResponse(0, "foo.bar", mtest.NextBatch, primitive.D{
+				{Key: "_id", Value: id4},
+				{Key: "address", Value: "0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef"},
+				{Key: "tx_hash", Value: "0xe1301136ace8d8a780df304dad4525d244fc13dc9f316bafe92e2734d2f369e8"},
+				{Key: "nonce", Value: "6"},
+				{Key: "prices", Value: "30000"},
+				{Key: "description", Value: "Menandatangani Dokumen dengan kode : cbad53ee065af3beab98fd85062076cd9d1cf38fac5760d5051080c3096bf69c"},
+				{Key: "date_created", Value: times},
+				{Key: "date_created_wib", Value: "Minggu, 27 Nop 2022 | 11:30 WIB"},
+			}),
+			err: nil,
+		},
+		{
+			nameTest:    "Get Transactions Case 2: Error Failed Get Transactions Data",
+			idsignature: "admin",
+			output:      []models.Transac(nil),
+			response1: mtest.CreateCommandErrorResponse(mtest.CommandError{
+				Code:    50,
+				Message: "Database Timeout",
+			}),
+			err: errors.New("Database Timeout"),
+		},
+		{
+			nameTest:    "Get Transactions Case 3: Success Get Transactions Data with empty data",
+			idsignature: "admin",
+			output: []models.Transac{
+				{
+					Id: primitive.ObjectID{},
+				},
+			},
+			response1: mtest.CreateCursorResponse(0, "foo.bar", mtest.FirstBatch, primitive.D{}),
+			err:       nil,
+		},
+	}
+	for _, tt := range test {
+		mt.Run(tt.nameTest, func(mt *mtest.T) {
+			mt.AddMockResponses(tt.response1, tt.response2, tt.response3, tt.response4)
+
+			blockchain := m_blockchain.NewMockBlockchain(ctrl)
+			repo := NewRepository(mt.DB, blockchain)
+			transac := repo.GetTransactions()
+			assert.Equal(t, tt.output, transac)
+		})
+	}
 }
 
 func Test_repository_CheckSignature(t *testing.T) {

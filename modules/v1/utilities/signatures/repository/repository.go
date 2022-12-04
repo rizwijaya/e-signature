@@ -264,13 +264,14 @@ func (r *repository) GetTransactions() []models.Transac {
 	cursor, err := c.Find(context.Background(), bson.M{})
 	if err != nil {
 		log.Println(err)
+		return transac
 	}
 	for cursor.Next(context.Background()) {
 		var model models.Transac
-		err := cursor.Decode(&model)
-		if err != nil {
-			log.Println(err)
-		}
+		cursor.Decode(&model)
+		// if err != nil {
+		// 	log.Println(err)
+		// }
 		transac = append(transac, model)
 	}
 	return transac
