@@ -33,6 +33,6 @@ jobs:
         host: ${{ secrets.APPS_HOSTNAME }}
         username: ${{ secrets.APPS_USERNAME }}
         password: ${{ secrets.APPS_PASSWORD }}
-        port: ${{ secrets.APPS_PORT }}
-        proxy_timeout: 120s
+        port: 22
+        #proxy_timeout: 120s
         script: cd /root/go/src/e-signature && git pull && systemctl restart sign
