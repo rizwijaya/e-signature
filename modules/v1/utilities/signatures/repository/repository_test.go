@@ -530,3 +530,64 @@ func Test_repository_GetUserByIdSignatures(t *testing.T) {
 		})
 	}
 }
+
+func Test_repository_VerifyDoc(t *testing.T) {
+	t.Skip("Skip Test Verify Doc")
+}
+
+func Test_repository_GetTransactions(t *testing.T) {
+	t.Skip("Skip Test Get Transactions")
+}
+
+func Test_repository_CheckSignature(t *testing.T) {
+	mt := mtest.New(t, mtest.NewOptions().ClientType(mtest.Mock))
+	defer mt.Close()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	test := []struct {
+		nameTest  string
+		hash      string
+		publickey string
+		output    bool
+		response  primitive.D
+		err       error
+	}{
+		{
+			nameTest:  "Check Signature Case 1: Success Signature Data Document Exist",
+			hash:      "dslajdjasodu038e29iojnewkd7a8d6y9a8hondl23123dasdassdas97",
+			publickey: "0x8d6y9a8hondl23123dasdassdas97",
+			output:    true,
+			response: mtest.CreateCursorResponse(1, "foo.bar", mtest.FirstBatch, primitive.D{
+				{Key: "hash", Value: "dslajdjasodu038e29iojnewkd7a8d6y9a8hondl23123dasdassdas97"},
+			}),
+			err: nil,
+		},
+		{
+			nameTest:  "Check Signature Case 2: Success Signature Data Document Not Exist",
+			publickey: "0xdassdas979a8hondl231238d6ydas",
+			output:    false,
+			response:  mtest.CreateCursorResponse(1, "foo.bar", mtest.FirstBatch, primitive.D{}),
+			err:       nil,
+		},
+		{
+			nameTest:  "Check Signature Case 3: Error Failed Decoded Data Document",
+			publickey: "0xdassdas979a8hondl231238d6ydas",
+			output:    false,
+			response: mtest.CreateCommandErrorResponse(mtest.CommandError{
+				Code:    1,
+				Message: "Failed decoded",
+			}),
+			err: errors.New("Failed decoded"),
+		},
+	}
+	for _, tt := range test {
+		mt.Run(tt.nameTest, func(mt *mtest.T) {
+			mt.AddMockResponses(tt.response)
+			blockchain := m_blockchain.NewMockBlockchain(ctrl)
+			repo := NewRepository(mt.DB, blockchain)
+			output := repo.CheckSignature(tt.hash, tt.publickey)
+			assert.Equal(t, tt.output, output)
+		})
+	}
+}

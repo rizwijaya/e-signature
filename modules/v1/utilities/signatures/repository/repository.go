@@ -285,6 +285,7 @@ func (r *repository) CheckSignature(hash string, publickey string) bool {
 	err := c.FindOne(context.Background(), filter).Decode(&sign)
 	if err != nil {
 		log.Println(err)
+		return false
 	}
 	if sign.Hash != "" {
 		return true
