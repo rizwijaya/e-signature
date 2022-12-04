@@ -4,6 +4,7 @@ import (
 	"e-signature/app/config"
 	"e-signature/modules/v1/utilities/signatures/models"
 	api "e-signature/pkg/api_response"
+	respon "e-signature/pkg/api_response"
 	notif "e-signature/pkg/notification"
 	"fmt"
 	"log"
@@ -372,6 +373,115 @@ func (h *signaturesHandler) Download(c *gin.Context) {
 	notif.SetMessage(c.Writer, "success", sucess)
 	h.serviceUser.Logging("Mengunduh dokumen "+doc.Metadata+".pdf", session.Get("sign").(string), c.ClientIP(), c.Request.UserAgent())
 	c.Redirect(302, "/download")
+}
+
+func (h *signaturesHandler) Integrity(c *gin.Context) {
+	conf, _ := config.Init()
+	session := sessions.Default(c)
+	var input models.SignDocuments
+	var signDocs models.SignDocs
+	//Input Mapping
+	err := c.ShouldBind(&input)
+	if err != nil {
+		log.Println(err)
+		response := respon.APIRespon("Data yang anda masukan salah!", http.StatusNonAuthoritativeInfo, "error", err)
+		c.JSON(http.StatusNonAuthoritativeInfo, response)
+		return
+	}
+
+	file, err := c.FormFile("file")
+	if err != nil {
+		log.Println(err)
+		response := respon.APIRespon("Data yang anda masukan salah!", http.StatusNonAuthoritativeInfo, "error", "file not found")
+		c.JSON(http.StatusNonAuthoritativeInfo, response)
+		return
+	}
+	if file.Header.Get("Content-Type") != "application/pdf" || file.Filename[len(file.Filename)-4:] != ".pdf" {
+		log.Println("File not pdf")
+		response := respon.APIRespon("Data yang anda masukan salah!", http.StatusNonAuthoritativeInfo, "error", "File Not PDF")
+		c.JSON(http.StatusNonAuthoritativeInfo, response)
+		return
+	}
+	input.Name = file.Filename
+	//Saving Document to Directory
+	path := fmt.Sprintf("./public/temp/pdfsign/%s", input.Name)
+	_ = c.SaveUploadedFile(file, path)
+	//Generate hash document original
+	input.Hash_original = h.serviceSignature.GenerateHashDocument(path)
+	//Get Address Creator
+	input.Creator = fmt.Sprintf("%v", session.Get("public_key"))
+	input.Creator_id = fmt.Sprintf("%v", session.Get("sign"))
+	//Get Images signatures
+	mysignatures := h.serviceSignature.GetMySignature(fmt.Sprintf("%v", session.Get("sign")), fmt.Sprintf("%v", session.Get("id")), fmt.Sprintf("%v", session.Get("name")))
+	//Resize Images Signatures
+	img := h.serviceSignature.ResizeImages(mysignatures, input)
+	//Signing Documents to PDF
+	sign := h.serviceSignature.SignDocuments(img, input)
+	signDocs.Hash = h.serviceSignature.GenerateHashDocument(sign)
+	input.Hash = input.Hash_original
+	//Input to IPFS
+	IPFS, err := h.serviceUser.UploadIPFS(sign)
+	if err != nil {
+		log.Println(err)
+		response := respon.APIRespon("Data yang anda masukan salah!", http.StatusNonAuthoritativeInfo, "error", "gagal mengupload dokumen ke IPFS")
+		c.JSON(http.StatusNonAuthoritativeInfo, response)
+		return
+	}
+	//Delete file uploaded sign
+	os.Remove(path)
+	//Encript IPFS and Get Signatures Data
+	input.IPFS = string(h.serviceUser.Encrypt([]byte(IPFS), conf.App.Secret_key))
+	if input.Invite_sts { //Check invite or not
+		input.Address, input.IdSignature = h.serviceUser.GetPublicKey(input.Email)
+	}
+	//Add Creator for signatures
+	input.Address = append(input.Address, common.HexToAddress(input.Creator))
+	input.IdSignature = append(input.IdSignature, input.Creator_id)
+	if input.Invite_sts { //Mode ttd with Invite
+		input.Mode = "1"
+	} else { //Mode ttd without Invite
+		input.Mode = "3"
+	}
+	//Input to blockchain
+	err = h.serviceSignature.AddToBlockhain(input)
+	if err != nil {
+		log.Println(err)
+		response := respon.APIRespon("Data yang anda masukan salah!", http.StatusNonAuthoritativeInfo, "error", "gagal menambahkan data ke blockchain")
+		c.JSON(http.StatusNonAuthoritativeInfo, response)
+		return
+	}
+	//Signing Creator in Documents
+	signDocs.Hash_original = input.Hash_original
+	signDocs.Creator = input.Creator
+	signDocs.IPFS = input.IPFS
+	h.serviceSignature.DocumentSigned(signDocs)
+
+	//invite people
+	if input.Invite_sts { //Check invite or not
+		for _, email := range input.Email { //Invite Via Email
+			if email != "" {
+				users, _ := h.serviceUser.GetUserByEmail(email)
+				h.serviceSignature.InvitePeople(email, input, users)
+			}
+		}
+	}
+	input.Hash = signDocs.Hash
+	err = h.serviceSignature.AddUserDocs(input)
+	if err != nil {
+		log.Println(err)
+		response := respon.APIRespon("Data yang anda masukan salah!", http.StatusNonAuthoritativeInfo, "error", "gagal menambahkan daftar penandatangan")
+		c.JSON(http.StatusNonAuthoritativeInfo, response)
+		return
+	}
+	//Delete Image Sign Resize
+	err = os.Remove(img)
+	if err != nil {
+		log.Println(err)
+	}
+	//Logging Access
+	h.serviceUser.Logging("Menandatangani dokumen "+input.Name+" via API", session.Get("sign").(string), c.ClientIP(), c.Request.UserAgent())
+	response := respon.APIRespon("Berhasil melakukan tanda tangan dokumen!", http.StatusOK, "success", input)
+	c.JSON(http.StatusOK, response)
 }
 
 // Test verification

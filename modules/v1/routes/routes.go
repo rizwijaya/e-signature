@@ -75,8 +75,8 @@ func Init(db *mongo.Database, conf config.Conf, router *gin.Engine) *gin.Engine 
 	//Analisis Integritas Data
 	apiV1 := router.Group("/api/v1")
 	apiV1.POST("/create-token", userHandlerV1.CreateToken)
-	// analisis := apiV1.Group("/analysis")
-	// analisis.POST("/analysis-integrity", signaturesHandlerV1.Integrity)
+	analisis := apiV1.Group("/analysis")
+	analisis.POST("/integrity-document", mid.AuthAPI(db), signaturesHandlerV1.Integrity)
 
 	router = ParseTmpl(router)
 	return router

@@ -11,7 +11,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/gin-contrib/sessions"
@@ -242,10 +241,9 @@ func (h *userHandler) CreateToken(c *gin.Context) {
 		return
 	}
 	//Create Token JWT
-	id, _ := strconv.Atoi(user.Id.Hex())
-	token, _ := token.GenerateToken(id)
+	token, _ := token.GenerateToken(user.Email, input.Password)
 	//Logging Access
-	h.userService.Logging(user.Name+"Membuat Token API", user.Idsignature, c.ClientIP(), c.Request.UserAgent())
-	response := respon.APIRespon("Berhasil Membuat Token API", http.StatusOK, "error", struct{ Token string }{Token: token})
+	h.userService.Logging(user.Name+" membuat Token API", user.Idsignature, c.ClientIP(), c.Request.UserAgent())
+	response := respon.APIRespon("Berhasil Membuat Token API", http.StatusOK, "success", struct{ Token string }{Token: token})
 	c.JSON(http.StatusOK, response)
 }

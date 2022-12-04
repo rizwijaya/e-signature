@@ -13,6 +13,7 @@ import (
 )
 
 type Documents interface {
+	Init()
 	CalcImagePos(img *creator.Image, page *model.PdfPage, input models.SignDocuments) *creator.Image
 	SignDocuments(imgpath string, input models.SignDocuments) string
 }
@@ -24,7 +25,7 @@ func NewDocuments() *documents {
 	return &documents{}
 }
 
-func init() {
+func (d *documents) Init() {
 	conf, _ := config.Init()
 	err := license.SetMeteredKey(conf.Signature.Key)
 	if err != nil {
@@ -60,6 +61,7 @@ func (d *documents) CalcImagePos(img *creator.Image, page *model.PdfPage, input 
 }
 
 func (d *documents) SignDocuments(imgpath string, input models.SignDocuments) string {
+	d.Init()
 	c := creator.New()
 	img, err := c.NewImageFromFile(imgpath)
 	if err != nil {
