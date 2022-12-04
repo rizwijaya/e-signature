@@ -7,24 +7,24 @@ on:
     branches: [ main ]
 
 jobs:
-  # continuous-integration:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   - uses: actions/checkout@v3
+  continuous-integration:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
 
-  #   - name: Set up Go
-  #     uses: actions/setup-go@v3
-  #     with:
-  #       go-version: 1.18
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.18
 
-  #   - name: Build
-  #     run: go build -v ./...
+    - name: Build
+      run: go build -v ./...
 
-  #   - name: Test
-  #     run: go test -v ./...
+    - name: Test
+      run: go test -v ./...
   continuous-deployment:
     runs-on: ubuntu-latest
-    #needs: [ continuous-integration ]
+    needs: [ continuous-integration ]
     steps: 
     - uses: actions/checkout@v3
     - name: Deployment to Server
@@ -34,5 +34,4 @@ jobs:
         username: ${{ secrets.APPS_USERNAME }}
         password: ${{ secrets.APPS_PASSWORD }}
         port: ${{ secrets.APPS_PORT }}
-        #proxy_timeout: 120s
         script: cd /root/go/src/e-signature && git pull && systemctl restart sign
