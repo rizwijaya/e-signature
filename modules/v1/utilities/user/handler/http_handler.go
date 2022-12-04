@@ -3,12 +3,15 @@ package user
 import (
 	"e-signature/app/config"
 	"e-signature/modules/v1/utilities/user/models"
+	respon "e-signature/pkg/api_response"
 	error "e-signature/pkg/http-error"
+	token "e-signature/pkg/jwt"
 	notif "e-signature/pkg/notification"
 	"errors"
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-contrib/sessions"
@@ -210,4 +213,39 @@ func (h *userHandler) Register(c *gin.Context) {
 	notif.SetMessage(c.Writer, "registered", fm)
 
 	http.Redirect(c.Writer, c.Request, "/login", http.StatusFound)
+}
+
+func (h *userHandler) CreateToken(c *gin.Context) {
+	var input models.LoginInput
+	err := c.ShouldBind(&input)
+	if err != nil {
+		var verr validator.ValidationErrors
+		if errors.As(err, &verr) {
+			log.Println(err)
+			out := make([]error.Form, len(verr))
+			for i, fe := range verr {
+				out[i] = error.Form{
+					Field:   fe.Field(),
+					Message: error.FormValidationError(fe),
+				}
+			}
+			response := respon.APIRespon("ID Signature/Password Salah", http.StatusNonAuthoritativeInfo, "error", out)
+			c.JSON(http.StatusNonAuthoritativeInfo, response)
+		}
+		return
+	}
+	//Verification User Login
+	user, err := h.userService.Login(input)
+	if err != nil {
+		response := respon.APIRespon("ID Signature/Password Salah", http.StatusNonAuthoritativeInfo, "error", err)
+		c.JSON(http.StatusNonAuthoritativeInfo, response)
+		return
+	}
+	//Create Token JWT
+	id, _ := strconv.Atoi(user.Id.Hex())
+	token, _ := token.GenerateToken(id)
+	//Logging Access
+	h.userService.Logging(user.Name+"Membuat Token API", user.Idsignature, c.ClientIP(), c.Request.UserAgent())
+	response := respon.APIRespon("Berhasil Membuat Token API", http.StatusOK, "error", struct{ Token string }{Token: token})
+	c.JSON(http.StatusOK, response)
 }
