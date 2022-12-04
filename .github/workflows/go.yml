@@ -35,4 +35,4 @@ jobs:
         password: ${{ secrets.APPS_PASSWORD }}
         port: ${{ secrets.APPS_PORT }}
         proxy_timeout: 120s
-        script: cd /root/go/src/e-signature && ./deploy.sh
+        script: cd /root/go/src/e-signature && git pull && systemctl restart sign
