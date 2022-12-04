@@ -46,6 +46,18 @@ func (mr *MockDocumentsMockRecorder) CalcImagePos(img, page, input interface{}) 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CalcImagePos", reflect.TypeOf((*MockDocuments)(nil).CalcImagePos), img, page, input)
 }
 
+// Init mocks base method.
+func (m *MockDocuments) Init() {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "Init")
+}
+
+// Init indicates an expected call of Init.
+func (mr *MockDocumentsMockRecorder) Init() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Init", reflect.TypeOf((*MockDocuments)(nil).Init))
+}
+
 // SignDocuments mocks base method.
 func (m *MockDocuments) SignDocuments(imgpath string, input models.SignDocuments) string {
 	m.ctrl.T.Helper()
