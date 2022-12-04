@@ -7,6 +7,7 @@ import (
 	modelUser "e-signature/modules/v1/utilities/user/models"
 	m_serviceUser "e-signature/modules/v1/utilities/user/service/mock"
 	"e-signature/pkg/html"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -1210,6 +1211,389 @@ func Test_signaturesHandler_Download(t *testing.T) {
 			location, err := resp.Result().Location()
 			assert.NoError(t, err)
 			assert.Equal(t, tt.pages, location.Path)
+		})
+	}
+}
+
+func Test_signaturesHandler_Integrity(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	type Meta struct {
+		Message string `json:"message"`
+		Code    int    `json:"code"`
+		Status  string `json:"status"`
+	}
+	type Response struct {
+		Meta Meta `json:"meta"`
+	}
+
+	var err error
+	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
+	defer f.Undo()
+	f.Do()
+	location, err := time.LoadLocation("Asia/Jakarta")
+	assert.NoError(t, err)
+	times := time.Now().In(location).String()
+	cookies := "smartsign=MTY2OTQ3NDEyOHxEdi1CQkFFQ180SUFBUkFCRUFBQV9nRXdfNElBQmdaemRISnBibWNNQkFBQ2FXUUdjM1J5YVc1bkRCb0FHRFl6T0RCaU5XTmlaR001TXpoak5XWmtaamhsTm1KbVpRWnpkSEpwYm1jTUJnQUVjMmxuYmdaemRISnBibWNNQ3dBSmNtbDZkMmxxWVhsaEJuTjBjbWx1Wnd3R0FBUnVZVzFsQm5OMGNtbHVad3dPQUF4U2FYcHhhU0JYYVdwaGVXRUdjM1J5YVc1bkRBd0FDbkIxWW14cFkxOXJaWGtHYzNSeWFXNW5EQ3dBS2pCNFJFSkZOREUwTmpVeE0yTTVPVFEwTTJOR016SkRZVGhCTkRRNVpqVXlPRGRoWVVRMlpqa3hZUVp6ZEhKcGJtY01CZ0FFY205c1pRTnBiblFFQWdBRUJuTjBjbWx1Wnd3SUFBWndZWE56Y0dnR2MzUnlhVzVuRERnQU5rWkNTQ3RMYkZwd1dHOHhlVTFSUTNnMU9VVTBNRnAxYlROWVVHa3dSbmxWT1c1TFVsTkRNbWR4UkhVNGJteFNSMHM0TTJkRlp3PT189RnNnJPqyThKonDOKwf4QeHI-7SwOwzto9OciAktNLw="
+
+	mysignature := models.MySignatures{
+		Id:                 "1",
+		Name:               "Rizqi Wijaya",
+		User_id:            "rizwijaya",
+		Signature:          "default.png",
+		Signature_id:       "sign_type",
+		Signature_data:     "default.png",
+		Signature_data_id:  "sign_type",
+		Latin:              "latin.png",
+		Latin_id:           "sign_type",
+		Latin_data:         "latin_data.png",
+		Latin_data_id:      "sign_type",
+		Signature_selected: "signature",
+		Date_update:        times,
+		Date_created:       times,
+	}
+
+	tests := []struct {
+		name         string
+		responseCode int
+		docs         models.SignDocuments
+		file         string
+		message      string
+		serviceTest  func(serviceUser *m_serviceUser.MockService, serviceSignature *m_serviceSignature.MockService)
+	}{
+		{
+			name:         "Integrity Analysis Case 1: Input Invalid",
+			responseCode: http.StatusNonAuthoritativeInfo,
+			file:         "",
+			docs: models.SignDocuments{
+				SignPage:   1.0,
+				X_coord:    1,
+				Height:     4.2,
+				Width:      5.3,
+				Invite_sts: false,
+			},
+			message: "Data yang anda masukan salah!",
+		},
+		{
+			name:         "Integrity Analysis Case 2: Not File Document Request",
+			responseCode: http.StatusNonAuthoritativeInfo,
+			file:         "",
+			docs: models.SignDocuments{
+				SignPage:   1.0,
+				X_coord:    1.3,
+				Y_coord:    1.2,
+				Height:     4.2,
+				Width:      5.3,
+				Invite_sts: false,
+			},
+			message: "Data yang anda masukan salah!",
+		},
+		{
+			name:         "Integrity Analysis Case 3:  Not File format PDF in Request",
+			responseCode: http.StatusNonAuthoritativeInfo,
+			file:         "card_test.jpeg",
+			docs: models.SignDocuments{
+				SignPage:   1.0,
+				X_coord:    1.3,
+				Y_coord:    1.2,
+				Height:     4.2,
+				Width:      5.3,
+				Invite_sts: false,
+			},
+			message: "Data yang anda masukan salah!",
+		},
+		{
+			name:         "Integrity Analysis Case 4: Failed to Input IPFS",
+			responseCode: http.StatusNonAuthoritativeInfo,
+			file:         "sample_test.pdf",
+			docs: models.SignDocuments{
+				Name:       "sample_test.pdf",
+				SignPage:   1.0,
+				X_coord:    1.3,
+				Y_coord:    1.2,
+				Height:     4.2,
+				Width:      5.3,
+				Invite_sts: true,
+				Email:      []string{"admin@smartsign.com"},
+				Creator:    "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
+				Creator_id: "rizwijaya",
+			},
+			message: "Data yang anda masukan salah!",
+			serviceTest: func(serviceUser *m_serviceUser.MockService, serviceSignature *m_serviceSignature.MockService) {
+				docs := models.SignDocuments{
+					Name:       "sample_test.pdf",
+					SignPage:   1.0,
+					X_coord:    1.3,
+					Y_coord:    1.2,
+					Height:     4.2,
+					Width:      5.3,
+					Invite_sts: true,
+					Email:      []string{"[61646d696e40736d6172747369676e2e636f6d]"},
+				}
+
+				path := "./public/temp/pdfsign/"
+				serviceSignature.EXPECT().GenerateHashDocument(path + docs.Name).Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
+				docs.Hash_original = "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b"
+				docs.Creator = "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"
+				docs.Creator_id = "rizwijaya"
+				serviceSignature.EXPECT().GetMySignature("rizwijaya", "6380b5cbdc938c5fdf8e6bfe", "Rizqi Wijaya").Return(mysignature).Times(1)
+				serviceSignature.EXPECT().ResizeImages(mysignature, docs).Return("./public/temp/sizes-signature.png").Times(1)
+				serviceSignature.EXPECT().SignDocuments("./public/temp/sizes-signature.png", docs).Return(path + "signed_sample_test.pdf").Times(1)
+				docs.Hash = docs.Hash_original
+				serviceSignature.EXPECT().GenerateHashDocument(path + "signed_sample_test.pdf").Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
+				serviceUser.EXPECT().UploadIPFS(path+"signed_sample_test.pdf").Return("", errors.New("Failed to Input IPFS")).Times(1)
+			},
+		},
+		{
+			name:         "Integrity Analysis Case 5: No Invite Signers and Failed Add To Blockchain",
+			responseCode: http.StatusNonAuthoritativeInfo,
+			file:         "sample_test.pdf",
+			docs: models.SignDocuments{
+				Name:       "sample_test.pdf",
+				SignPage:   1.0,
+				X_coord:    1.3,
+				Y_coord:    1.2,
+				Height:     4.2,
+				Width:      5.3,
+				Invite_sts: false,
+				Email:      []string{""},
+				Creator:    "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
+				Creator_id: "rizwijaya",
+			},
+			message: "Data yang anda masukan salah!",
+			serviceTest: func(serviceUser *m_serviceUser.MockService, serviceSignature *m_serviceSignature.MockService) {
+				docs := models.SignDocuments{
+					Name:       "sample_test.pdf",
+					SignPage:   1.0,
+					X_coord:    1.3,
+					Y_coord:    1.2,
+					Height:     4.2,
+					Width:      5.3,
+					Invite_sts: false,
+					Email:      []string{"[]"},
+				}
+
+				path := "./public/temp/pdfsign/"
+				serviceSignature.EXPECT().GenerateHashDocument(path + docs.Name).Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
+				docs.Hash_original = "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b"
+				docs.Creator_id = "rizwijaya"
+				serviceSignature.EXPECT().GetMySignature("rizwijaya", "6380b5cbdc938c5fdf8e6bfe", "Rizqi Wijaya").Return(mysignature).Times(1)
+				docs.Creator = "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"
+				serviceSignature.EXPECT().ResizeImages(mysignature, docs).Return("./public/temp/sizes-signature.png").Times(1)
+				serviceSignature.EXPECT().SignDocuments("./public/temp/sizes-signature.png", docs).Return(path + "signed_sample_test.pdf").Times(1)
+				docs.Hash = docs.Hash_original
+				serviceSignature.EXPECT().GenerateHashDocument(path + "signed_sample_test.pdf").Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
+				serviceUser.EXPECT().UploadIPFS(path+"signed_sample_test.pdf").Return("j8329dnsay80e2asdas", nil).Times(1)
+				serviceUser.EXPECT().Encrypt([]byte("j8329dnsay80e2asdas"), "JWT_DAS3443HBOARDD_TAMS_RIZ_SK4343_343_KEJNF00975SDISu").Return([]byte("jdadsasdasr546fgfdsfs")).Times(1)
+				docs.IPFS = "jdadsasdasr546fgfdsfs"
+				docs.Address = append(docs.Address, common.HexToAddress("0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"))
+				docs.IdSignature = append(docs.IdSignature, docs.Creator_id)
+				docs.Mode = "3"
+				serviceSignature.EXPECT().AddToBlockhain(docs).Return(errors.New("Failed to Add to Blockchain")).Times(1)
+			},
+		},
+		{
+			name:         "Integrity Analysis Case 6: Invite Signers and Failed to Add User Documents",
+			responseCode: http.StatusNonAuthoritativeInfo,
+			file:         "sample_test.pdf",
+			docs: models.SignDocuments{
+				Name:       "sample_test.pdf",
+				SignPage:   1.0,
+				X_coord:    1.3,
+				Y_coord:    1.2,
+				Height:     4.2,
+				Width:      5.3,
+				Invite_sts: true,
+				Email:      []string{"admin@rizwijaya.com", "smartsign@rizwijaya.com"},
+				Creator:    "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
+				Creator_id: "rizwijaya",
+			},
+			message: "Data yang anda masukan salah!",
+			serviceTest: func(serviceUser *m_serviceUser.MockService, serviceSignature *m_serviceSignature.MockService) {
+				docs := models.SignDocuments{
+					Name:       "sample_test.pdf",
+					SignPage:   1.0,
+					X_coord:    1.3,
+					Y_coord:    1.2,
+					Height:     4.2,
+					Width:      5.3,
+					Invite_sts: true,
+					Email:      []string{"[61646d696e4072697a77696a6179612e636f6d 736d6172747369676e4072697a77696a6179612e636f6d]"},
+				}
+
+				path := "./public/temp/pdfsign/"
+				serviceSignature.EXPECT().GenerateHashDocument(path + docs.Name).Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
+				docs.Hash_original = "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b"
+				docs.Creator = "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"
+				docs.Creator_id = "rizwijaya"
+				serviceSignature.EXPECT().GetMySignature("rizwijaya", "6380b5cbdc938c5fdf8e6bfe", "Rizqi Wijaya").Return(mysignature).Times(1)
+				serviceSignature.EXPECT().ResizeImages(mysignature, docs).Return("./public/temp/sizes-signature.png").Times(1)
+				serviceSignature.EXPECT().SignDocuments("./public/temp/sizes-signature.png", docs).Return(path + "signed_sample_test.pdf").Times(1)
+				docs.Hash = docs.Hash_original
+				signDocs := models.SignDocs{
+					Hash: docs.Hash,
+				}
+				serviceSignature.EXPECT().GenerateHashDocument(path + "signed_sample_test.pdf").Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
+				serviceUser.EXPECT().UploadIPFS(path+"signed_sample_test.pdf").Return("j8329dnsay80e2asdas", nil).Times(1)
+				serviceUser.EXPECT().Encrypt([]byte("j8329dnsay80e2asdas"), "JWT_DAS3443HBOARDD_TAMS_RIZ_SK4343_343_KEJNF00975SDISu").Return([]byte("jdadsasdasr546fgfdsfs")).Times(1)
+				docs.IPFS = "jdadsasdasr546fgfdsfs"
+				serviceUser.EXPECT().GetPublicKey(docs.Email).Return([]common.Address{common.HexToAddress("0xAyysae6513c99443cF32Ca8A449f5287aaD6f91a"), common.HexToAddress("0xBha62e6513c99443cF32Ca8A449f5287aaD6f91a")}, []string{"signed_1", "signed2"}).Times(1)
+				docs.Address = append(docs.Address, common.HexToAddress("0xAyysae6513c99443cF32Ca8A449f5287aaD6f91a"))
+				docs.Address = append(docs.Address, common.HexToAddress("0xBha62e6513c99443cF32Ca8A449f5287aaD6f91a"))
+				docs.Address = append(docs.Address, common.HexToAddress("0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"))
+				docs.IdSignature = append(docs.IdSignature, "signed_1")
+				docs.IdSignature = append(docs.IdSignature, "signed2")
+				docs.IdSignature = append(docs.IdSignature, docs.Creator_id)
+				docs.Mode = "1"
+				serviceSignature.EXPECT().AddToBlockhain(docs).Return(nil).Times(1)
+				signDocs.Hash_original = docs.Hash_original
+				signDocs.Creator = docs.Creator
+				signDocs.IPFS = docs.IPFS
+				serviceSignature.EXPECT().DocumentSigned(signDocs).Return(nil).Times(1)
+				serviceUser.EXPECT().GetUserByEmail(docs.Email[0]).Times(1)
+				serviceSignature.EXPECT().InvitePeople(docs.Email[0], docs, modelUser.User{}).Times(1)
+				docs.Hash = signDocs.Hash
+				serviceSignature.EXPECT().AddUserDocs(docs).Return(errors.New("Failed to insert data")).Times(1)
+			},
+		},
+		{
+			name:         "Integrity Analysis Case 7: Success Signed Document",
+			responseCode: http.StatusOK,
+			file:         "sample_test.pdf",
+			docs: models.SignDocuments{
+				Name:       "sample_test.pdf",
+				SignPage:   1.0,
+				X_coord:    1.3,
+				Y_coord:    1.2,
+				Height:     4.2,
+				Width:      5.3,
+				Invite_sts: true,
+				Email:      []string{"admin@rizwijaya.com", "smartsign@rizwijaya.com"},
+				Creator:    "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
+				Creator_id: "rizwijaya",
+			},
+			message: "Berhasil melakukan tanda tangan dokumen!",
+			serviceTest: func(serviceUser *m_serviceUser.MockService, serviceSignature *m_serviceSignature.MockService) {
+				docs := models.SignDocuments{
+					Name:       "sample_test.pdf",
+					SignPage:   1.0,
+					X_coord:    1.3,
+					Y_coord:    1.2,
+					Height:     4.2,
+					Width:      5.3,
+					Invite_sts: true,
+					Email:      []string{"[61646d696e4072697a77696a6179612e636f6d 736d6172747369676e4072697a77696a6179612e636f6d]"},
+				}
+
+				path := "./public/temp/pdfsign/"
+				serviceSignature.EXPECT().GenerateHashDocument(path + docs.Name).Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
+				docs.Hash_original = "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b"
+				docs.Creator = "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"
+				docs.Creator_id = "rizwijaya"
+				serviceSignature.EXPECT().GetMySignature("rizwijaya", "6380b5cbdc938c5fdf8e6bfe", "Rizqi Wijaya").Return(mysignature).Times(1)
+				serviceSignature.EXPECT().ResizeImages(mysignature, docs).Return("./public/temp/sizes-signature.png").Times(1)
+				serviceSignature.EXPECT().SignDocuments("./public/temp/sizes-signature.png", docs).Return(path + "signed_sample_test.pdf").Times(1)
+				docs.Hash = docs.Hash_original
+				signDocs := models.SignDocs{
+					Hash: docs.Hash,
+				}
+				serviceSignature.EXPECT().GenerateHashDocument(path + "signed_sample_test.pdf").Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
+				serviceUser.EXPECT().UploadIPFS(path+"signed_sample_test.pdf").Return("j8329dnsay80e2asdas", nil).Times(1)
+				serviceUser.EXPECT().Encrypt([]byte("j8329dnsay80e2asdas"), "JWT_DAS3443HBOARDD_TAMS_RIZ_SK4343_343_KEJNF00975SDISu").Return([]byte("jdadsasdasr546fgfdsfs")).Times(1)
+				docs.IPFS = "jdadsasdasr546fgfdsfs"
+				serviceUser.EXPECT().GetPublicKey(docs.Email).Return([]common.Address{common.HexToAddress("0xAyysae6513c99443cF32Ca8A449f5287aaD6f91a"), common.HexToAddress("0xBha62e6513c99443cF32Ca8A449f5287aaD6f91a")}, []string{"signed_1", "signed2"}).Times(1)
+				docs.Address = append(docs.Address, common.HexToAddress("0xAyysae6513c99443cF32Ca8A449f5287aaD6f91a"))
+				docs.Address = append(docs.Address, common.HexToAddress("0xBha62e6513c99443cF32Ca8A449f5287aaD6f91a"))
+				docs.Address = append(docs.Address, common.HexToAddress("0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"))
+				docs.IdSignature = append(docs.IdSignature, "signed_1")
+				docs.IdSignature = append(docs.IdSignature, "signed2")
+				docs.IdSignature = append(docs.IdSignature, docs.Creator_id)
+				docs.Mode = "1"
+				serviceSignature.EXPECT().AddToBlockhain(docs).Return(nil).Times(1)
+				signDocs.Hash_original = docs.Hash_original
+				signDocs.Creator = docs.Creator
+				signDocs.IPFS = docs.IPFS
+				serviceSignature.EXPECT().DocumentSigned(signDocs).Return(nil).Times(1)
+				serviceUser.EXPECT().GetUserByEmail(docs.Email[0]).Times(1)
+				serviceSignature.EXPECT().InvitePeople(docs.Email[0], docs, modelUser.User{}).Times(1)
+				docs.Hash = signDocs.Hash
+				serviceSignature.EXPECT().AddUserDocs(docs).Return(nil).Times(1)
+				serviceUser.EXPECT().Logging("Menandatangani dokumen "+docs.Name+" via API", "rizwijaya", gomock.Any(), gomock.Any()).Times(1)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			serviceSignature := m_serviceSignature.NewMockService(ctrl)
+			serviceUser := m_serviceUser.NewMockService(ctrl)
+			//Testing Services Functions
+			if tt.serviceTest != nil {
+				tt.serviceTest(serviceUser, serviceSignature)
+			}
+			w := &signaturesHandler{
+				serviceSignature: serviceSignature,
+				serviceUser:      serviceUser,
+			}
+			got := w.Integrity
+			router := NewRouter()
+			router.POST("/api/v1/analysis/integrity-document", got)
+			//Testing Handler Functions
+			payload := &bytes.Buffer{}
+			writer := multipart.NewWriter(payload)
+			err = writer.WriteField("signPage", fmt.Sprintf("%x", tt.docs.SignPage))
+			assert.NoError(t, err)
+			err = writer.WriteField("signX", fmt.Sprintf("%x", tt.docs.X_coord))
+			assert.NoError(t, err)
+			err = writer.WriteField("signY", fmt.Sprintf("%x", tt.docs.Y_coord))
+			assert.NoError(t, err)
+			err = writer.WriteField("signH", fmt.Sprintf("%x", tt.docs.Height))
+			assert.NoError(t, err)
+			err = writer.WriteField("signW", fmt.Sprintf("%x", tt.docs.Width))
+			assert.NoError(t, err)
+			err = writer.WriteField("invite_status", fmt.Sprintf("%v", tt.docs.Invite_sts))
+			assert.NoError(t, err)
+			err = writer.WriteField("email[]", fmt.Sprintf("%x", tt.docs.Email))
+			assert.NoError(t, err)
+			err = writer.WriteField("note", fmt.Sprintf("%x", tt.docs.Note))
+			assert.NoError(t, err)
+			err = writer.WriteField("judul", fmt.Sprintf("%x", tt.docs.Judul))
+			assert.NoError(t, err)
+			if tt.file != "" {
+				path := "public/unit_testing/"
+				file, errFile7 := os.Open(path + tt.file)
+				assert.NoError(t, errFile7)
+				defer file.Close()
+				var part7 io.Writer
+				if tt.file[len(tt.file)-3:] == "pdf" {
+					part7, errFile7 = CreateFilePDF(t, writer, path+tt.file)
+				} else {
+					part7, errFile7 = writer.CreateFormFile("file", filepath.Base(path+tt.file))
+				}
+				assert.NoError(t, errFile7)
+				_, errFile7 = io.Copy(part7, file)
+				assert.NoError(t, errFile7)
+			}
+			err := writer.Close()
+			assert.Nil(t, err)
+
+			req, err := http.NewRequest("POST", "/api/v1/analysis/integrity-document", payload)
+			assert.NoError(t, err)
+			req.Header.Set("Content-Type", writer.FormDataContentType())
+			req.Header.Set("Cookie", cookies)
+			resp := httptest.NewRecorder()
+			router.ServeHTTP(resp, req)
+
+			responseData, err := ioutil.ReadAll(resp.Body)
+			assert.NoError(t, err)
+
+			var response Response
+			err = json.Unmarshal(responseData, &response)
+			assert.NoError(t, err)
+
+			assert.Equal(t, tt.responseCode, resp.Code)
+			assert.Equal(t, resp.Code, response.Meta.Code)
+			assert.Equal(t, tt.message, response.Meta.Message)
 		})
 	}
 }
