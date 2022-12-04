@@ -231,13 +231,14 @@ func (r *repository) GetListSign(hash string) []models.SignersData {
 	cursor, err := c.Find(context.Background(), filter)
 	if err != nil {
 		log.Println(err)
+		return sign
 	}
 	for cursor.Next(context.Background()) {
 		var signer models.SignersData
-		err := cursor.Decode(&signer)
-		if err != nil {
-			log.Println(err)
-		}
+		cursor.Decode(&signer)
+		// if err != nil {
+		// 	log.Println(err)
+		// }
 		sign = append(sign, signer)
 	}
 	return sign
