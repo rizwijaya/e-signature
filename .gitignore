@@ -1,10 +1,7 @@
 .vscode
+.env
 .env_local
 .env_server
 .gitignore
 /app/account
-/app/databases/Based-UTC--2022-08-21T09-30-06.294168500Z--8101c772c3af62bb3096b5dd9dfd9b53cd50652e
-/backup
-/public/images/identity_card
-/public/images/signatures
-/public/temp
+main.go
