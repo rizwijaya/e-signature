@@ -241,6 +241,7 @@ func (s *service) GetDocumentAllSign(hash string) (models.DocumentAllSign, bool)
 	if !checkDoc {
 		return docSigned, false
 	}
+
 	//Get Original Hash from Blockchain with Hash signed
 	hash_ori := s.repository.GetHashOriginal(hash, "0x"+conf.Blockhain.Public)
 	doc := s.repository.GetDocument(hash_ori, "0x"+conf.Blockhain.Public)
