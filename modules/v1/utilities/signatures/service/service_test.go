@@ -1,6 +1,7 @@
 package service
 
 import (
+	"e-signature/app/config"
 	"e-signature/modules/v1/utilities/signatures/models"
 	m_repo "e-signature/modules/v1/utilities/signatures/repository/mock"
 	modelsUser "e-signature/modules/v1/utilities/user/models"
@@ -1475,6 +1476,7 @@ func Test_service_GetDocument(t *testing.T) {
 func Test_service_GetDocumentAllSign(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+	conf, _ := config.Init()
 
 	var err error
 	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
@@ -1561,8 +1563,8 @@ func Test_service_GetDocumentAllSign(t *testing.T) {
 				}
 
 				repo.EXPECT().VerifyDoc("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Return(true).Times(1)
-				repo.EXPECT().GetHashOriginal("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b", "0x8101c772c3af62bb3096b5dd9dfd9b53cd50652e").Return("u798sc537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
-				repo.EXPECT().GetDocument("u798sc537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b", "0x8101c772c3af62bb3096b5dd9dfd9b53cd50652e").Return(docsBlockchain).Times(1)
+				repo.EXPECT().GetHashOriginal("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b", "0x"+conf.Blockhain.Public).Return("u798sc537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
+				repo.EXPECT().GetDocument("u798sc537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b", "0x"+conf.Blockhain.Public).Return(docsBlockchain).Times(1)
 
 				SignData := []models.SignersData{
 					{
@@ -1622,6 +1624,7 @@ func Test_service_GetDocumentAllSign(t *testing.T) {
 func Test_service_GetDocumentNoSigners(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+	conf, _ := config.Init()
 
 	var err error
 	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
@@ -1667,7 +1670,7 @@ func Test_service_GetDocumentNoSigners(t *testing.T) {
 				},
 			},
 			test: func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments) {
-				repo.EXPECT().GetDocument("u798sc537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b", "0x8101c772c3af62bb3096b5dd9dfd9b53cd50652e").Return(models.DocumentBlockchain{
+				repo.EXPECT().GetDocument("u798sc537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b", "0x"+conf.Blockhain.Public).Return(models.DocumentBlockchain{
 					Document_id:    "0x1",
 					Creator:        common.HexToAddress("0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"),
 					Creator_string: "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
