@@ -20,8 +20,18 @@ jobs:
     - name: Build
       run: go build -v ./...
 
-    - name: Test
-      run: go test -v ./...
+    - name: Test Service Signatures
+      run: go test -v ./.../modules/v1/utilities/signatures/service/
+
+    - name: Test Service User
+      run: go test -v ./.../modules/v1/utilities/user/service/
+
+    - name: Test Repository Signatures
+      run: go test -v ./.../modules/v1/utilities/signatures/repository/
+
+    - name: Test Repository User
+      run: go test -v ./.../modules/v1/utilities/user/repository/
+
   continuous-deployment:
     runs-on: ubuntu-latest
     needs: [ continuous-integration ]
