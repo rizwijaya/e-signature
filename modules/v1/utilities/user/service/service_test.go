@@ -1,6 +1,7 @@
 package service
 
 import (
+	"e-signature/app/config"
 	"e-signature/modules/v1/utilities/user/models"
 	m_repo "e-signature/modules/v1/utilities/user/repository/mock"
 	m_crypto "e-signature/pkg/crypto/mock"
@@ -152,7 +153,7 @@ func Test_service_GetFileIPFS(t *testing.T) {
 func Test_service_CreateAccount(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-
+	conf, _ := config.Init()
 	id := primitive.NewObjectID()
 	test := []struct {
 		name     string
@@ -219,7 +220,7 @@ func Test_service_CreateAccount(t *testing.T) {
 				}
 				crypto.EXPECT().GenerateHash(user.Password).Return(user.PasswordHash, nil).Times(1)
 				repo.EXPECT().GeneratePublicKey(user).Return(user, nil).Times(1)
-				crypto.EXPECT().Encrypt([]byte(user.Publickey), "JWT_DAS3443HBOARDD_TAMS_RIZ_SK4343_343_KEJNF00975SDISu").Return([]byte("jlkknr93nks4nsdi94nnfs9i3om,s93kkns382pn9d02dn9u3mnl")).Times(1)
+				crypto.EXPECT().Encrypt([]byte(user.Publickey), conf.App.Secret_key).Return([]byte("jlkknr93nks4nsdi94nnfs9i3om,s93kkns382pn9d02dn9u3mnl")).Times(1)
 				user.Publickey = "jlkknr93nks4nsdi94nnfs9i3om,s93kkns382pn9d02dn9u3mnl"
 				repo.EXPECT().Register(user).Return(interface{}(nil), errors.New("failed register user")).Times(1)
 			},
@@ -244,7 +245,7 @@ func Test_service_CreateAccount(t *testing.T) {
 				}
 				crypto.EXPECT().GenerateHash(user.Password).Return(user.PasswordHash, nil).Times(1)
 				repo.EXPECT().GeneratePublicKey(user).Return(user, nil).Times(1)
-				crypto.EXPECT().Encrypt([]byte(user.Publickey), "JWT_DAS3443HBOARDD_TAMS_RIZ_SK4343_343_KEJNF00975SDISu").Return([]byte("jlkknr93nks4nsdi94nnfs9i3om,s93kkns382pn9d02dn9u3mnl")).Times(1)
+				crypto.EXPECT().Encrypt([]byte(user.Publickey), conf.App.Secret_key).Return([]byte("jlkknr93nks4nsdi94nnfs9i3om,s93kkns382pn9d02dn9u3mnl")).Times(1)
 				user.Publickey = "jlkknr93nks4nsdi94nnfs9i3om,s93kkns382pn9d02dn9u3mnl"
 				repo.EXPECT().Register(user).Return(interface{}(id), nil).Times(1)
 			},
@@ -618,6 +619,7 @@ func Test_service_CheckEmailExist(t *testing.T) {
 func Test_service_GetPublicKey(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+	conf, _ := config.Init()
 
 	test := []struct {
 		name        string
@@ -641,7 +643,7 @@ func Test_service_GetPublicKey(t *testing.T) {
 						Idsignature: idsignature[i],
 					}, nil)
 					addrNow := []string{"0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a", "0x3227fc42acAF0C6Ba14A42f8dd518eDfe72cd21D"}
-					crypto.EXPECT().Decrypt([]byte(addr[i]), "JWT_DAS3443HBOARDD_TAMS_RIZ_SK4343_343_KEJNF00975SDISu").Return([]byte(addrNow[i]))
+					crypto.EXPECT().Decrypt([]byte(addr[i]), conf.App.Secret_key).Return([]byte(addrNow[i]))
 				}
 			},
 		},

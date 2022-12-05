@@ -1,6 +1,7 @@
 package view
 
 import (
+	"e-signature/app/config"
 	"e-signature/modules/v1/utilities/signatures/models"
 	m_serviceSignature "e-signature/modules/v1/utilities/signatures/service/mock"
 	m_serviceUser "e-signature/modules/v1/utilities/user/service/mock"
@@ -29,8 +30,8 @@ func TestInit(t *testing.T) {
 func NewRouter() *gin.Engine {
 	router := gin.Default()
 	router.Use(cors.Default())
-
-	cookieStore := cookie.NewStore([]byte("JWT_DAS3443HBOARDD_TAMS_RIZ_SK4343_343_KEJNF00975SDISu"))
+	conf, _ := config.Init()
+	cookieStore := cookie.NewStore([]byte(conf.App.Secret_key))
 	router.Use(sessions.Sessions("smartsign", cookieStore))
 
 	router.Static("/landing/assets", "./public/assets/landing")

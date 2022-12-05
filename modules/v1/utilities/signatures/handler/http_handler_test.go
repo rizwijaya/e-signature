@@ -2,6 +2,7 @@ package signatures
 
 import (
 	"bytes"
+	"e-signature/app/config"
 	"e-signature/modules/v1/utilities/signatures/models"
 	m_serviceSignature "e-signature/modules/v1/utilities/signatures/service/mock"
 	modelUser "e-signature/modules/v1/utilities/user/models"
@@ -39,8 +40,9 @@ func TestInit(t *testing.T) {
 func NewRouter() *gin.Engine {
 	router := gin.Default()
 	router.Use(cors.Default())
+	conf, _ := config.Init()
 
-	cookieStore := cookie.NewStore([]byte("JWT_DAS3443HBOARDD_TAMS_RIZ_SK4343_343_KEJNF00975SDISu"))
+	cookieStore := cookie.NewStore([]byte(conf.App.Secret_key))
 	router.Use(sessions.Sessions("smartsign", cookieStore))
 
 	router.Static("/landing/assets", "./public/assets/landing")
@@ -240,6 +242,8 @@ func CreateFilePDF(t *testing.T, w *multipart.Writer, filename string) (io.Write
 func Test_signaturesHandler_SignDocuments(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+	conf, _ := config.Init()
+
 	var err error
 	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
 	defer f.Undo()
@@ -397,7 +401,7 @@ func Test_signaturesHandler_SignDocuments(t *testing.T) {
 				docs.Hash = docs.Hash_original
 				serviceSignature.EXPECT().GenerateHashDocument(path + "signed_sample_test.pdf").Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
 				serviceUser.EXPECT().UploadIPFS(path+"signed_sample_test.pdf").Return("j8329dnsay80e2asdas", nil).Times(1)
-				serviceUser.EXPECT().Encrypt([]byte("j8329dnsay80e2asdas"), "JWT_DAS3443HBOARDD_TAMS_RIZ_SK4343_343_KEJNF00975SDISu").Return([]byte("jdadsasdasr546fgfdsfs")).Times(1)
+				serviceUser.EXPECT().Encrypt([]byte("j8329dnsay80e2asdas"), conf.App.Secret_key).Return([]byte("jdadsasdasr546fgfdsfs")).Times(1)
 				docs.IPFS = "jdadsasdasr546fgfdsfs"
 				docs.Address = append(docs.Address, common.HexToAddress("0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"))
 				docs.IdSignature = append(docs.IdSignature, docs.Creator_id)
@@ -448,7 +452,7 @@ func Test_signaturesHandler_SignDocuments(t *testing.T) {
 				}
 				serviceSignature.EXPECT().GenerateHashDocument(path + "signed_sample_test.pdf").Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
 				serviceUser.EXPECT().UploadIPFS(path+"signed_sample_test.pdf").Return("j8329dnsay80e2asdas", nil).Times(1)
-				serviceUser.EXPECT().Encrypt([]byte("j8329dnsay80e2asdas"), "JWT_DAS3443HBOARDD_TAMS_RIZ_SK4343_343_KEJNF00975SDISu").Return([]byte("jdadsasdasr546fgfdsfs")).Times(1)
+				serviceUser.EXPECT().Encrypt([]byte("j8329dnsay80e2asdas"), conf.App.Secret_key).Return([]byte("jdadsasdasr546fgfdsfs")).Times(1)
 				docs.IPFS = "jdadsasdasr546fgfdsfs"
 				serviceUser.EXPECT().GetPublicKey(docs.Email).Return([]common.Address{common.HexToAddress("0xAyysae6513c99443cF32Ca8A449f5287aaD6f91a"), common.HexToAddress("0xBha62e6513c99443cF32Ca8A449f5287aaD6f91a")}, []string{"signed_1", "signed2"}).Times(1)
 				docs.Address = append(docs.Address, common.HexToAddress("0xAyysae6513c99443cF32Ca8A449f5287aaD6f91a"))
@@ -512,7 +516,7 @@ func Test_signaturesHandler_SignDocuments(t *testing.T) {
 				}
 				serviceSignature.EXPECT().GenerateHashDocument(path + "signed_sample_test.pdf").Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
 				serviceUser.EXPECT().UploadIPFS(path+"signed_sample_test.pdf").Return("j8329dnsay80e2asdas", nil).Times(1)
-				serviceUser.EXPECT().Encrypt([]byte("j8329dnsay80e2asdas"), "JWT_DAS3443HBOARDD_TAMS_RIZ_SK4343_343_KEJNF00975SDISu").Return([]byte("jdadsasdasr546fgfdsfs")).Times(1)
+				serviceUser.EXPECT().Encrypt([]byte("j8329dnsay80e2asdas"), conf.App.Secret_key).Return([]byte("jdadsasdasr546fgfdsfs")).Times(1)
 				docs.IPFS = "jdadsasdasr546fgfdsfs"
 				serviceUser.EXPECT().GetPublicKey(docs.Email).Return([]common.Address{common.HexToAddress("0xAyysae6513c99443cF32Ca8A449f5287aaD6f91a"), common.HexToAddress("0xBha62e6513c99443cF32Ca8A449f5287aaD6f91a")}, []string{"signed_1", "signed2"}).Times(1)
 				docs.Address = append(docs.Address, common.HexToAddress("0xAyysae6513c99443cF32Ca8A449f5287aaD6f91a"))
@@ -613,6 +617,8 @@ func Test_signaturesHandler_SignDocuments(t *testing.T) {
 func Test_signaturesHandler_InviteSignatures(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+	conf, _ := config.Init()
+
 	var err error
 	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
 	defer f.Undo()
@@ -707,7 +713,7 @@ func Test_signaturesHandler_InviteSignatures(t *testing.T) {
 				docData.Creator_id = "rizwijaya"
 				serviceUser.EXPECT().UploadIPFS(path).Return("hdsa734ndbams9032k2l22das", nil).Times(1)
 				docData.IPFS = "hdsa734ndbams9032k2l22das"
-				serviceUser.EXPECT().Encrypt([]byte("hdsa734ndbams9032k2l22das"), "JWT_DAS3443HBOARDD_TAMS_RIZ_SK4343_343_KEJNF00975SDISu").Return([]byte("sr23sdajdadsasdasr546fgfdsfs")).Times(1)
+				serviceUser.EXPECT().Encrypt([]byte("hdsa734ndbams9032k2l22das"), conf.App.Secret_key).Return([]byte("sr23sdajdadsasdasr546fgfdsfs")).Times(1)
 				docData.IPFS = "sr23sdajdadsasdasr546fgfdsfs"
 				docData.Email = []string{"[72697a71694072697a77696a6179612e636f6d 736d6172747369676e4072697a77696a6179612e636f6d]"}
 				serviceUser.EXPECT().GetPublicKey(docData.Email).Return([]common.Address{common.HexToAddress("0xAyysae6513c99443cF32Ca8A449f5287aaD6f91a"), common.HexToAddress("0xBha62e6513c99443cF32Ca8A449f5287aaD6f91a")}, []string{"signed_1", "signed2"}).Times(1)
@@ -743,7 +749,7 @@ func Test_signaturesHandler_InviteSignatures(t *testing.T) {
 				docData.Creator_id = "rizwijaya"
 				serviceUser.EXPECT().UploadIPFS(path).Return("hdsa734ndbams9032k2l22das", nil).Times(1)
 				docData.IPFS = "hdsa734ndbams9032k2l22das"
-				serviceUser.EXPECT().Encrypt([]byte("hdsa734ndbams9032k2l22das"), "JWT_DAS3443HBOARDD_TAMS_RIZ_SK4343_343_KEJNF00975SDISu").Return([]byte("sr23sdajdadsasdasr546fgfdsfs")).Times(1)
+				serviceUser.EXPECT().Encrypt([]byte("hdsa734ndbams9032k2l22das"), conf.App.Secret_key).Return([]byte("sr23sdajdadsasdasr546fgfdsfs")).Times(1)
 				docData.IPFS = "sr23sdajdadsasdasr546fgfdsfs"
 				docData.Email = []string{"[72697a71694072697a77696a6179612e636f6d 736d6172747369676e4072697a77696a6179612e636f6d]"}
 				serviceUser.EXPECT().GetPublicKey(docData.Email).Return([]common.Address{common.HexToAddress("0xAyysae6513c99443cF32Ca8A449f5287aaD6f91a"), common.HexToAddress("0xBha62e6513c99443cF32Ca8A449f5287aaD6f91a")}, []string{"signed_1", "signed2"}).Times(1)
@@ -784,7 +790,7 @@ func Test_signaturesHandler_InviteSignatures(t *testing.T) {
 				docData.Creator_id = "rizwijaya"
 				serviceUser.EXPECT().UploadIPFS(path).Return("hdsa734ndbams9032k2l22das", nil).Times(1)
 				docData.IPFS = "hdsa734ndbams9032k2l22das"
-				serviceUser.EXPECT().Encrypt([]byte("hdsa734ndbams9032k2l22das"), "JWT_DAS3443HBOARDD_TAMS_RIZ_SK4343_343_KEJNF00975SDISu").Return([]byte("sr23sdajdadsasdasr546fgfdsfs")).Times(1)
+				serviceUser.EXPECT().Encrypt([]byte("hdsa734ndbams9032k2l22das"), conf.App.Secret_key).Return([]byte("sr23sdajdadsasdasr546fgfdsfs")).Times(1)
 				docData.IPFS = "sr23sdajdadsasdasr546fgfdsfs"
 				docData.Email = []string{"[72697a71694072697a77696a6179612e636f6d 736d6172747369676e4072697a77696a6179612e636f6d]"}
 				serviceUser.EXPECT().GetPublicKey(docData.Email).Return([]common.Address{common.HexToAddress("0xAyysae6513c99443cF32Ca8A449f5287aaD6f91a"), common.HexToAddress("0xBha62e6513c99443cF32Ca8A449f5287aaD6f91a")}, []string{"signed_1", "signed2"}).Times(1)
@@ -867,6 +873,8 @@ func Test_signaturesHandler_InviteSignatures(t *testing.T) {
 func Test_signaturesHandler_Document(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+	conf, _ := config.Init()
+
 	var err error
 	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
 	defer f.Undo()
@@ -976,7 +984,7 @@ func Test_signaturesHandler_Document(t *testing.T) {
 				serviceUser.EXPECT().UploadIPFS(path+"signed_84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b.pdf").Return("2c3idnsymuia7n8sb7dl92j63onsfdf", nil).Times(1)
 				docs.Hash = "js63hd9asn32nasddy783en9djas933"
 				docs.IPFS = "2c3idnsymuia7n8sb7dl92j63onsfdf"
-				serviceUser.EXPECT().Encrypt([]byte("2c3idnsymuia7n8sb7dl92j63onsfdf"), "JWT_DAS3443HBOARDD_TAMS_RIZ_SK4343_343_KEJNF00975SDISu").Return([]byte("2dj3d1d6a34323ds4d4as43asda4sr5456fgfsdsfs")).Times(1)
+				serviceUser.EXPECT().Encrypt([]byte("2c3idnsymuia7n8sb7dl92j63onsfdf"), conf.App.Secret_key).Return([]byte("2dj3d1d6a34323ds4d4as43asda4sr5456fgfsdsfs")).Times(1)
 				docs.IPFS = "2dj3d1d6a34323ds4d4as43asda4sr5456fgfsdsfs"
 				signDocs := models.SignDocs{
 					Hash_original: "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
@@ -1151,6 +1159,8 @@ func Test_signaturesHandler_Verification(t *testing.T) {
 func Test_signaturesHandler_Download(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+	conf, _ := config.Init()
+
 	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
 	defer f.Undo()
 	f.Do()
@@ -1178,7 +1188,7 @@ func Test_signaturesHandler_Download(t *testing.T) {
 				}
 				hash := "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b"
 				serviceSignature.EXPECT().GetDocumentNoSigners(hash).Return(doc).Times(1)
-				serviceUser.EXPECT().Decrypt([]byte(doc.IPFS), "JWT_DAS3443HBOARDD_TAMS_RIZ_SK4343_343_KEJNF00975SDISu").Return([]byte("2dj3d1d6a34323ds4d4as43asda4sr5456fgfsdsfs")).Times(1)
+				serviceUser.EXPECT().Decrypt([]byte(doc.IPFS), conf.App.Secret_key).Return([]byte("2dj3d1d6a34323ds4d4as43asda4sr5456fgfsdsfs")).Times(1)
 				doc.IPFS = "2dj3d1d6a34323ds4d4as43asda4sr5456fgfsdsfs"
 				directory := "./public/temp/pdfdownload/"
 				serviceUser.EXPECT().GetFileIPFS(doc.IPFS, doc.Metadata+".pdf", directory)
@@ -1218,6 +1228,7 @@ func Test_signaturesHandler_Download(t *testing.T) {
 func Test_signaturesHandler_Integrity(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+	conf, _ := config.Init()
 
 	type Meta struct {
 		Message string `json:"message"`
@@ -1385,7 +1396,7 @@ func Test_signaturesHandler_Integrity(t *testing.T) {
 				docs.Hash = docs.Hash_original
 				serviceSignature.EXPECT().GenerateHashDocument(path + "signed_sample_test.pdf").Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
 				serviceUser.EXPECT().UploadIPFS(path+"signed_sample_test.pdf").Return("j8329dnsay80e2asdas", nil).Times(1)
-				serviceUser.EXPECT().Encrypt([]byte("j8329dnsay80e2asdas"), "JWT_DAS3443HBOARDD_TAMS_RIZ_SK4343_343_KEJNF00975SDISu").Return([]byte("jdadsasdasr546fgfdsfs")).Times(1)
+				serviceUser.EXPECT().Encrypt([]byte("j8329dnsay80e2asdas"), conf.App.Secret_key).Return([]byte("jdadsasdasr546fgfdsfs")).Times(1)
 				docs.IPFS = "jdadsasdasr546fgfdsfs"
 				docs.Address = append(docs.Address, common.HexToAddress("0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"))
 				docs.IdSignature = append(docs.IdSignature, docs.Creator_id)
@@ -1436,7 +1447,7 @@ func Test_signaturesHandler_Integrity(t *testing.T) {
 				}
 				serviceSignature.EXPECT().GenerateHashDocument(path + "signed_sample_test.pdf").Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
 				serviceUser.EXPECT().UploadIPFS(path+"signed_sample_test.pdf").Return("j8329dnsay80e2asdas", nil).Times(1)
-				serviceUser.EXPECT().Encrypt([]byte("j8329dnsay80e2asdas"), "JWT_DAS3443HBOARDD_TAMS_RIZ_SK4343_343_KEJNF00975SDISu").Return([]byte("jdadsasdasr546fgfdsfs")).Times(1)
+				serviceUser.EXPECT().Encrypt([]byte("j8329dnsay80e2asdas"), conf.App.Secret_key).Return([]byte("jdadsasdasr546fgfdsfs")).Times(1)
 				docs.IPFS = "jdadsasdasr546fgfdsfs"
 				serviceUser.EXPECT().GetPublicKey(docs.Email).Return([]common.Address{common.HexToAddress("0xAyysae6513c99443cF32Ca8A449f5287aaD6f91a"), common.HexToAddress("0xBha62e6513c99443cF32Ca8A449f5287aaD6f91a")}, []string{"signed_1", "signed2"}).Times(1)
 				docs.Address = append(docs.Address, common.HexToAddress("0xAyysae6513c99443cF32Ca8A449f5287aaD6f91a"))
@@ -1500,7 +1511,7 @@ func Test_signaturesHandler_Integrity(t *testing.T) {
 				}
 				serviceSignature.EXPECT().GenerateHashDocument(path + "signed_sample_test.pdf").Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
 				serviceUser.EXPECT().UploadIPFS(path+"signed_sample_test.pdf").Return("j8329dnsay80e2asdas", nil).Times(1)
-				serviceUser.EXPECT().Encrypt([]byte("j8329dnsay80e2asdas"), "JWT_DAS3443HBOARDD_TAMS_RIZ_SK4343_343_KEJNF00975SDISu").Return([]byte("jdadsasdasr546fgfdsfs")).Times(1)
+				serviceUser.EXPECT().Encrypt([]byte("j8329dnsay80e2asdas"), conf.App.Secret_key).Return([]byte("jdadsasdasr546fgfdsfs")).Times(1)
 				docs.IPFS = "jdadsasdasr546fgfdsfs"
 				serviceUser.EXPECT().GetPublicKey(docs.Email).Return([]common.Address{common.HexToAddress("0xAyysae6513c99443cF32Ca8A449f5287aaD6f91a"), common.HexToAddress("0xBha62e6513c99443cF32Ca8A449f5287aaD6f91a")}, []string{"signed_1", "signed2"}).Times(1)
 				docs.Address = append(docs.Address, common.HexToAddress("0xAyysae6513c99443cF32Ca8A449f5287aaD6f91a"))
