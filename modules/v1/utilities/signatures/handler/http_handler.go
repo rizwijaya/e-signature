@@ -164,10 +164,10 @@ func (h *signaturesHandler) SignDocuments(c *gin.Context) {
 	notif.SetMessage(c.Writer, "success", fm)
 	//fmt.Println(input)
 	//Delete Image Sign Resize
-	err = os.Remove(img)
-	if err != nil {
-		log.Println(err)
-	}
+	// err = os.Remove(img)
+	// if err != nil {
+	// 	log.Println(err)
+	// }
 	//Logging Access
 	h.serviceUser.Logging("Menandatangani dokumen "+input.Name, session.Get("sign").(string), c.ClientIP(), c.Request.UserAgent())
 	c.Redirect(302, "/download")
@@ -306,7 +306,7 @@ func (h *signaturesHandler) Document(c *gin.Context) {
 	inputPath := fmt.Sprintf("./public/temp/pdfsign/%s", input.Name)
 	_ = os.Remove(inputPath)
 	//Delete Image Sign Resize
-	_ = os.Remove(img)
+	//_ = os.Remove(img)
 	fm := []byte("melakukan tanda tangan")
 	notif.SetMessage(c.Writer, "success", fm)
 	h.serviceUser.Logging("Melakukan tanda tangan dari permintaan tanda tangan", session.Get("sign").(string), c.ClientIP(), c.Request.UserAgent())
@@ -474,10 +474,10 @@ func (h *signaturesHandler) Integrity(c *gin.Context) {
 		return
 	}
 	//Delete Image Sign Resize
-	err = os.Remove(img)
-	if err != nil {
-		log.Println(err)
-	}
+	// err = os.Remove(img)
+	// if err != nil {
+	// 	log.Println(err)
+	// }
 	//Logging Access
 	h.serviceUser.Logging("Menandatangani dokumen "+input.Name+" via API", session.Get("sign").(string), c.ClientIP(), c.Request.UserAgent())
 	response := respon.APIRespon("Berhasil melakukan tanda tangan dokumen!", http.StatusOK, "success", input)
