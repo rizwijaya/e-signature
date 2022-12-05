@@ -21,7 +21,7 @@ jobs:
       run: go build -v ./...
 
     - name: Test Service Signatures
-      run: go test -v ./.../modules/v1/utilities/signatures/service/
+      run: go test -v ./modules/v1/utilities/signatures/service/
 
     - name: Test Service User
       run: go test -v ./.../modules/v1/utilities/user/service/
