@@ -13,8 +13,8 @@ import (
 )
 
 type Documents interface {
-	Init()
-	CalcImagePos(img *creator.Image, page *model.PdfPage, input models.SignDocuments) *creator.Image
+	//Init()
+	//CalcImagePos(img *creator.Image, page *model.PdfPage, input models.SignDocuments) *creator.Image
 	SignDocuments(imgpath string, input models.SignDocuments) string
 }
 
@@ -121,3 +121,50 @@ func (d *documents) SignDocuments(imgpath string, input models.SignDocuments) st
 	}
 	return inputPath2
 }
+
+// func (d *documents) SignDocuments(imgpath string, input models.SignDocuments) string {
+// 	var pt pdft.PDFt
+// 	inputPath := fmt.Sprintf("./public/temp/pdfsign/%s", input.Name)
+// 	err := pt.Open(inputPath)
+// 	if err != nil {
+// 		log.Println(err)
+// 		return ""
+// 	}
+// 	//Read PDF and Get pages size media box with pdfcpu
+// 	dim, err := pdf.PageDimsFile(inputPath)
+// 	if err != nil {
+// 		log.Println(err)
+// 		return ""
+// 	}
+
+// 	pic, err := ioutil.ReadFile(imgpath)
+// 	if err != nil {
+// 		log.Println(err)
+// 		return ""
+// 	}
+
+// 	pageWidth := dim[int(input.SignPage)-1].Width
+// 	pageHeight := dim[int(input.SignPage)-1].Height
+
+// 	lCorrection := 1 + 0.038
+// 	wCorrection := 1 - 0.05
+// 	tCorrection := 1 + 0.096
+// 	imgLeft := input.X_coord * pageWidth * lCorrection
+// 	imgTop := input.Y_coord * pageHeight * tCorrection
+// 	imgWidth := input.Width * pageWidth * wCorrection
+// 	imgHeight := input.Height * pageHeight
+
+// 	// insert image to pdf
+// 	err = pt.InsertImg(pic, int(input.SignPage), imgLeft, imgTop, imgWidth, imgHeight)
+// 	if err != nil {
+// 		log.Println(err)
+// 		return ""
+// 	}
+// 	inputPath2 := fmt.Sprintf("./public/temp/pdfsign/signed_%s", input.Name)
+// 	err = pt.Save(inputPath2)
+// 	if err != nil {
+// 		log.Println(err)
+// 		return ""
+// 	}
+// 	return inputPath2
+// }

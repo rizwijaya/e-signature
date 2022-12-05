@@ -12,7 +12,6 @@ import (
 	"strings"
 
 	"github.com/fogleman/gg"
-	"github.com/nfnt/resize"
 )
 
 type Images interface {
@@ -173,22 +172,22 @@ func (i *images) ResizeImages(mysign models.MySignatures, input models.SignDocum
 		signatures = mysign.Latin_data
 	}
 	path := fmt.Sprintf("./public/images/signatures/%s", signatures)
-	r, err := os.Open(path)
-	if err != nil {
-		log.Println(err)
-	}
-	defer r.Close()
-	img, err := png.Decode(r)
-	if err != nil {
-		log.Println(err)
-	}
-	m := resize.Resize(uint(input.Width*0.75), uint(input.Height*0.75), img, resize.Lanczos3)
-	path2 := fmt.Sprintf("./public/temp/sizes-%s.png", mysign.Signature_selected)
-	out, err := os.Create(path2)
-	if err != nil {
-		log.Println(err)
-	}
-	defer out.Close()
-	png.Encode(out, m)
-	return path2
+	// r, err := os.Open(path)
+	// if err != nil {
+	// 	log.Println(err)
+	// }
+	// defer r.Close()
+	// img, err := png.Decode(r)
+	// if err != nil {
+	// 	log.Println(err)
+	// }
+	// m := resize.Resize(uint(input.Width*0.75), uint(input.Height*0.75), img, resize.Lanczos3)
+	// path2 := fmt.Sprintf("./public/temp/sizes-%s.png", mysign.Signature_selected)
+	// out, err := os.Create(path2)
+	// if err != nil {
+	// 	log.Println(err)
+	// }
+	// defer out.Close()
+	// png.Encode(out, m)
+	return path
 }

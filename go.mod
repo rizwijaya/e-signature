@@ -18,6 +18,8 @@ require (
 	github.com/golobby/dotenv v1.3.1
 	github.com/ipfs/go-ipfs-api v0.3.0 // indirect
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
+	github.com/pdfcpu/pdfcpu v0.3.13 // indirect
+	github.com/signintech/pdft v0.4.2
 	github.com/stretchr/testify v1.8.0 // indirect
 	github.com/tkuchiki/faketime v0.1.1
 	github.com/unidoc/unipdf/v3 v3.40.0 // indirect
