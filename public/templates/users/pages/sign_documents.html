@@ -124,6 +124,21 @@
     word-break: break-all;
   }
 </style>
+<style>
+  /* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+input.input-box { background: cyan; }
+
+</style>
 <!-- main -->
 <main id="main">
   <section class="breadcrumbs">
@@ -200,8 +215,9 @@
                       <ul class="pagination bottom justify-content-center" style="list-style: none; display: flex;">
                         <li style="margin-right: 5px;" class="btn btn-primary disabled"><a onclick="prevPage()"><i
                               class="material-icons">left</i></a></li>
-                        <li style="margin-right: 5px;" class="btn btn-primary active"><a
-                            onclick="renderingPage(doc, 1)">1</a></li>
+                        <li style="margin-right: 5px; width: 10% !important;"><input type="number" class="btn btn-primary active paginationinput w-100" id="paginationinput" onchange="changePage()"></li>
+                        <!-- <li style="margin-right: 5px;" class="btn btn-primary active"><a
+                            onclick="renderingPage(doc, 1)">1</a></li> -->
                         <li style="margin-right: 5px;" class="btn btn-primary disabled"><a onclick="nextPage()"><i
                               class="material-icons">right</i></a></li>
                       </ul>
@@ -243,7 +259,7 @@
                     <div class="input-group control-group after-add-email inviteForm"
                       style="margin: 0 auto; background: none;border: none;">
                       <input type="text" name="email[]" class="form-control"
-                        placeholder="masukan email" required>
+                        placeholder="masukan email">
                       <div class="input-group-btn">
                         <button class="btn btn-primary add-email" type="button"><i class="bi bi-plus"></i>
                           Tambah</button>
@@ -253,7 +269,7 @@
                       <div class="control-group input-group inviteForm"
                         style="margin: 10px auto; background: none;border: none;">
                         <input type="text" name="email[]" class="form-control"
-                          placeholder="masukan email" required>
+                          placeholder="masukan email">
                         <div class="input-group-btn">
                           <button class="btn btn-danger remove" type="button"><i class="bi bi-x"></i> Hapus</button>
                         </div>
@@ -261,7 +277,7 @@
                     </div>
                     <div class="control-group input-group inviteForm" style="margin: 10px auto;">
                       <input type="text" name="judul" id="judul" class="form-control"
-                          placeholder="masukan judul dokumen" required>
+                          placeholder="masukan judul dokumen">
                     </div>
                     <div class="control-group input-group inviteForm" style="margin: 10px auto;">
                       <textarea name="note" id="note" class="form-control" placeholder="masukan catatan"

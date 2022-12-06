@@ -7,6 +7,8 @@ var sign_w = 0;
 var sign_page = 1;
 var sign_status = false;
 var curPage;
+const pageInput = document.querySelector("#paginationinput");
+
 function sign(klik) {
   if (klik == 1) {
     //IF Button Click to Signing
@@ -85,31 +87,55 @@ function sign(klik) {
   // }
 }
 
-function setPagination() {
-  $(".pagination.bottom").html(
-    '<li style="margin-right: 5px;" class="btn btn-primary disabled"><a onclick="prevPage()"><i class="material-icons">left</i></a></li><li style="margin-right: 5px;" class="btn btn-primary active"><a onclick="renderingPage(doc, 1)">1</a></li><li style="margin-right: 5px;" class="btn btn-primary disabled"><a onclick="nextPage()"><i class="material-icons">right</i></a></li>'
-  );
-  if (doc.numPages > 1) {
-    var last = $(".pagination.bottom li").last();
-    for (i = 2; i <= doc.numPages; i++) {
-      last.before(
-        '<li style="margin-right: 5px;" class="btn btn-primary"><a onclick="renderingPage(doc, ' +
-          i +
-          ')">' +
-          i +
-          "</a></li>"
-      );
-    }
-    last.removeClass("disabled");
+// function setPagination() {
+//   $(".pagination.bottom").html(
+//     '<li style="margin-right: 5px;" class="btn btn-primary disabled"><a onclick="prevPage()"><i class="material-icons">left</i></a></li><li style="margin-right: 5px;" class="btn btn-primary active"><a onclick="renderingPage(doc, 1)">1</a></li><li style="margin-right: 5px;" class="btn btn-primary disabled"><a onclick="nextPage()"><i class="material-icons">right</i></a></li>'
+//   );
+//   if (doc.numPages > 1) {
+//     var last = $(".pagination.bottom li").last();
+//     for (i = 2; i <= doc.numPages; i++) {
+//       last.before(
+//         '<li style="margin-right: 5px;" class="btn btn-primary"><a onclick="renderingPage(doc, ' +
+//           i +
+//           ')">' +
+//           i +
+//           "</a></li>"
+//       );
+//     }
+//     last.removeClass("disabled");
+//   }
+// }
+$("form").bind("keypress", function (e) {
+  if (e.keyCode == 13) {
+      $("#finish").attr('value');
+      //add more buttons here
+      return false;
   }
-}
+});
 
 function prevPage() {
+  pageInput.value = curPage - 1;
   renderingPage(doc, curPage - 1);
 }
 function nextPage() {
+  pageInput.value = curPage + 1;
   renderingPage(doc, curPage + 1);
 }
+
+//pageInput.addEventListener('paginationinput', function(e) {
+  //Check empty value
+  // if (e.detail.value != "") {
+  //   console.log(e.target.value);
+  //   renderingPage(e.target.value);
+  // }
+//})
+function changePage() {
+  if (pageInput.value != "") {
+    console.log(parseInt(pageInput.value));
+    renderingPage(doc, parseInt(pageInput.value));
+  }
+}
+
 
 function renderingPage(pdf, pageNumber) {
   //If page not available
@@ -186,7 +212,8 @@ function renderPage(file, pageNumber) {
     loadingTask.promise.then(
       function (pdf) {
         doc = pdf;
-        setPagination();
+        //setPagination();
+        pageInput.value = 1;
         //$(".navigation").show();
         //console.log("PDF loaded");
         renderingPage(doc, 1);
