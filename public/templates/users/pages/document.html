@@ -52,7 +52,17 @@ input[type=number] {
 }
 input.input-box { background: cyan; }
 
-</style>v
+@media (max-width: 650px) {
+    .pagi-li-input {
+      width: 20% !important;
+    }
+  }
+@media (min-width: 650px) {
+  .pagi-li-input {
+    width: 10% !important;
+  }
+}
+</style>
 <!-- main -->
 <main id="main">
   <section class="breadcrumbs">
@@ -104,7 +114,7 @@ input.input-box { background: cyan; }
                           class="material-icons">left</i></a></li>
                     <!-- <li style="margin-right: 5px;" class="btn btn-primary active"><a
                         onclick="renderingPage(doc, 1)">1</a></li> -->
-                      <li style="margin-right: 5px; width: 10% !important;"><input type="number" class="btn btn-primary active paginationinput w-100" id="paginationinput" onchange="changePage()"></li>
+                      <li style="margin-right: 5px;" class="pagi-li-input"><input type="number" class="btn btn-primary active paginationinput w-100" id="paginationinput" onchange="changePage()"></li>
                     <li style="margin-right: 5px;" class="btn btn-primary disabled"><a onclick="nextPage()"><i
                           class="material-icons">right</i></a></li>
                   </ul>
