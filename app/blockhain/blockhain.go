@@ -104,10 +104,15 @@ func NewContract(client *ethclient.Client, conf config.Conf) common.Address {
 
 func Init(conf config.Conf) (*api.Api, *ethclient.Client) {
 	client := Connect()
-	//Deploy New Contract
-	address := NewContract(client, conf)
-	//Connect to Existing Contract
-	//address := common.HexToAddress(conf.Contract.Smart_contract)
+	var address common.Address
+	if conf.Contract.Smart_contract == "" { //Deploy New Contract
+		fmt.Println("Deploying New Smart Contract...")
+		address = NewContract(client, conf)
+	} else { //Connect to Existing Contract
+		fmt.Println("Access Smart Contract Existing...")
+		address = common.HexToAddress(conf.Contract.Smart_contract)
+	}
+
 	conn, err := api.NewApi(address, client)
 	if err != nil {
 		log.Println("Error Connect to Smart Contract")
