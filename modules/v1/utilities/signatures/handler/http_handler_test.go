@@ -349,8 +349,8 @@ func Test_signaturesHandler_SignDocuments(t *testing.T) {
 				}
 
 				path := "./public/temp/pdfsign/"
-				serviceSignature.EXPECT().GenerateHashDocument(path + docs.Name).Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
-				docs.Hash_original = "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b"
+				//serviceSignature.EXPECT().GenerateHashDocument(path + docs.Name).Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
+				//docs.Hash_original = "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b"
 				docs.Creator = "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"
 				docs.Creator_id = "rizwijaya"
 				serviceSignature.EXPECT().GetMySignature("rizwijaya", "6380b5cbdc938c5fdf8e6bfe", "Rizqi Wijaya").Return(mysignature).Times(1)
@@ -391,15 +391,15 @@ func Test_signaturesHandler_SignDocuments(t *testing.T) {
 				}
 
 				path := "./public/temp/pdfsign/"
-				serviceSignature.EXPECT().GenerateHashDocument(path + docs.Name).Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
-				docs.Hash_original = "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b"
+				//serviceSignature.EXPECT().GenerateHashDocument(path + docs.Name).Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
 				docs.Creator_id = "rizwijaya"
 				serviceSignature.EXPECT().GetMySignature("rizwijaya", "6380b5cbdc938c5fdf8e6bfe", "Rizqi Wijaya").Return(mysignature).Times(1)
 				docs.Creator = "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"
 				serviceSignature.EXPECT().ResizeImages(mysignature, docs).Return("./public/temp/sizes-signature.png").Times(1)
 				serviceSignature.EXPECT().SignDocuments("./public/temp/sizes-signature.png", docs).Return(path + "signed_sample_test.pdf").Times(1)
-				docs.Hash = docs.Hash_original
 				serviceSignature.EXPECT().GenerateHashDocument(path + "signed_sample_test.pdf").Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
+				docs.Hash_original = "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b"
+				docs.Hash = docs.Hash_original
 				serviceUser.EXPECT().UploadIPFS(path+"signed_sample_test.pdf").Return("j8329dnsay80e2asdas", nil).Times(1)
 				serviceUser.EXPECT().Encrypt([]byte("j8329dnsay80e2asdas"), conf.App.Secret_key).Return([]byte("jdadsasdasr546fgfdsfs")).Times(1)
 				docs.IPFS = "jdadsasdasr546fgfdsfs"
@@ -439,18 +439,18 @@ func Test_signaturesHandler_SignDocuments(t *testing.T) {
 				}
 
 				path := "./public/temp/pdfsign/"
-				serviceSignature.EXPECT().GenerateHashDocument(path + docs.Name).Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
-				docs.Hash_original = "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b"
+				// serviceSignature.EXPECT().GenerateHashDocument(path + docs.Name).Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
 				docs.Creator = "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"
 				docs.Creator_id = "rizwijaya"
 				serviceSignature.EXPECT().GetMySignature("rizwijaya", "6380b5cbdc938c5fdf8e6bfe", "Rizqi Wijaya").Return(mysignature).Times(1)
 				serviceSignature.EXPECT().ResizeImages(mysignature, docs).Return("./public/temp/sizes-signature.png").Times(1)
 				serviceSignature.EXPECT().SignDocuments("./public/temp/sizes-signature.png", docs).Return(path + "signed_sample_test.pdf").Times(1)
+				serviceSignature.EXPECT().GenerateHashDocument(path + "signed_sample_test.pdf").Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
+				docs.Hash_original = "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b"
 				docs.Hash = docs.Hash_original
 				signDocs := models.SignDocs{
 					Hash: docs.Hash,
 				}
-				serviceSignature.EXPECT().GenerateHashDocument(path + "signed_sample_test.pdf").Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
 				serviceUser.EXPECT().UploadIPFS(path+"signed_sample_test.pdf").Return("j8329dnsay80e2asdas", nil).Times(1)
 				serviceUser.EXPECT().Encrypt([]byte("j8329dnsay80e2asdas"), conf.App.Secret_key).Return([]byte("jdadsasdasr546fgfdsfs")).Times(1)
 				docs.IPFS = "jdadsasdasr546fgfdsfs"
@@ -503,18 +503,19 @@ func Test_signaturesHandler_SignDocuments(t *testing.T) {
 				}
 
 				path := "./public/temp/pdfsign/"
-				serviceSignature.EXPECT().GenerateHashDocument(path + docs.Name).Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
-				docs.Hash_original = "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b"
+				// serviceSignature.EXPECT().GenerateHashDocument(path + docs.Name).Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
+				// docs.Hash_original = "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b"
 				docs.Creator = "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"
 				docs.Creator_id = "rizwijaya"
 				serviceSignature.EXPECT().GetMySignature("rizwijaya", "6380b5cbdc938c5fdf8e6bfe", "Rizqi Wijaya").Return(mysignature).Times(1)
 				serviceSignature.EXPECT().ResizeImages(mysignature, docs).Return("./public/temp/sizes-signature.png").Times(1)
 				serviceSignature.EXPECT().SignDocuments("./public/temp/sizes-signature.png", docs).Return(path + "signed_sample_test.pdf").Times(1)
+				serviceSignature.EXPECT().GenerateHashDocument(path + "signed_sample_test.pdf").Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
+				docs.Hash_original = "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b"
 				docs.Hash = docs.Hash_original
 				signDocs := models.SignDocs{
 					Hash: docs.Hash,
 				}
-				serviceSignature.EXPECT().GenerateHashDocument(path + "signed_sample_test.pdf").Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
 				serviceUser.EXPECT().UploadIPFS(path+"signed_sample_test.pdf").Return("j8329dnsay80e2asdas", nil).Times(1)
 				serviceUser.EXPECT().Encrypt([]byte("j8329dnsay80e2asdas"), conf.App.Secret_key).Return([]byte("jdadsasdasr546fgfdsfs")).Times(1)
 				docs.IPFS = "jdadsasdasr546fgfdsfs"
@@ -666,7 +667,28 @@ func Test_signaturesHandler_InviteSignatures(t *testing.T) {
 			pages: "/invite-signatures",
 		},
 		{
-			name:         "Invite Signature Case 4: Failed Input Document to IPFS",
+			name:         "Invite Signature Case 4: Failed Create Watermark in Document",
+			responseCode: http.StatusFound,
+			file:         "sample_test.pdf",
+			invite: models.InviteSignatures{
+				Email: []string{"rizqi@rizwijaya.com", "smartsign@rizwijaya.com"},
+				Judul: "Test Judul Invite Signature 2",
+				Note:  "Test Note Invite Signature 2",
+			},
+			pages: "/invite-signatures",
+			serviceTest: func(serviceUser *m_serviceUser.MockService, serviceSignature *m_serviceSignature.MockService) {
+				docData := models.SignDocuments{
+					Name:  "sample_test.pdf",
+					Email: []string{"rizqi@rizwijaya.com 2", "smartsign@rizwijaya.com 2"},
+					Judul: "Test Judul Invite Signature",
+					Note:  "Test Note Invite Signature",
+				}
+				path := fmt.Sprintf("./public/temp/pdfsign/%s", docData.Name)
+				serviceSignature.EXPECT().WaterMarking(path).Return("").Times(1)
+			},
+		},
+		{
+			name:         "Invite Signature Case 5: Failed Input Document to IPFS",
 			responseCode: http.StatusFound,
 			file:         "sample_test.pdf",
 			invite: models.InviteSignatures{
@@ -683,6 +705,7 @@ func Test_signaturesHandler_InviteSignatures(t *testing.T) {
 					Note:  "Test Note Invite Signature",
 				}
 				path := fmt.Sprintf("./public/temp/pdfsign/%s", docData.Name)
+				serviceSignature.EXPECT().WaterMarking(path).Return(path).Times(1)
 				serviceSignature.EXPECT().GenerateHashDocument(path).Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
 				docData.Hash_original = "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b"
 				docData.Hash = docData.Hash_original
@@ -692,7 +715,7 @@ func Test_signaturesHandler_InviteSignatures(t *testing.T) {
 			},
 		},
 		{
-			name:         "Invite Signature Case 5: Failed Add Document to Blockchain",
+			name:         "Invite Signature Case 6: Failed Add Document to Blockchain",
 			responseCode: http.StatusFound,
 			file:         "sample_test.pdf",
 			invite: models.InviteSignatures{
@@ -706,6 +729,7 @@ func Test_signaturesHandler_InviteSignatures(t *testing.T) {
 					Name: "sample_test.pdf",
 				}
 				path := fmt.Sprintf("./public/temp/pdfsign/%s", docData.Name)
+				serviceSignature.EXPECT().WaterMarking(path).Return(path).Times(1)
 				serviceSignature.EXPECT().GenerateHashDocument(path).Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
 				docData.Hash_original = "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b"
 				docData.Hash = docData.Hash_original
@@ -728,7 +752,7 @@ func Test_signaturesHandler_InviteSignatures(t *testing.T) {
 			},
 		},
 		{
-			name:         "Invite Signature Case 6: Failed Add Documents to Database",
+			name:         "Invite Signature Case 7: Failed Add Documents to Database",
 			responseCode: http.StatusFound,
 			file:         "sample_test.pdf",
 			invite: models.InviteSignatures{
@@ -742,6 +766,7 @@ func Test_signaturesHandler_InviteSignatures(t *testing.T) {
 					Name: "sample_test.pdf",
 				}
 				path := fmt.Sprintf("./public/temp/pdfsign/%s", docData.Name)
+				serviceSignature.EXPECT().WaterMarking(path).Return(path).Times(1)
 				serviceSignature.EXPECT().GenerateHashDocument(path).Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
 				docData.Hash_original = "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b"
 				docData.Hash = docData.Hash_original
@@ -769,7 +794,7 @@ func Test_signaturesHandler_InviteSignatures(t *testing.T) {
 			},
 		},
 		{
-			name:         "Invite Signature Case 7: Success Invite Signers",
+			name:         "Invite Signature Case 8: Success Invite Signers",
 			responseCode: http.StatusFound,
 			file:         "sample_test.pdf",
 			invite: models.InviteSignatures{
@@ -783,6 +808,7 @@ func Test_signaturesHandler_InviteSignatures(t *testing.T) {
 					Name: "sample_test.pdf",
 				}
 				path := fmt.Sprintf("./public/temp/pdfsign/%s", docData.Name)
+				serviceSignature.EXPECT().WaterMarking(path).Return(path).Times(1)
 				serviceSignature.EXPECT().GenerateHashDocument(path).Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
 				docData.Hash_original = "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b"
 				docData.Hash = docData.Hash_original

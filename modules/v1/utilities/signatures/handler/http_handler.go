@@ -100,8 +100,8 @@ func (h *signaturesHandler) SignDocuments(c *gin.Context) {
 	//Signing Documents to PDF
 	sign := h.serviceSignature.SignDocuments(img, input)
 	signDocs.Hash = h.serviceSignature.GenerateHashDocument(sign)
-	input.Hash = input.Hash_original
 	input.Hash_original = signDocs.Hash
+	input.Hash = input.Hash_original
 	//Input to IPFS
 	IPFS, err := h.serviceUser.UploadIPFS(sign)
 	if err != nil {
@@ -209,7 +209,14 @@ func (h *signaturesHandler) InviteSignatures(c *gin.Context) {
 	DocData.Judul = input.Judul
 	DocData.Note = input.Note
 	//Create WaterMarking
-	h.serviceSignature.WaterMarking(path)
+	path2 := h.serviceSignature.WaterMarking(path)
+	if path2 == "" {
+		log.Println("water marking failed")
+		fm := []byte("mengundang orang lain untuk tanda tangan")
+		notif.SetMessage(c.Writer, "failed", fm)
+		c.Redirect(302, "/invite-signatures")
+		return
+	}
 	//Generate hash document
 	DocData.Hash_original = h.serviceSignature.GenerateHashDocument(path)
 	DocData.Hash = DocData.Hash_original
