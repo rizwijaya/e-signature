@@ -1061,126 +1061,48 @@ func Test_repository_GetListSign(t *testing.T) {
 	defer mt.Close()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	id := primitive.NewObjectID()
-	id2 := primitive.NewObjectID()
-	id3 := primitive.NewObjectID()
-	id4 := primitive.NewObjectID()
 
 	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
 	defer f.Undo()
 	f.Do()
 
 	test := []struct {
-		nameTest  string
-		hash      string
-		output    []models.SignersData
-		response1 primitive.D
-		response2 primitive.D
-		response3 primitive.D
-		response4 primitive.D
-		err       error
+		nameTest string
+		hash     string
+		output   []common.Address
+		testing  func(blockchain *m_blockchain.MockBlockchain, repo Repository)
 	}{
 		{
 			nameTest: "Get List Signatures Case 1: Success Get List Signatures Data",
-			hash:     "58s9t0u1v2w3x4y5z89cp4b4c3b5c0e9b7d6q7r0f2e6f1e2f3a4b5c6d4e5f6g7h8i9j0k1l2m3n4o6d7e8f9a1b2c3",
-			output: []models.SignersData{
-				{
-					Sign_addr:    "0x5B38Da6a701c568545dCfcB03FcB875f56beddC4",
-					Sign_name:    "Administrator",
-					Sign_email:   "admin@localhost",
-					Sign_id_db:   id.Hex(),
-					Signers_id:   "admin",
-					Signers_hash: "58s9t0u1v2w3x4y5z89cp4b4c3b5c0e9b7d6q7r0f2e6f1e2f3a4b5c6d4e5f6g7h8i9j0k1l2m3n4o6d7e8f9a1b2c3",
-				},
-				{
-					Sign_addr:    "0xD3CdA913deB6f67967B99D67aCDFa1712C293601",
-					Sign_name:    "Rizqi Wijaya",
-					Sign_email:   "smartsign@rizwijaya.com",
-					Sign_id_db:   id2.Hex(),
-					Signers_id:   "rizwijaya",
-					Signers_hash: "58s9t0u1v2w3x4y5z89cp4b4c3b5c0e9b7d6q7r0f2e6f1e2f3a4b5c6d4e5f6g7h8i9j0k1l2m3n4o6d7e8f9a1b2c3",
-				},
-				{
-					Sign_addr:    "0xAyysae6513c99443cF32Ca8A449f5287aaD6f91a",
-					Sign_name:    "Sembada Oke",
-					Sign_email:   "sembada@rizwijaya.com",
-					Sign_id_db:   id3.Hex(),
-					Signers_id:   "sembada",
-					Signers_hash: "58s9t0u1v2w3x4y5z89cp4b4c3b5c0e9b7d6q7r0f2e6f1e2f3a4b5c6d4e5f6g7h8i9j0k1l2m3n4o6d7e8f9a1b2c3",
-				},
-				{
-					Sign_addr:    "0xD6fAyysae91a6513c99443cF32Ca8A449f5287aa",
-					Sign_name:    "Sitaman Sutama",
-					Sign_email:   "sitaman@rizwijaya.com",
-					Sign_id_db:   id4.Hex(),
-					Signers_id:   "sitama",
-					Signers_hash: "58s9t0u1v2w3x4y5z89cp4b4c3b5c0e9b7d6q7r0f2e6f1e2f3a4b5c6d4e5f6g7h8i9j0k1l2m3n4o6d7e8f9a1b2c3",
-				},
+			hash:     "doa8lasdp93ue3jrkrnn234mbxjldjie21mhs9qwoywnalksdo3y13",
+			output:   []common.Address{common.HexToAddress("0x8a9c4dfe8b62e51b88291c37e0d6dc15d34dbf1e"), common.HexToAddress("0x2e51b88291c37e0d6dc15d34db8a9c4dfe8b6f1e")},
+			testing: func(blockchain *m_blockchain.MockBlockchain, repo Repository) {
+				output := []common.Address{common.HexToAddress("0x8a9c4dfe8b62e51b88291c37e0d6dc15d34dbf1e"), common.HexToAddress("0x2e51b88291c37e0d6dc15d34db8a9c4dfe8b6f1e")}
+				hash := "doa8lasdp93ue3jrkrnn234mbxjldjie21mhs9qwoywnalksdo3y13"
+				blockchain.EXPECT().GetListSign(hash).Return(output).Times(1)
 			},
-			response1: mtest.CreateCursorResponse(1, "foo.bar", mtest.FirstBatch, primitive.D{
-				{Key: "_id", Value: id},
-				{Key: "address", Value: "0x5B38Da6a701c568545dCfcB03FcB875f56beddC4"},
-				{Key: "name", Value: "Administrator"},
-				{Key: "email", Value: "admin@localhost"},
-				{Key: "idsignature", Value: "admin"},
-				{Key: "hash", Value: "58s9t0u1v2w3x4y5z89cp4b4c3b5c0e9b7d6q7r0f2e6f1e2f3a4b5c6d4e5f6g7h8i9j0k1l2m3n4o6d7e8f9a1b2c3"},
-			}),
-			response2: mtest.CreateCursorResponse(1, "foo.bar", mtest.NextBatch, primitive.D{
-				{Key: "_id", Value: id2},
-				{Key: "address", Value: "0xD3CdA913deB6f67967B99D67aCDFa1712C293601"},
-				{Key: "name", Value: "Rizqi Wijaya"},
-				{Key: "email", Value: "smartsign@rizwijaya.com"},
-				{Key: "idsignature", Value: "rizwijaya"},
-				{Key: "hash", Value: "58s9t0u1v2w3x4y5z89cp4b4c3b5c0e9b7d6q7r0f2e6f1e2f3a4b5c6d4e5f6g7h8i9j0k1l2m3n4o6d7e8f9a1b2c3"},
-			}),
-			response3: mtest.CreateCursorResponse(1, "foo.bar", mtest.NextBatch, primitive.D{
-				{Key: "_id", Value: id3},
-				{Key: "address", Value: "0xAyysae6513c99443cF32Ca8A449f5287aaD6f91a"},
-				{Key: "name", Value: "Sembada Oke"},
-				{Key: "email", Value: "sembada@rizwijaya.com"},
-				{Key: "idsignature", Value: "sembada"},
-				{Key: "hash", Value: "58s9t0u1v2w3x4y5z89cp4b4c3b5c0e9b7d6q7r0f2e6f1e2f3a4b5c6d4e5f6g7h8i9j0k1l2m3n4o6d7e8f9a1b2c3"},
-			}),
-			response4: mtest.CreateCursorResponse(0, "foo.bar", mtest.NextBatch, primitive.D{
-				{Key: "_id", Value: id4},
-				{Key: "address", Value: "0xD6fAyysae91a6513c99443cF32Ca8A449f5287aa"},
-				{Key: "name", Value: "Sitaman Sutama"},
-				{Key: "email", Value: "sitaman@rizwijaya.com"},
-				{Key: "idsignature", Value: "sitama"},
-				{Key: "hash", Value: "58s9t0u1v2w3x4y5z89cp4b4c3b5c0e9b7d6q7r0f2e6f1e2f3a4b5c6d4e5f6g7h8i9j0k1l2m3n4o6d7e8f9a1b2c3"},
-			}),
-			err: nil,
 		},
 		{
 			nameTest: "Get List Signatures Case 2: Error Failed Get List Signatures Data",
-			hash:     "6f1e2f3a4b5c6d4e5f6g7h8i9j0k7e8f9a1b2c3b7d58s9t0u1v2w3x4y5z89cp4b4c3b5c0e96q7r0f2e1l2m3n4o6d",
-			output:   []models.SignersData(nil),
-			response1: mtest.CreateCommandErrorResponse(mtest.CommandError{
-				Code:    50,
-				Message: "Database Timeout",
-			}),
-			err: errors.New("Database Timeout"),
-		},
-		{
-			nameTest: "Get List Signatures Case 2: Success Get List Signatures Data with Empty Data",
-			hash:     "c0e9bu1v2w3x4y5z809cp4b4c3b57d6q7r0f2e6f1e2f3a4b5c6d4e5f6g7h8i9j0k1l2m3n4o6d7e8f9a1b258s9tc3",
-			output: []models.SignersData{
-				{
-					Sign_id_db: "",
-				},
+			hash:     "e3jrkrnn234mbxjldoywnalksdo3y13jie21mhsdoa8lasdp93u9qw",
+			output:   []common.Address{},
+			testing: func(blockchain *m_blockchain.MockBlockchain, repo Repository) {
+				output := []common.Address{}
+				hash := "e3jrkrnn234mbxjldoywnalksdo3y13jie21mhsdoa8lasdp93u9qw"
+				blockchain.EXPECT().GetListSign(hash).Return(output).Times(1)
 			},
-			response1: mtest.CreateCursorResponse(0, "foo.bar", mtest.FirstBatch, primitive.D{}),
-			err:       nil,
 		},
 	}
 	for _, tt := range test {
 		mt.Run(tt.nameTest, func(mt *mtest.T) {
-			mt.AddMockResponses(tt.response1, tt.response2, tt.response3, tt.response4)
-
 			blockchain := m_blockchain.NewMockBlockchain(ctrl)
 			repo := NewRepository(mt.DB, blockchain)
-			signers := repo.GetListSign(tt.hash)
-			assert.Equal(t, tt.output, signers)
+			if tt.testing != nil {
+				tt.testing(blockchain, repo)
+			}
+
+			output := repo.GetListSign(tt.hash)
+			assert.Equal(t, output, tt.output)
 		})
 	}
 }
