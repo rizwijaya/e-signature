@@ -1561,26 +1561,11 @@ func Test_service_GetDocumentAllSign(t *testing.T) {
 						Sign_time:     timeSign.String(),
 					},
 				}
-
+				addr := []common.Address{common.HexToAddress("0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a")}
 				repo.EXPECT().VerifyDoc("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Return(true).Times(1)
 				repo.EXPECT().GetHashOriginal("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b", "0x"+conf.Blockhain.Public).Return("u798sc537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
 				repo.EXPECT().GetDocument("u798sc537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b", "0x"+conf.Blockhain.Public).Return(docsBlockchain).Times(1)
-
-				SignData := []models.SignersData{
-					{
-						Sign_addr:     "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
-						Sign_name:     "Rizqi Wijaya",
-						Sign_email:    "smartsign@rizwijaya.com",
-						Sign_id_db:    "6380b5cbdc938c5fdf8e6bfe",
-						Sign_id:       "1",
-						Signers_id:    "rizwijaya",
-						Signers_hash:  "9f1bf51bd36a4c244e82419f9d725e15d9cc537106cb54u798sc272b66cda64b",
-						Signers_state: true,
-						Sign_time:     timeSign.String(),
-					},
-				}
-
-				repo.EXPECT().GetListSign(docsBlockchain.Hash_ori).Return(SignData).Times(1)
+				repo.EXPECT().GetListSign(docsBlockchain.Hash_ori).Return(addr).Times(1)
 
 				signer := models.Signers{
 					Sign_addr:     common.HexToAddress("0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"),
@@ -1590,7 +1575,7 @@ func Test_service_GetDocumentAllSign(t *testing.T) {
 					Signers_state: true,
 					Sign_time:     timeSign.String(),
 				}
-				repo.EXPECT().GetSigners(docsBlockchain.Hash, SignData[0].Sign_addr).Return(signer).Times(1)
+				repo.EXPECT().GetSigners(docsBlockchain.Hash, addr[0].Hex()).Return(signer).Times(1)
 				signProfile := modelsUser.ProfileDB{
 					Id:           id,
 					Idsignature:  "rizwijaya",
@@ -1600,7 +1585,7 @@ func Test_service_GetDocumentAllSign(t *testing.T) {
 					Role_id:      2,
 					Date_created: times,
 				}
-				repo.EXPECT().GetUserByIdSignatures(SignData[0].Signers_id).Return(signProfile).Times(1)
+				repo.EXPECT().GetUserByIdSignatures(signer.Signers_id).Return(signProfile).Times(1)
 			},
 		},
 	}
@@ -1872,6 +1857,67 @@ func Test_service_CheckSignature(t *testing.T) {
 			}
 			s := NewService(repo, images, docs)
 			output := s.CheckSignature(tt.hash, tt.publickey)
+			assert.Equal(t, tt.output, output)
+		})
+	}
+}
+
+func Test_service_WaterMarking(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	test := []struct {
+		nameTest string
+		path     string
+		output   string
+		test     func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments)
+	}{
+		{
+			nameTest: "Watermark Case 1: Success Create Watermark in Document",
+			path:     "./public/temp/pdfsign/signed_sample_test.pdf",
+			output:   "./public/temp/pdfsign/signed_sample_test.pdf",
+			test: func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments) {
+				docs.EXPECT().WaterMarking("./public/temp/pdfsign/signed_sample_test.pdf").Return("./public/temp/pdfsign/signed_sample_test.pdf").Times(1)
+			},
+		},
+		{
+			nameTest: "Watermark Case 2: Failed Create Watermark because Document Not Exist",
+			path:     "./public/temp/pdfsign/signed_sample_test1.pdf",
+			output:   "",
+			test: func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments) {
+				docs.EXPECT().WaterMarking("./public/temp/pdfsign/signed_sample_test1.pdf").Return("").Times(1)
+			},
+		},
+		{
+			nameTest: "Watermark Case 3: Failed Create Watermark because cannot read and write document pdf",
+			path:     "./public/temp/sizes-latin.png",
+			output:   "",
+			test: func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments) {
+				docs.EXPECT().WaterMarking("./public/temp/sizes-latin.png").Return("").Times(1)
+			},
+		},
+		{
+			nameTest: "Watermark Case 4: Failed Create Watermark because cannot get pages from document pdf",
+			path:     "./public/temp/sizes-latin.png",
+			output:   "",
+			test: func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments) {
+				docs.EXPECT().WaterMarking("./public/temp/sizes-latin.png").Return("").Times(1)
+			},
+		},
+	}
+
+	for _, tt := range test {
+		t.Run(tt.nameTest, func(t *testing.T) {
+			repo := m_repo.NewMockRepository(ctrl)
+			images := m_images.NewMockImages(ctrl)
+			docs := m_docs.NewMockDocuments(ctrl)
+
+			if tt.test != nil {
+				tt.test(repo, images, docs)
+			}
+
+			s := NewService(repo, images, docs)
+			output := s.WaterMarking(tt.path)
 			assert.Equal(t, tt.output, output)
 		})
 	}
