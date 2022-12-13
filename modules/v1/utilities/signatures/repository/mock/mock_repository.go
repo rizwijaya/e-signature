@@ -6,6 +6,7 @@ import (
 	big "math/big"
 	reflect "reflect"
 
+	common "github.com/ethereum/go-ethereum/common"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -145,10 +146,10 @@ func (mr *MockRepositoryMockRecorder) GetHashOriginal(hash, publickey interface{
 }
 
 // GetListSign mocks base method.
-func (m *MockRepository) GetListSign(hash string) []models.SignersData {
+func (m *MockRepository) GetListSign(hash string) []common.Address {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetListSign", hash)
-	ret0, _ := ret[0].([]models.SignersData)
+	ret0, _ := ret[0].([]common.Address)
 	return ret0
 }
 

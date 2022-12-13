@@ -27,10 +27,7 @@ func UploadIPFS(path string) (string, error) {
 	}
 	defer f.Close()
 
-	err = os.Remove(path)
-	if err != nil {
-		return "", err
-	}
+	_ = os.Remove(path)
 	return cid, nil
 }
 
