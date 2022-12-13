@@ -30,6 +30,9 @@ type Conf struct {
 		//Port       string `env:"BLOCKCHAIN_PORT"`
 		//Keystore   string `env:"BLOCKCHAIN_KEYSTORE"`
 	}
+	Contract struct {
+		Smart_contract string `env:"SMART_CONTRACT"`
+	}
 	IPFS struct {
 		Host string `env:"IPFS_HOST"`
 		Port string `env:"IPFS_PORT"`
