@@ -131,7 +131,7 @@ function nextPage() {
 //})
 function changePage() {
   if (pageInput.value != "") {
-    console.log(parseInt(pageInput.value));
+    //console.log(parseInt(pageInput.value));
     renderingPage(doc, parseInt(pageInput.value));
   }
 }

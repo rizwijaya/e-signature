@@ -14,6 +14,7 @@ var signX = document.getElementById("signX");
 var signY = document.getElementById("signY");
 var signH = document.getElementById("signH");
 var signW = document.getElementById("signW");
+const pageInput = document.querySelector("#paginationinput");
 
 function submitForm() {
   submitform.style.display = "block";
@@ -116,30 +117,47 @@ function sign(klik) {
   // }
 }
 
-function setPagination() {
-  $(".pagination.bottom").html(
-    '<li style="margin-right: 5px;" class="btn btn-primary disabled"><a onclick="prevPage()"><i class="material-icons">left</i></a></li><li style="margin-right: 5px;" class="btn btn-primary active"><a onclick="renderingPage(doc, 1)">1</a></li><li style="margin-right: 5px;" class="btn btn-primary disabled"><a onclick="nextPage()"><i class="material-icons">right</i></a></li>'
-  );
-  if (doc.numPages > 1) {
-    var last = $(".pagination.bottom li").last();
-    for (i = 2; i <= doc.numPages; i++) {
-      last.before(
-        '<li style="margin-right: 5px;" class="btn btn-primary"><a onclick="renderingPage(doc, ' +
-          i +
-          ')">' +
-          i +
-          "</a></li>"
-      );
-    }
-    last.removeClass("disabled");
+// function setPagination() {
+//   $(".pagination.bottom").html(
+//     '<li style="margin-right: 5px;" class="btn btn-primary disabled"><a onclick="prevPage()"><i class="material-icons">left</i></a></li><li style="margin-right: 5px;" class="btn btn-primary active"><a onclick="renderingPage(doc, 1)">1</a></li><li style="margin-right: 5px;" class="btn btn-primary disabled"><a onclick="nextPage()"><i class="material-icons">right</i></a></li>'
+//   );
+//   if (doc.numPages > 1) {
+//     var last = $(".pagination.bottom li").last();
+//     for (i = 2; i <= doc.numPages; i++) {
+//       last.before(
+//         '<li style="margin-right: 5px;" class="btn btn-primary"><a onclick="renderingPage(doc, ' +
+//           i +
+//           ')">' +
+//           i +
+//           "</a></li>"
+//       );
+//     }
+//     last.removeClass("disabled");
+//   }
+// }
+
+$("form").bind("keypress", function (e) {
+  if (e.keyCode == 13) {
+      $("#finish").attr('value');
+      //add more buttons here
+      return false;
   }
-}
+});
 
 function prevPage() {
+  pageInput.value = curPage - 1;
   renderingPage(doc, curPage - 1);
 }
 function nextPage() {
+  pageInput.value = curPage + 1;
   renderingPage(doc, curPage + 1);
+}
+
+function changePage() {
+  if (pageInput.value != "") {
+    //console.log(parseInt(pageInput.value));
+    renderingPage(doc, parseInt(pageInput.value));
+  }
 }
 
 function renderingPage(pdf, pageNumber) {
@@ -216,7 +234,8 @@ window.onload = function () {
     .promise.then(function (pdfDoc_) {
       doc = pdfDoc_;
       //console.log(doc)
-      setPagination();
+      //setPagination();
+      pageInput.value = 1;
       renderingPage(doc, 1);
     })
     .catch(function (error) {
