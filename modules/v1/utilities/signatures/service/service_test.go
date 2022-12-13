@@ -1271,7 +1271,7 @@ func Test_service_GetListDocument(t *testing.T) {
 	}{
 		{
 			nameTest:  "Get List Document Case 1: Success Get Data List Signatures Document",
-			publickey: "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
+			publickey: "0xBCD146513c99443cF32Ca8A449f5287aaD6f91a",
 			docs: []models.ListDocument{
 				{
 					Id:               id,
@@ -1346,9 +1346,9 @@ func Test_service_GetListDocument(t *testing.T) {
 					Sign_time:     timeSign.String(),
 				}
 
-				repo.EXPECT().ListDocumentNoSign("0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a").Return(document).Times(1)
-				repo.EXPECT().GetDocument("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b", "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a").Return(docsBlockchain).Times(1)
-				repo.EXPECT().GetSigners("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b", "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a").Return(signers).Times(1)
+				repo.EXPECT().ListDocumentNoSign("0xBCD146513c99443cF32Ca8A449f5287aaD6f91a").Return(document).Times(1)
+				repo.EXPECT().GetDocument("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b", "0xBCD146513c99443cF32Ca8A449f5287aaD6f91a").Return(docsBlockchain).Times(1)
+				repo.EXPECT().GetSigners("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b", "0xBCD146513c99443cF32Ca8A449f5287aaD6f91a").Return(signers).Times(1)
 			},
 		},
 	}
