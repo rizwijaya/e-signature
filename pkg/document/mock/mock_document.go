@@ -5,8 +5,6 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	creator "github.com/unidoc/unipdf/v3/creator"
-	model "github.com/unidoc/unipdf/v3/model"
 )
 
 // MockDocuments is a mock of Documents interface.
@@ -32,32 +30,6 @@ func (m *MockDocuments) EXPECT() *MockDocumentsMockRecorder {
 	return m.recorder
 }
 
-// CalcImagePos mocks base method.
-func (m *MockDocuments) CalcImagePos(img *creator.Image, page *model.PdfPage, input models.SignDocuments) *creator.Image {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CalcImagePos", img, page, input)
-	ret0, _ := ret[0].(*creator.Image)
-	return ret0
-}
-
-// CalcImagePos indicates an expected call of CalcImagePos.
-func (mr *MockDocumentsMockRecorder) CalcImagePos(img, page, input interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CalcImagePos", reflect.TypeOf((*MockDocuments)(nil).CalcImagePos), img, page, input)
-}
-
-// Init mocks base method.
-func (m *MockDocuments) Init() {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "Init")
-}
-
-// Init indicates an expected call of Init.
-func (mr *MockDocumentsMockRecorder) Init() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Init", reflect.TypeOf((*MockDocuments)(nil).Init))
-}
-
 // SignDocuments mocks base method.
 func (m *MockDocuments) SignDocuments(imgpath string, input models.SignDocuments) string {
 	m.ctrl.T.Helper()
@@ -70,4 +42,18 @@ func (m *MockDocuments) SignDocuments(imgpath string, input models.SignDocuments
 func (mr *MockDocumentsMockRecorder) SignDocuments(imgpath, input interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SignDocuments", reflect.TypeOf((*MockDocuments)(nil).SignDocuments), imgpath, input)
+}
+
+// WaterMarking mocks base method.
+func (m *MockDocuments) WaterMarking(path string) string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "WaterMarking", path)
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// WaterMarking indicates an expected call of WaterMarking.
+func (mr *MockDocumentsMockRecorder) WaterMarking(path interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WaterMarking", reflect.TypeOf((*MockDocuments)(nil).WaterMarking), path)
 }
