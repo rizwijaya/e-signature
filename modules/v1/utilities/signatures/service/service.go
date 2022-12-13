@@ -223,8 +223,11 @@ func (s *service) DocumentSigned(sign models.SignDocs) error {
 func (s *service) GetListDocument(publickey string) []models.ListDocument {
 	listDoc := s.repository.ListDocumentNoSign(publickey)
 	for i := range listDoc {
-		listDoc[i].Documents = s.repository.GetDocument(listDoc[i].Hash_original, publickey)
-		listDoc[i].Documents.Signers = s.repository.GetSigners(listDoc[i].Hash_original, publickey)
+		docs := s.repository.GetDocument(listDoc[i].Hash_original, publickey)
+		if publickey != docs.Creator.Hex() {
+			listDoc[i].Documents = docs
+			listDoc[i].Documents.Signers = s.repository.GetSigners(listDoc[i].Hash_original, publickey)
+		}
 	}
 	return listDoc
 }

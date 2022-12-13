@@ -234,7 +234,7 @@ func (b *blockchain) GetDocument(hash string, publickey string) modelsSign.Docum
 	doc.Createdtime = Createdtime.String()
 	doc.Completedtime = Completedtime.String()
 	doc.Mode = Mode.String()
-	doc.Creator_string = doc.Creator.String()
+	doc.Creator_string = doc.Creator.Hex()
 
 	return doc
 }

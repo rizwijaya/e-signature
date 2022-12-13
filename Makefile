@@ -26,7 +26,7 @@ clean:
 	@echo "Cleaning..."
 	rm -rf main.exe
 # live reload using nodemon: npm -g i nodemon
-run-nodemon:
+auto:
 	@echo "Running server with nodemon..."
 	nodemon --exec go run main.go
 
