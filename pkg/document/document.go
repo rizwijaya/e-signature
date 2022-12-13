@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/unidoc/unipdf/v3/common/license"
 	"github.com/unidoc/unipdf/v3/creator"
@@ -16,6 +17,7 @@ type Documents interface {
 	//Init()
 	//CalcImagePos(img *creator.Image, page *model.PdfPage, input models.SignDocuments) *creator.Image
 	SignDocuments(imgpath string, input models.SignDocuments) string
+	WaterMarking(path string) string
 }
 
 type documents struct {
@@ -120,6 +122,76 @@ func (d *documents) SignDocuments(imgpath string, input models.SignDocuments) st
 		return ""
 	}
 	return inputPath2
+}
+
+func (d *documents) WaterMarking(path string) string {
+	d.Init()
+	//Add Invisible text to pdf
+	location, _ := time.LoadLocation("Asia/Jakarta")
+	t := time.Now().In(location)
+	pageNum := -1
+	text := "smartsign at " + t.Format("02-01-2006 15:04:05")
+	xPos := 0.000000001
+	yPos := 0.000000001
+
+	f, err := os.Open(path)
+	if err != nil {
+		log.Println(err)
+		return ""
+	}
+	defer f.Close()
+
+	pdfReader, err := model.NewPdfReader(f)
+	if err != nil {
+		log.Println(err)
+		return ""
+	}
+
+	numPages, err := pdfReader.GetNumPages()
+	if err != nil {
+		log.Println(err)
+		return ""
+	}
+
+	c := creator.New()
+
+	// Load the pages.
+	for i := 0; i < numPages; i++ {
+		page, err := pdfReader.GetPage(i + 1)
+		if err != nil {
+			log.Println(err)
+			return ""
+		}
+
+		err = c.AddPage(page)
+		if err != nil {
+			log.Println(err)
+			return ""
+		}
+
+		if i == pageNum || pageNum == -1 {
+			p := c.NewParagraph(text)
+			// Change to times bold font (default is helvetica).
+			timesBold, err := model.NewStandard14Font("Times-Bold")
+			if err != nil {
+				panic(err)
+			}
+			p.SetColor(creator.ColorRGBFromHex("#ffffff00"))
+			p.SetFontSize(0)
+			p.SetFont(timesBold)
+			p.SetPos(xPos, yPos)
+
+			_ = c.Draw(p)
+		}
+
+	}
+
+	err = c.WriteToFile(path)
+	if err != nil {
+		log.Println(err)
+		return ""
+	}
+	return path
 }
 
 // func (d *documents) SignDocuments(imgpath string, input models.SignDocuments) string {

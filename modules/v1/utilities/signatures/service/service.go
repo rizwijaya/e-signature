@@ -45,6 +45,7 @@ type Service interface {
 	GetDocumentNoSigners(hash string) models.DocumentBlockchain
 	GetTransactions() []models.Transac
 	CheckSignature(hash string, publickey string) bool
+	WaterMarking(path string) string
 }
 
 type service struct {
@@ -299,4 +300,8 @@ func (s *service) GetTransactions() []models.Transac {
 func (s *service) CheckSignature(hash string, publickey string) bool {
 	check := s.repository.CheckSignature(hash, publickey)
 	return check
+}
+
+func (s *service) WaterMarking(path string) string {
+	return s.documents.WaterMarking(path)
 }

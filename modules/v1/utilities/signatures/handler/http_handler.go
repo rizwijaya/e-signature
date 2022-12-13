@@ -90,8 +90,6 @@ func (h *signaturesHandler) SignDocuments(c *gin.Context) {
 	//Saving Document to Directory
 	path := fmt.Sprintf("./public/temp/pdfsign/%s", input.Name)
 	_ = c.SaveUploadedFile(file, path)
-	//Generate hash document original
-	input.Hash_original = h.serviceSignature.GenerateHashDocument(path)
 	//Get Address Creator
 	input.Creator = fmt.Sprintf("%v", session.Get("public_key"))
 	input.Creator_id = fmt.Sprintf("%v", session.Get("sign"))
@@ -103,6 +101,7 @@ func (h *signaturesHandler) SignDocuments(c *gin.Context) {
 	sign := h.serviceSignature.SignDocuments(img, input)
 	signDocs.Hash = h.serviceSignature.GenerateHashDocument(sign)
 	input.Hash = input.Hash_original
+	input.Hash_original = signDocs.Hash
 	//Input to IPFS
 	IPFS, err := h.serviceUser.UploadIPFS(sign)
 	if err != nil {
@@ -209,6 +208,8 @@ func (h *signaturesHandler) InviteSignatures(c *gin.Context) {
 	DocData.Email = input.Email
 	DocData.Judul = input.Judul
 	DocData.Note = input.Note
+	//Create WaterMarking
+	h.serviceSignature.WaterMarking(path)
 	//Generate hash document
 	DocData.Hash_original = h.serviceSignature.GenerateHashDocument(path)
 	DocData.Hash = DocData.Hash_original
