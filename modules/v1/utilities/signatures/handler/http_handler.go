@@ -414,8 +414,6 @@ func (h *signaturesHandler) Integrity(c *gin.Context) {
 	//Saving Document to Directory
 	path := fmt.Sprintf("./public/temp/pdfsign/%s", input.Name)
 	_ = c.SaveUploadedFile(file, path)
-	//Generate hash document original
-	input.Hash_original = h.serviceSignature.GenerateHashDocument(path)
 	//Get Address Creator
 	input.Creator = fmt.Sprintf("%v", session.Get("public_key"))
 	input.Creator_id = fmt.Sprintf("%v", session.Get("sign"))
@@ -426,6 +424,7 @@ func (h *signaturesHandler) Integrity(c *gin.Context) {
 	//Signing Documents to PDF
 	sign := h.serviceSignature.SignDocuments(img, input)
 	signDocs.Hash = h.serviceSignature.GenerateHashDocument(sign)
+	input.Hash_original = signDocs.Hash
 	input.Hash = input.Hash_original
 	//Input to IPFS
 	IPFS, err := h.serviceUser.UploadIPFS(sign)

@@ -110,6 +110,7 @@ func (h *signaturesview) RequestSignatures(c *gin.Context) {
 		"userid":    session.Get("id"),
 		"page":      page,
 		"name":      session.Get("name"),
+		"publickey": session.Get("public_key"),
 		"documents": listDocument,
 		"failed":    string(failed),
 		"success":   string(succes),

@@ -12,11 +12,11 @@ contract Smartsign {
     // ------Model data------ //
     //Model Document
     struct Document {
-        bytes32 file; //Hash asli dalam bytes
+        bytes32 file; //Hash Original in Bytes
         uint256 document_id; //ID document
         string creator_id; // ID Creator
         address creator; //Address Creator
-        string metadata; //Data File
+        string metadata; //File Data
         string hash_ori; //Hash Original
         string hash; //Hash Signed
         string ipfs; //Data Ipfs
@@ -112,6 +112,7 @@ contract Smartsign {
         temp.mode, temp.createdtime, temp.completedtime, 
         temp.exist);
     }
+    
     //Get List Signers in Documents
     function getListSign(string memory _file) public view returns(
         address[] memory

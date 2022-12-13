@@ -17,39 +17,42 @@
         <div class="col-lg-12">
           <div class="entries wrapper">
               {{ $name := .name }}
+              {{ $key := .publickey }}
               {{ range $doc := .documents }}
-              {{ if(eq $doc.Documents.Exist true) }}
-                {{ if(eq $doc.Documents.Signers.Signers_state false) }}
-                  <!-- List Documents -->
-                  <article class="entry item">
-                    <h2 class="entry-title">
-                      <a href="/document/{{ $doc.Hash_original }}">{{ $doc.Judul }}</a>
-                    </h2>
+              {{ if (ne $doc.Documents.Creator_string $key)}}
+                {{ if(eq $doc.Documents.Exist true) }}
+                  {{ if(eq $doc.Documents.Signers.Signers_state false) }}
+                    <!-- List Documents -->
+                    <article class="entry item">
+                      <h2 class="entry-title">
+                        <a href="/document/{{ $doc.Hash_original }}">{{ $doc.Judul }}</a>
+                      </h2>
 
-                    <div class="entry-meta">
-                      <ul>
-                        <li class="d-flex align-items-center"><i class="bi bi-person"></i> <a href="/document/{{ $doc.Hash_original }}">{{ $doc.Documents.Creator_id }}</a></li>
-                        <li class="d-flex align-items-center"><i class="bi bi-clock"></i> <a href="/document/{{ $doc.Hash_original }}"><time datetime="2020-01-01">{{ $doc.Date_created_WIB }}</time></a></li>
-                        <li class="d-flex align-items-center"><i class="bi bi-chat-dots"></i> <a href="/document/{{ $doc.Hash_original }}">{{ $doc.Documents.Metadata }}</a></li>
-                      </ul>
-                    </div>
-
-                    <div class="entry-content">
-                      <p>
-                        Permintaan tanda tangan dokumen dilakukan oleh {{ $doc.Documents.Creator_id }} kepada {{ $name }} 
-                        {{ if eq $doc.Note ""}}
-                        . Tidak ada catatan tambahan.
-                        {{ else }}
-                          dengan catatan yaitu {{ $doc.Note }}.
-                        {{ end }}
-                      </p>
-                      <div class="read-more">
-                        <a href="/document/{{ $doc.Hash_original }}">Tanda Tangan</a>
+                      <div class="entry-meta">
+                        <ul>
+                          <li class="d-flex align-items-center"><i class="bi bi-person"></i> <a href="/document/{{ $doc.Hash_original }}">{{ $doc.Documents.Creator_id }}</a></li>
+                          <li class="d-flex align-items-center"><i class="bi bi-clock"></i> <a href="/document/{{ $doc.Hash_original }}"><time datetime="2020-01-01">{{ $doc.Date_created_WIB }}</time></a></li>
+                          <li class="d-flex align-items-center"><i class="bi bi-chat-dots"></i> <a href="/document/{{ $doc.Hash_original }}">{{ $doc.Documents.Metadata }}</a></li>
+                        </ul>
                       </div>
-                    </div>
 
-                  </article>
-                  <!-- List Documents -->
+                      <div class="entry-content">
+                        <p>
+                          Permintaan tanda tangan dokumen dilakukan oleh {{ $doc.Documents.Creator_id }} kepada {{ $name }} 
+                          {{ if eq $doc.Note ""}}
+                          . Tidak ada catatan tambahan.
+                          {{ else }}
+                            dengan catatan yaitu {{ $doc.Note }}.
+                          {{ end }}
+                        </p>
+                        <div class="read-more">
+                          <a href="/document/{{ $doc.Hash_original }}">Tanda Tangan</a>
+                        </div>
+                      </div>
+
+                    </article>
+                    <!-- List Documents -->
+                  {{ end }}
                 {{ end }}
               {{ end }}
             {{ end }}
