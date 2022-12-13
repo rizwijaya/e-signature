@@ -49,8 +49,8 @@ func Init(db *mongo.Database, conf config.Conf, router *gin.Engine) *gin.Engine 
 	user.POST("/register", userHandlerV1.Register)
 	user.GET("/login", userViewV1.Login)
 	user.POST("/login", userHandlerV1.Login)
-	user.GET("/logout", userHandlerV1.Logout)
-	user.GET("/log-user", userViewV1.Logg)
+	user.GET("/logout", mid.Permission(), userHandlerV1.Logout)
+	user.GET("/log-user", mid.Permission(), userViewV1.Logg)
 
 	//Routing Signature Service
 	signature := router.Group("")
