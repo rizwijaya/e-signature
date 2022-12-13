@@ -339,3 +339,17 @@ func (mr *MockServiceMockRecorder) UpdateMySignatures(signature, signaturedata, 
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateMySignatures", reflect.TypeOf((*MockService)(nil).UpdateMySignatures), signature, signaturedata, sign)
 }
+
+// WaterMarking mocks base method.
+func (m *MockService) WaterMarking(path string) string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "WaterMarking", path)
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// WaterMarking indicates an expected call of WaterMarking.
+func (mr *MockServiceMockRecorder) WaterMarking(path interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WaterMarking", reflect.TypeOf((*MockService)(nil).WaterMarking), path)
+}
