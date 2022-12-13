@@ -7,6 +7,7 @@ import (
 	reflect "reflect"
 
 	bind "github.com/ethereum/go-ethereum/accounts/abi/bind"
+	common "github.com/ethereum/go-ethereum/common"
 	types "github.com/ethereum/go-ethereum/core/types"
 	gomock "github.com/golang/mock/gomock"
 )
@@ -122,6 +123,20 @@ func (m *MockBlockchain) GetHashOriginal(hash, publickey string) string {
 func (mr *MockBlockchainMockRecorder) GetHashOriginal(hash, publickey interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetHashOriginal", reflect.TypeOf((*MockBlockchain)(nil).GetHashOriginal), hash, publickey)
+}
+
+// GetListSign mocks base method.
+func (m *MockBlockchain) GetListSign(hash string) []common.Address {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetListSign", hash)
+	ret0, _ := ret[0].([]common.Address)
+	return ret0
+}
+
+// GetListSign indicates an expected call of GetListSign.
+func (mr *MockBlockchainMockRecorder) GetListSign(hash interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetListSign", reflect.TypeOf((*MockBlockchain)(nil).GetListSign), hash)
 }
 
 // GetPrivateKey mocks base method.
