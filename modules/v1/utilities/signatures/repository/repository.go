@@ -11,6 +11,7 @@ import (
 	"math/big"
 	"time"
 
+	"github.com/ethereum/go-ethereum/common"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"gopkg.in/mgo.v2/bson"
@@ -29,7 +30,7 @@ type Repository interface {
 	GetDocument(hash string, publickey string) models.DocumentBlockchain
 	GetSigners(hash string, publickey string) models.Signers
 	GetHashOriginal(hash string, publickey string) string
-	GetListSign(hash string) []models.SignersData
+	GetListSign(hash string) []common.Address
 	GetUserByIdSignatures(idsignature string) modelsUser.ProfileDB
 	VerifyDoc(hash string) bool
 	GetTransactions() []models.Transac
@@ -229,24 +230,8 @@ func (r *repository) GetHashOriginal(hash string, publickey string) string {
 	return r.blockchain.GetHashOriginal(hash, publickey)
 }
 
-func (r *repository) GetListSign(hash string) []models.SignersData {
-	var sign []models.SignersData
-	filter := bson.M{"hash_ori": hash}
-	c := r.db.Collection("signedDocuments")
-	cursor, err := c.Find(context.Background(), filter)
-	if err != nil {
-		log.Println(err)
-		return sign
-	}
-	for cursor.Next(context.Background()) {
-		var signer models.SignersData
-		cursor.Decode(&signer)
-		// if err != nil {
-		// 	log.Println(err)
-		// }
-		sign = append(sign, signer)
-	}
-	return sign
+func (r *repository) GetListSign(hash string) []common.Address {
+	return r.blockchain.GetListSign(hash)
 }
 
 func (r *repository) GetUserByIdSignatures(idsignature string) modelsUser.ProfileDB {

@@ -261,7 +261,7 @@ func (s *service) GetDocumentAllSign(hash string) (models.DocumentAllSign, bool)
 	signData := s.repository.GetListSign(doc.Hash_ori)
 	for i := range signData {
 		//Get Signer Data in Blockchain
-		signer := s.repository.GetSigners(hash_ori, signData[i].Sign_addr)
+		signer := s.repository.GetSigners(hash_ori, signData[i].Hex())
 		if signer.Signers_state {
 			//Get Signer Data in Database
 			signDB := s.repository.GetUserByIdSignatures(signer.Signers_id)

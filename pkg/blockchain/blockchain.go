@@ -34,6 +34,7 @@ type Blockchain interface {
 	GetSigners(hash string, publickey string) modelsSign.Signers
 	GetHashOriginal(hash string, publickey string) string
 	VerifyDoc(hash string) bool
+	GetListSign(hash string) []common.Address
 }
 
 type blockchain struct {
@@ -268,4 +269,14 @@ func (b *blockchain) VerifyDoc(hash string) bool {
 		log.Println(err)
 	}
 	return check
+}
+
+func (b *blockchain) GetListSign(hash string) []common.Address {
+	conf, _ := config.Init()
+	publickey := "0x" + conf.Blockhain.Public
+	list, err := b.contracts.GetListSign(&bind.CallOpts{From: common.HexToAddress(publickey)}, hash)
+	if err != nil {
+		log.Println(err)
+	}
+	return list
 }

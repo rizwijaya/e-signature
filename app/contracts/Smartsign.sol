@@ -12,30 +12,32 @@ contract Smartsign {
     // ------Model data------ //
     //Model Document
     struct Document {
-        bytes32 file; //Hash asli Bytes (Identifier)
+        bytes32 file; //Hash asli dalam bytes
         uint256 document_id; //ID document
-        string creator_id;
-        address creator; //Pembuat Documents
-        string metadata;
+        string creator_id; // ID Creator
+        address creator; //Address Creator
+        string metadata; //Data File
         string hash_ori; //Hash Original
-        string hash; //Hash akhir
-        string ipfs; //data document di ipfs
-        uint256 state; //1 Process Signed, 2 Signed
-        uint256 mode; //mode ttd: 1 Permintaan ttd, 2 minta ttd (invite orang lain), 3 Single ttd
-        uint256 createdtime; //tgl request ttd
-        uint256 completedtime;
-        bool exist; //check apakah dokument
-        uint256 sign_reminder;
-        mapping(address => Signers) signers; //Data alamat penandatangan
+        string hash; //Hash Signed
+        string ipfs; //Data Ipfs
+        uint256 state; //Process State 1 Process Signed, 2 Signed
+        uint256 mode; //Mode Signatures: 1 Permintaan ttd, 2 minta ttd (invite orang lain), 3 Single ttd
+        uint256 createdtime; //Data Request
+        uint256 completedtime; //Date Completed
+        bool exist; //check document Exist
+        uint256 sign_reminder; //Sign Process Reminder
+        uint256 sign_total;
+        address[] signers_address;
+        mapping(address => Signers) signers; //Address Signers
     }
-
+    //Model Signers
     struct Signers {
-        address sign_addr;
-        uint256 sign_id;
-        string signers_id; //id signatures
-        string signers_hash;
-        bool signers_state; //status ttd 
-        uint sign_time; //tgl ttd
+        address sign_addr; //Addres Signers
+        uint256 sign_id; //Id Signers
+        string signers_id; //Id signatures
+        string signers_hash; //Hash Sign
+        bool signers_state; //State Sign 
+        uint sign_time; //Date Sign
     }
     mapping(bytes32 => Document) documents;
     mapping(bytes32 => bytes32) signedDocs;
@@ -47,7 +49,7 @@ contract Smartsign {
         if (tempEmptyStringTest.length == 0) {
             return 0x0;
         }
-        assembly {
+        assembly { //Assembly Language
                 result := mload(add(source, 32))
         }
     }
@@ -83,6 +85,9 @@ contract Smartsign {
         newDocument.completedtime = _time;
         newDocument.exist = true;
         newDocument.sign_reminder = _signers.length;
+        newDocument.sign_total = _signers.length;
+        newDocument.signers_address = _signers;
+        
         for (uint256 i=0; i<_signers.length; i++) {
             newDocument.signers[_signers[i]].sign_addr = _signers[i];
             newDocument.signers[_signers[i]].sign_id = i;
@@ -107,6 +112,16 @@ contract Smartsign {
         temp.mode, temp.createdtime, temp.completedtime, 
         temp.exist);
     }
+    //Get List Signers in Documents
+    function getListSign(string memory _file) public view returns(
+        address[] memory
+    ) {
+            bytes32 byte_id = stringToBytes32(_file);
+            Document storage temp = documents[byte_id];
+            require(temp.exist == true, "Document not exist");
+            return(temp.signers_address);
+    }
+
     //Get Signatures Data in Documents
     function getSign(string memory _file, address _signers_id) public view returns(
         uint256, string memory, string memory, bool, uint
