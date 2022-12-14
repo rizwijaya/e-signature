@@ -202,10 +202,6 @@ func Test_userHandler_Logout(t *testing.T) {
 	}
 }
 
-// func () Matches(x interface{}) bool {
-// 	return true
-// }
-
 func Test_userHandler_Register(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()

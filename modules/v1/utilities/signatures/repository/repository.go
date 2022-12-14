@@ -163,7 +163,7 @@ func (r *repository) AddUserDocs(input models.SignDocuments) error {
 	}
 	location, _ := time.LoadLocation("Asia/Jakarta")
 	for _, v := range input.Address {
-		signedDocuments := struct {
+		documents_transac := struct {
 			Id               primitive.ObjectID `bson:"_id,omitempty"`
 			Address          string             `bson:"address"`
 			Hash_Ori         string             `bson:"hash_ori"`
@@ -183,8 +183,8 @@ func (r *repository) AddUserDocs(input models.SignDocuments) error {
 			Date_Created_wib: tm.TanggalJam(time.Now().In(location)),
 		}
 
-		c := r.db.Collection("signedDocuments")
-		_, err := c.InsertOne(context.Background(), &signedDocuments)
+		c := r.db.Collection("documents_transac")
+		_, err := c.InsertOne(context.Background(), &documents_transac)
 		if err != nil {
 			log.Println(err)
 			return err
@@ -201,7 +201,7 @@ func (r *repository) DocumentSigned(sign models.SignDocs, timeSign *big.Int) err
 
 func (r *repository) ListDocumentNoSign(publickey string) []models.ListDocument {
 	var listDocument []models.ListDocument
-	c := r.db.Collection("signedDocuments")
+	c := r.db.Collection("documents_transac")
 	cursor, err := c.Find(context.Background(), bson.M{"address": publickey})
 	if err != nil {
 		log.Println(err)
@@ -272,7 +272,7 @@ func (r *repository) CheckSignature(hash string, publickey string) bool {
 	var sign struct {
 		Hash string `bson:"hash"`
 	}
-	c := r.db.Collection("signedDocuments")
+	c := r.db.Collection("documents_transac")
 	filter := bson.M{"hash_ori": hash, "address": publickey}
 	err := c.FindOne(context.Background(), filter).Decode(&sign)
 	if err != nil {

@@ -438,8 +438,8 @@ func Test_repository_GetTotal(t *testing.T) {
 		err      error
 	}{
 		{
-			nameTest: "Get Total Data Case 1: Success Get Total SignedDocuments",
-			db:       "signedDocuments",
+			nameTest: "Get Total Data Case 1: Success Get Total Documents Transaction",
+			db:       "documents_transac",
 			output:   430,
 			response: mtest.CreateCursorResponse(1, "foo.bar", mtest.FirstBatch, primitive.D{
 				{Key: "n", Value: 430},

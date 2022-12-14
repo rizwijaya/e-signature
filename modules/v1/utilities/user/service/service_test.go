@@ -693,7 +693,7 @@ func Test_service_GetCardDashboard(t *testing.T) {
 				TotalRequestUser: 12,
 			},
 			repoTest: func(repo *m_repo.MockRepository, crypto *m_crypto.MockCrypto) {
-				repo.EXPECT().GetTotal("signedDocuments").Return(9).Times(1)
+				repo.EXPECT().GetTotal("documents_transac").Return(9).Times(1)
 				repo.EXPECT().GetTotal("users").Return(3).Times(1)
 				repo.EXPECT().GetTotal("transactions").Return(5).Times(1)
 				repo.EXPECT().GetTotalRequestUser("rizwijaya").Return(12).Times(1)

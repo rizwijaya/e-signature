@@ -206,7 +206,7 @@ func (s *service) GetPublicKey(email []string) ([]common.Address, []string) {
 
 func (s *service) GetCardDashboard(sign_id string) models.CardDashboard {
 	var card models.CardDashboard
-	card.TotalRequest = s.repository.GetTotal("signedDocuments")
+	card.TotalRequest = s.repository.GetTotal("documents_transac")
 	card.TotalUser = s.repository.GetTotal("users")
 	card.TotalTx = s.repository.GetTotal("transactions")
 	card.TotalRequestUser = s.repository.GetTotalRequestUser(sign_id)
