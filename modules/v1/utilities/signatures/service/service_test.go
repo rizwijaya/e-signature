@@ -473,7 +473,7 @@ func Test_service_GetMySignature(t *testing.T) {
 		test     func(repo *m_repo.MockRepository, images *m_images.MockImages, docs *m_docs.MockDocuments)
 	}{
 		{
-			nameTest: "Update My Signatures Case 1: Success Update My Signatures Users",
+			nameTest: "Get My Signatures Case 1: Success Get My Signatures Users",
 			sign:     "rizwijaya",
 			id:       "6380b5cbdc938c5fdf8e6bfe",
 			name:     "Rizqi Wijaya",
@@ -509,7 +509,7 @@ func Test_service_GetMySignature(t *testing.T) {
 			},
 		},
 		{
-			nameTest: "Update My Signatures Case 2: Error Failed Update My Signatures Users",
+			nameTest: "Get My Signatures Case 2: Error Failed Get My Signatures Users",
 			sign:     "rizwijaya",
 			id:       "6380b5cbdc938c5fdf8e6bfe",
 			name:     "Rizqi Wijaya",
@@ -541,7 +541,7 @@ func Test_service_GetMySignature(t *testing.T) {
 					Signature_selected: "latin",
 					Date_update:        times,
 					Date_created:       times,
-				}, errors.New("Error Failed Update My Signatures Users")).Times(1)
+				}, errors.New("Error Failed Get My Signatures Users")).Times(1)
 			},
 		},
 	}
@@ -869,7 +869,7 @@ func Test_service_InvitePeople(t *testing.T) {
 		err      error
 	}{
 		{
-			nameTest: "Sign Documents Case 1: Success Sign Documents",
+			nameTest: "Invite People Case 1: Success Invite People",
 			email:    "member@rizwijaya.com",
 			signDocs: models.SignDocuments{
 				Judul:         "Invite People Test",

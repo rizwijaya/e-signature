@@ -1156,14 +1156,14 @@ func Test_repository_GetUserByIdSignatures(t *testing.T) {
 			err: nil,
 		},
 		{
-			nameTest:    "Get User By Id Signature Case 1: Success Get User Data Not Exist",
+			nameTest:    "Get User By Id Signature Case 2: Success Get User Data Not Exist",
 			idsignature: "admin23",
 			output:      modelsUser.ProfileDB{},
 			response:    mtest.CreateCursorResponse(1, "foo.bar", mtest.FirstBatch, primitive.D{}),
 			err:         nil,
 		},
 		{
-			nameTest:    "Get User By Id Signature Case 1: Error Failed Decoded Data User",
+			nameTest:    "Get User By Id Signature Case 3: Error Failed Decoded Data User",
 			idsignature: "adminbrow",
 			output:      modelsUser.ProfileDB{},
 			response: mtest.CreateCommandErrorResponse(mtest.CommandError{
@@ -1220,7 +1220,7 @@ func Test_repository_VerifyDoc(t *testing.T) {
 			},
 		},
 		{
-			nameTest: "Verification Document Case 2: Error Failed Verification Document in Blockchain",
+			nameTest: "Verification Document Case 3: Error Failed Verification Document in Blockchain",
 			hash:     "xjldoywnae21mh3ji34mbsdoa8lasdp93u9qwlksdo3y1e3jrkrnn2",
 			output:   false,
 			testing: func(blockchain *m_blockchain.MockBlockchain, repo Repository) {
