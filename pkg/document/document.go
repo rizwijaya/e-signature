@@ -48,7 +48,7 @@ func (d *documents) CalcImagePos(img *creator.Image, page *model.PdfPage, input 
 
 	// X and Y is actually a image pos relative
 	// to page width (element width in html)
-	lCorrection := 1 + 0.09
+	lCorrection := 1 + 0.039
 	wCorrection := 1 - 0.05
 	imgLeft := input.X_coord * pageWidth * lCorrection
 	imgTop := input.Y_coord * pageHeight
