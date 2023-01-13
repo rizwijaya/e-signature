@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/gin-contrib/sessions"
@@ -102,6 +103,10 @@ func (h *signaturesHandler) SignDocuments(c *gin.Context) {
 	signDocs.Hash = h.serviceSignature.GenerateHashDocument(sign)
 	input.Hash_original = signDocs.Hash
 	input.Hash = input.Hash_original
+	//Check images signatures with data
+	if strings.Contains(img, "./public/temp/") {
+		os.Remove(img)
+	}
 	//Input to IPFS
 	IPFS, err := h.serviceUser.UploadIPFS(sign)
 	if err != nil {
@@ -303,6 +308,10 @@ func (h *signaturesHandler) Document(c *gin.Context) {
 		c.Redirect(302, "/request-signatures")
 		return
 	}
+	//Check images signatures with data
+	if strings.Contains(img, "./public/temp/") {
+		os.Remove(img)
+	}
 	input.IPFS = string(h.serviceUser.Encrypt([]byte(input.IPFS), conf.App.Secret_key))
 	//Signing Documents in Blockchain
 	signDocs.Hash_original = input.Hash_original
@@ -436,6 +445,10 @@ func (h *signaturesHandler) Integrity(c *gin.Context) {
 	}
 	//Delete file uploaded sign
 	os.Remove(path)
+	//Check images signatures with data
+	if strings.Contains(img, "./public/temp/") {
+		os.Remove(img)
+	}
 	//Encript IPFS and Get Signatures Data
 	input.IPFS = string(h.serviceUser.Encrypt([]byte(IPFS), conf.App.Secret_key))
 	if input.Invite_sts { //Check invite or not

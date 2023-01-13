@@ -77,7 +77,7 @@ func (s *service) CreateImgSignature(input models.AddSignature) string {
 }
 
 func (s *service) CreateImgSignatureData(input models.AddSignature, name string) string {
-	font := "detail_data.ttf"
+	font := "data.ttf"
 	return s.images.CreateImgSignatureData(input, name, font)
 }
 
@@ -87,7 +87,7 @@ func (s *service) CreateLatinSignatures(user modelsUser.User, id string) string 
 }
 
 func (s *service) CreateLatinSignaturesData(user modelsUser.User, latin string, idn string) string {
-	font := "detail_data.ttf"
+	font := "data.ttf"
 	return s.images.CreateLatinSignaturesData(user, latin, idn, font)
 }
 

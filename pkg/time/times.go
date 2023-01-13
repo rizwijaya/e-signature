@@ -13,6 +13,12 @@ var bulan = [...]string{
 	"Juli", "Agustus", "September", "Oktober", "Nopember", "Desember",
 }
 
+func TanggalJamEnglish(t time.Time) string {
+	return fmt.Sprintf("%s, %02d %s %d | %02d:%02d WIB",
+		t.Weekday(), t.Day(), t.Month(), t.Year(), t.Hour(), int(t.Minute()),
+	)
+}
+
 func TanggalJam(t time.Time) string {
 	return fmt.Sprintf("%s, %02d %s %d | %02d:%02d WIB",
 		hari[t.Weekday()], t.Day(), bulan[t.Month()-1][:3], t.Year(), t.Hour(), int(t.Minute()),

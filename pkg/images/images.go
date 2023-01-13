@@ -3,6 +3,7 @@ package images
 import (
 	"e-signature/modules/v1/utilities/signatures/models"
 	modelsUser "e-signature/modules/v1/utilities/user/models"
+	times "e-signature/pkg/time"
 	"encoding/base64"
 	"fmt"
 	"image"
@@ -10,6 +11,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/fogleman/gg"
 )
@@ -20,6 +22,7 @@ type Images interface {
 	CreateLatinSignatures(user modelsUser.User, id string, font string) string
 	CreateLatinSignaturesData(user modelsUser.User, latin string, idn string, font string) string
 	ResizeImages(mysign models.MySignatures, input models.SignDocuments) string
+	SignWithData(path string, sign string) string
 }
 
 type images struct {
@@ -58,9 +61,8 @@ func (i *images) CreateImageSignature(input models.AddSignature) string {
 }
 
 func (i *images) CreateImgSignatureData(input models.AddSignature, name string, font string) string {
-	//const S = 200
-	//im, err := gg.LoadImage("signature-632fbcd7ea74d38e23360148.png")
-	//img := fmt.Sprintf("app/tmp/signature-%s.png", user.Idsignature)
+	// location, _ := time.LoadLocation("Asia/Jakarta")
+	// created := times.TanggalJamEnglish(time.Now().In(location))
 	img := fmt.Sprintf("public/images/signatures/signatures/signatures-%s.png", input.Id)
 	im, err := gg.LoadImage(img)
 	if err != nil {
@@ -69,31 +71,24 @@ func (i *images) CreateImgSignatureData(input models.AddSignature, name string, 
 	}
 
 	dc := gg.NewContext(300, 300)
-	//dc.SetRGB(1, 1, 1) // white background
 	dc.Clear()
 	dc.SetRGB255(25, 25, 112)
 	if err := dc.LoadFontFace("modules/v1/utilities/signatures/font/"+font, 11); err != nil {
 		log.Println(err)
 		return ""
 	}
-	//dc.DrawStringAnchored("Hello, world!", 460/4, 180/2, 0.5, 0.5)
 
-	//dc.DrawRoundedRectangle(0, 0, 460/4, 180/2, 0)
 	dc.DrawImage(im, 0, 0)
-	// id := input.Id
-	// if len(input.Id) > 12 {
-	// 	id = input.Id[0:12]
-	// }
 	nam := name
 	if len(name) > 12 {
 		nam = name[0:12]
 	}
-	//dc.DrawStringAnchored(id, 145, 242, 0, 0.5)
-	dc.DrawStringAnchored("Sign by "+nam, 145, 254, 0, 0.5)
-	dc.DrawStringAnchored("smartsign.rizwijaya.com", 145, 266, 0, 0.5)
-	dc.DrawStringAnchored("Integrate in Blockchain", 145, 278, 0, 0.5)
+	dc.DrawStringAnchored("Sign by "+nam, 40, 242, 0, 0.5)
+	dc.DrawStringAnchored("Verify at smartsign.rizwijaya.com", 40, 254, 0, 0.5)
+	dc.DrawStringAnchored("Digital Signature In Blockchain", 40, 266, 0, 0.5)
+	//dc.DrawStringAnchored("Created at "+created, 40, 278, 0, 0.5)
+
 	dc.Clip()
-	//dc.SavePNG("out.png")
 	filename := fmt.Sprintf("public/images/signatures/signatures_data/signaturesdata-%s.png", input.Id)
 	if _, err := os.Stat(filename); err == nil {
 		os.Remove(filename)
@@ -125,6 +120,8 @@ func (i *images) CreateLatinSignatures(user modelsUser.User, id string, font str
 }
 
 func (i *images) CreateLatinSignaturesData(user modelsUser.User, latin string, idn string, font string) string {
+	// location, _ := time.LoadLocation("Asia/Jakarta")
+	// created := times.TanggalJamEnglish(time.Now().In(location))
 	im, err := gg.LoadImage(latin)
 	if err != nil {
 		log.Println(err)
@@ -145,15 +142,10 @@ func (i *images) CreateLatinSignaturesData(user modelsUser.User, latin string, i
 	if len(user.Idsignature) > 12 {
 		id = user.Idsignature[0:12]
 	}
-	// nam := user.Name
-	// if len(user.Name) > 12 {
-	// 	nam = user.Name[0:12]
-	// }
-	//dc.DrawStringAnchored(id, 145, 242, 0, 0.5)
-	dc.DrawStringAnchored("Sign-"+id, 145, 254, 0, 0.5)
-	dc.DrawStringAnchored("rizwijaya.smartsign.com", 145, 266, 0, 0.5)
-	dc.DrawStringAnchored("Integrate in Blockchain", 145, 278, 0, 0.5)
-	//dc.DrawStringAnchored("Integrate in Blockchain", 145, 290, 0, 0.5)
+
+	dc.DrawStringAnchored("Sign by "+id, 40, 242, 0, 0.5)
+	dc.DrawStringAnchored("Verify at smartsign.rizwijaya.com", 40, 254, 0, 0.5)
+	dc.DrawStringAnchored("Digital Signature In Blockchain", 40, 266, 0, 0.5)
 	dc.Clip()
 	filename := fmt.Sprintf("public/images/signatures/latin_data/latindata-%s.png", idn)
 	dc.SavePNG(filename)
@@ -162,32 +154,53 @@ func (i *images) CreateLatinSignaturesData(user modelsUser.User, latin string, i
 
 func (i *images) ResizeImages(mysign models.MySignatures, input models.SignDocuments) string {
 	signatures := mysign.Latin
+	path := fmt.Sprintf("./public/images/signatures/%s", signatures)
 	if mysign.Signature_selected == "signature" {
 		signatures = mysign.Signature
+		path = fmt.Sprintf("./public/images/signatures/%s", signatures)
 	} else if mysign.Signature_selected == "signature_data" {
 		signatures = mysign.Signature_data
+		path = fmt.Sprintf("./public/images/signatures/%s", signatures)
+		path = i.SignWithData(path, mysign.User_id)
 	} else if mysign.Signature_selected == "latin" {
 		signatures = mysign.Latin
+		path = fmt.Sprintf("./public/images/signatures/%s", signatures)
 	} else if mysign.Signature_selected == "latin_data" {
 		signatures = mysign.Latin_data
+		path = fmt.Sprintf("./public/images/signatures/%s", signatures)
+		path = i.SignWithData(path, mysign.User_id)
 	}
-	path := fmt.Sprintf("./public/images/signatures/%s", signatures)
-	// r, err := os.Open(path)
-	// if err != nil {
-	// 	log.Println(err)
-	// }
-	// defer r.Close()
-	// img, err := png.Decode(r)
-	// if err != nil {
-	// 	log.Println(err)
-	// }
-	// m := resize.Resize(uint(input.Width*0.75), uint(input.Height*0.75), img, resize.Lanczos3)
-	// path2 := fmt.Sprintf("./public/temp/sizes-%s.png", mysign.Signature_selected)
-	// out, err := os.Create(path2)
-	// if err != nil {
-	// 	log.Println(err)
-	// }
-	// defer out.Close()
-	// png.Encode(out, m)
+
 	return path
+}
+
+func (i *images) SignWithData(path string, sign string) string {
+	location, _ := time.LoadLocation("Asia/Jakarta")
+	created := times.TanggalJamEnglish(time.Now().In(location))
+	font := "data.ttf"
+	im, err := gg.LoadImage(path)
+	if err != nil {
+		log.Println(err)
+		return ""
+	}
+
+	dc := gg.NewContext(300, 300)
+	dc.Clear()
+	dc.SetRGB255(25, 25, 112)
+	if err := dc.LoadFontFace("modules/v1/utilities/signatures/font/"+font, 11); err != nil {
+		log.Println(err)
+		return ""
+	}
+
+	dc.DrawImage(im, 0, 0)
+	dc.DrawStringAnchored("Created at "+created, 40, 278, 0, 0.5)
+
+	dc.Clip()
+	filename := fmt.Sprintf("./public/temp/signaturesdata-%s.png", sign)
+	if _, err := os.Stat(filename); err == nil {
+		os.Remove(filename)
+	}
+
+	dc.SavePNG(filename)
+	return filename
 }
