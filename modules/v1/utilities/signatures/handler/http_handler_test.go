@@ -66,7 +66,7 @@ func Test_signaturesHandler_AddSignatures(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	cookies := "smartsign=MTY2OTQ3NDEyOHxEdi1CQkFFQ180SUFBUkFCRUFBQV9nRXdfNElBQmdaemRISnBibWNNQkFBQ2FXUUdjM1J5YVc1bkRCb0FHRFl6T0RCaU5XTmlaR001TXpoak5XWmtaamhsTm1KbVpRWnpkSEpwYm1jTUJnQUVjMmxuYmdaemRISnBibWNNQ3dBSmNtbDZkMmxxWVhsaEJuTjBjbWx1Wnd3R0FBUnVZVzFsQm5OMGNtbHVad3dPQUF4U2FYcHhhU0JYYVdwaGVXRUdjM1J5YVc1bkRBd0FDbkIxWW14cFkxOXJaWGtHYzNSeWFXNW5EQ3dBS2pCNFJFSkZOREUwTmpVeE0yTTVPVFEwTTJOR016SkRZVGhCTkRRNVpqVXlPRGRoWVVRMlpqa3hZUVp6ZEhKcGJtY01CZ0FFY205c1pRTnBiblFFQWdBRUJuTjBjbWx1Wnd3SUFBWndZWE56Y0dnR2MzUnlhVzVuRERnQU5rWkNTQ3RMYkZwd1dHOHhlVTFSUTNnMU9VVTBNRnAxYlROWVVHa3dSbmxWT1c1TFVsTkRNbWR4UkhVNGJteFNSMHM0TTJkRlp3PT189RnNnJPqyThKonDOKwf4QeHI-7SwOwzto9OciAktNLw="
+	cookies := "smartsign=MTY3MjExNzQ3OHxEdi1CQkFFQ180SUFBUkFCRUFBQV9nRXdfNElBQmdaemRISnBibWNNQ0FBR2NHRnpjM0JvQm5OMGNtbHVad3c0QURZMU9FVmphMUZ4YWk5RVduTjRPVTkwZEVFNWVWRkdMMWs0TlV4UFJscEJiRlp3YUdOUFluTjRMMGhxYTA5U1MyTlRjR1ZTWjFFR2MzUnlhVzVuREFRQUFtbGtCbk4wY21sdVp3d2FBQmcyTXprMVpUWTVZMlZpWXpneFpqQmxZVEZtTm1JM05XUUdjM1J5YVc1bkRBWUFCSE5wWjI0R2MzUnlhVzVuREFzQUNYSnBlbmRwYW1GNVlRWnpkSEpwYm1jTUJnQUVibUZ0WlFaemRISnBibWNNRGdBTVVtbDZjV2tnVjJscVlYbGhCbk4wY21sdVp3d01BQXB3ZFdKc2FXTmZhMlY1Qm5OMGNtbHVad3dzQUNvd2VFTTBORE5qWmtaak56azFaakl4TkRrell6WTRPVEV4WmpoR04wUmlaVFpEWTJJNFFqTTJPRElHYzNSeWFXNW5EQVlBQkhKdmJHVURhVzUwQkFJQUJBPT18REvJoQ2Um3XpCGKLgxqGGWqS1ozjSafhkr2Svy2HHaM="
 
 	tests := []struct {
 		name        string
@@ -131,7 +131,7 @@ func Test_signaturesHandler_ChangeSignatures(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	cookies := "smartsign=MTY2OTQ3NDEyOHxEdi1CQkFFQ180SUFBUkFCRUFBQV9nRXdfNElBQmdaemRISnBibWNNQkFBQ2FXUUdjM1J5YVc1bkRCb0FHRFl6T0RCaU5XTmlaR001TXpoak5XWmtaamhsTm1KbVpRWnpkSEpwYm1jTUJnQUVjMmxuYmdaemRISnBibWNNQ3dBSmNtbDZkMmxxWVhsaEJuTjBjbWx1Wnd3R0FBUnVZVzFsQm5OMGNtbHVad3dPQUF4U2FYcHhhU0JYYVdwaGVXRUdjM1J5YVc1bkRBd0FDbkIxWW14cFkxOXJaWGtHYzNSeWFXNW5EQ3dBS2pCNFJFSkZOREUwTmpVeE0yTTVPVFEwTTJOR016SkRZVGhCTkRRNVpqVXlPRGRoWVVRMlpqa3hZUVp6ZEhKcGJtY01CZ0FFY205c1pRTnBiblFFQWdBRUJuTjBjbWx1Wnd3SUFBWndZWE56Y0dnR2MzUnlhVzVuRERnQU5rWkNTQ3RMYkZwd1dHOHhlVTFSUTNnMU9VVTBNRnAxYlROWVVHa3dSbmxWT1c1TFVsTkRNbWR4UkhVNGJteFNSMHM0TTJkRlp3PT189RnNnJPqyThKonDOKwf4QeHI-7SwOwzto9OciAktNLw="
+	cookies := "smartsign=MTY3MjExNzQ3OHxEdi1CQkFFQ180SUFBUkFCRUFBQV9nRXdfNElBQmdaemRISnBibWNNQ0FBR2NHRnpjM0JvQm5OMGNtbHVad3c0QURZMU9FVmphMUZ4YWk5RVduTjRPVTkwZEVFNWVWRkdMMWs0TlV4UFJscEJiRlp3YUdOUFluTjRMMGhxYTA5U1MyTlRjR1ZTWjFFR2MzUnlhVzVuREFRQUFtbGtCbk4wY21sdVp3d2FBQmcyTXprMVpUWTVZMlZpWXpneFpqQmxZVEZtTm1JM05XUUdjM1J5YVc1bkRBWUFCSE5wWjI0R2MzUnlhVzVuREFzQUNYSnBlbmRwYW1GNVlRWnpkSEpwYm1jTUJnQUVibUZ0WlFaemRISnBibWNNRGdBTVVtbDZjV2tnVjJscVlYbGhCbk4wY21sdVp3d01BQXB3ZFdKc2FXTmZhMlY1Qm5OMGNtbHVad3dzQUNvd2VFTTBORE5qWmtaak56azFaakl4TkRrell6WTRPVEV4WmpoR04wUmlaVFpEWTJJNFFqTTJPRElHYzNSeWFXNW5EQVlBQkhKdmJHVURhVzUwQkFJQUJBPT18REvJoQ2Um3XpCGKLgxqGGWqS1ozjSafhkr2Svy2HHaM="
 
 	tests := []struct {
 		name        string
@@ -251,7 +251,7 @@ func Test_signaturesHandler_SignDocuments(t *testing.T) {
 	location, err := time.LoadLocation("Asia/Jakarta")
 	assert.NoError(t, err)
 	times := time.Now().In(location).String()
-	cookies := "smartsign=MTY2OTQ3NDEyOHxEdi1CQkFFQ180SUFBUkFCRUFBQV9nRXdfNElBQmdaemRISnBibWNNQkFBQ2FXUUdjM1J5YVc1bkRCb0FHRFl6T0RCaU5XTmlaR001TXpoak5XWmtaamhsTm1KbVpRWnpkSEpwYm1jTUJnQUVjMmxuYmdaemRISnBibWNNQ3dBSmNtbDZkMmxxWVhsaEJuTjBjbWx1Wnd3R0FBUnVZVzFsQm5OMGNtbHVad3dPQUF4U2FYcHhhU0JYYVdwaGVXRUdjM1J5YVc1bkRBd0FDbkIxWW14cFkxOXJaWGtHYzNSeWFXNW5EQ3dBS2pCNFJFSkZOREUwTmpVeE0yTTVPVFEwTTJOR016SkRZVGhCTkRRNVpqVXlPRGRoWVVRMlpqa3hZUVp6ZEhKcGJtY01CZ0FFY205c1pRTnBiblFFQWdBRUJuTjBjbWx1Wnd3SUFBWndZWE56Y0dnR2MzUnlhVzVuRERnQU5rWkNTQ3RMYkZwd1dHOHhlVTFSUTNnMU9VVTBNRnAxYlROWVVHa3dSbmxWT1c1TFVsTkRNbWR4UkhVNGJteFNSMHM0TTJkRlp3PT189RnNnJPqyThKonDOKwf4QeHI-7SwOwzto9OciAktNLw="
+	cookies := "smartsign=MTY3MjExNzQ3OHxEdi1CQkFFQ180SUFBUkFCRUFBQV9nRXdfNElBQmdaemRISnBibWNNQ0FBR2NHRnpjM0JvQm5OMGNtbHVad3c0QURZMU9FVmphMUZ4YWk5RVduTjRPVTkwZEVFNWVWRkdMMWs0TlV4UFJscEJiRlp3YUdOUFluTjRMMGhxYTA5U1MyTlRjR1ZTWjFFR2MzUnlhVzVuREFRQUFtbGtCbk4wY21sdVp3d2FBQmcyTXprMVpUWTVZMlZpWXpneFpqQmxZVEZtTm1JM05XUUdjM1J5YVc1bkRBWUFCSE5wWjI0R2MzUnlhVzVuREFzQUNYSnBlbmRwYW1GNVlRWnpkSEpwYm1jTUJnQUVibUZ0WlFaemRISnBibWNNRGdBTVVtbDZjV2tnVjJscVlYbGhCbk4wY21sdVp3d01BQXB3ZFdKc2FXTmZhMlY1Qm5OMGNtbHVad3dzQUNvd2VFTTBORE5qWmtaak56azFaakl4TkRrell6WTRPVEV4WmpoR04wUmlaVFpEWTJJNFFqTTJPRElHYzNSeWFXNW5EQVlBQkhKdmJHVURhVzUwQkFJQUJBPT18REvJoQ2Um3XpCGKLgxqGGWqS1ozjSafhkr2Svy2HHaM="
 
 	mysignature := models.MySignatures{
 		Id:                 "1",
@@ -332,7 +332,7 @@ func Test_signaturesHandler_SignDocuments(t *testing.T) {
 				Width:      5.3,
 				Invite_sts: true,
 				Email:      []string{"admin@smartsign.com"},
-				Creator:    "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
+				Creator:    "0xC443cfFc795f21493c68911f8F7Dbe6Ccb8B3682",
 				Creator_id: "rizwijaya",
 			},
 			pages: "/sign-documents",
@@ -351,9 +351,9 @@ func Test_signaturesHandler_SignDocuments(t *testing.T) {
 				path := "./public/temp/pdfsign/"
 				//serviceSignature.EXPECT().GenerateHashDocument(path + docs.Name).Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
 				//docs.Hash_original = "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b"
-				docs.Creator = "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"
+				docs.Creator = "0xC443cfFc795f21493c68911f8F7Dbe6Ccb8B3682"
 				docs.Creator_id = "rizwijaya"
-				serviceSignature.EXPECT().GetMySignature("rizwijaya", "6380b5cbdc938c5fdf8e6bfe", "Rizqi Wijaya").Return(mysignature).Times(1)
+				serviceSignature.EXPECT().GetMySignature("rizwijaya", "6395e69cebc81f0ea1f6b75d", "Rizqi Wijaya").Return(mysignature).Times(1)
 				serviceSignature.EXPECT().ResizeImages(mysignature, docs).Return("./public/temp/sizes-signature.png").Times(1)
 				serviceSignature.EXPECT().SignDocuments("./public/temp/sizes-signature.png", docs).Return(path + "signed_sample_test.pdf").Times(1)
 				docs.Hash = docs.Hash_original
@@ -374,7 +374,7 @@ func Test_signaturesHandler_SignDocuments(t *testing.T) {
 				Width:      5.3,
 				Invite_sts: false,
 				Email:      []string{""},
-				Creator:    "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
+				Creator:    "0xC443cfFc795f21493c68911f8F7Dbe6Ccb8B3682",
 				Creator_id: "rizwijaya",
 			},
 			pages: "/sign-documents",
@@ -393,8 +393,8 @@ func Test_signaturesHandler_SignDocuments(t *testing.T) {
 				path := "./public/temp/pdfsign/"
 				//serviceSignature.EXPECT().GenerateHashDocument(path + docs.Name).Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
 				docs.Creator_id = "rizwijaya"
-				serviceSignature.EXPECT().GetMySignature("rizwijaya", "6380b5cbdc938c5fdf8e6bfe", "Rizqi Wijaya").Return(mysignature).Times(1)
-				docs.Creator = "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"
+				serviceSignature.EXPECT().GetMySignature("rizwijaya", "6395e69cebc81f0ea1f6b75d", "Rizqi Wijaya").Return(mysignature).Times(1)
+				docs.Creator = "0xC443cfFc795f21493c68911f8F7Dbe6Ccb8B3682"
 				serviceSignature.EXPECT().ResizeImages(mysignature, docs).Return("./public/temp/sizes-signature.png").Times(1)
 				serviceSignature.EXPECT().SignDocuments("./public/temp/sizes-signature.png", docs).Return(path + "signed_sample_test.pdf").Times(1)
 				serviceSignature.EXPECT().GenerateHashDocument(path + "signed_sample_test.pdf").Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
@@ -403,7 +403,7 @@ func Test_signaturesHandler_SignDocuments(t *testing.T) {
 				serviceUser.EXPECT().UploadIPFS(path+"signed_sample_test.pdf").Return("j8329dnsay80e2asdas", nil).Times(1)
 				serviceUser.EXPECT().Encrypt([]byte("j8329dnsay80e2asdas"), conf.App.Secret_key).Return([]byte("jdadsasdasr546fgfdsfs")).Times(1)
 				docs.IPFS = "jdadsasdasr546fgfdsfs"
-				docs.Address = append(docs.Address, common.HexToAddress("0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"))
+				docs.Address = append(docs.Address, common.HexToAddress("0xC443cfFc795f21493c68911f8F7Dbe6Ccb8B3682"))
 				docs.IdSignature = append(docs.IdSignature, docs.Creator_id)
 				docs.Mode = "3"
 				serviceSignature.EXPECT().AddToBlockhain(docs).Return(errors.New("Failed to Add to Blockchain")).Times(1)
@@ -422,7 +422,7 @@ func Test_signaturesHandler_SignDocuments(t *testing.T) {
 				Width:      5.3,
 				Invite_sts: true,
 				Email:      []string{"admin@rizwijaya.com", "smartsign@rizwijaya.com"},
-				Creator:    "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
+				Creator:    "0xC443cfFc795f21493c68911f8F7Dbe6Ccb8B3682",
 				Creator_id: "rizwijaya",
 			},
 			pages: "/sign-documents",
@@ -440,9 +440,9 @@ func Test_signaturesHandler_SignDocuments(t *testing.T) {
 
 				path := "./public/temp/pdfsign/"
 				// serviceSignature.EXPECT().GenerateHashDocument(path + docs.Name).Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
-				docs.Creator = "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"
+				docs.Creator = "0xC443cfFc795f21493c68911f8F7Dbe6Ccb8B3682"
 				docs.Creator_id = "rizwijaya"
-				serviceSignature.EXPECT().GetMySignature("rizwijaya", "6380b5cbdc938c5fdf8e6bfe", "Rizqi Wijaya").Return(mysignature).Times(1)
+				serviceSignature.EXPECT().GetMySignature("rizwijaya", "6395e69cebc81f0ea1f6b75d", "Rizqi Wijaya").Return(mysignature).Times(1)
 				serviceSignature.EXPECT().ResizeImages(mysignature, docs).Return("./public/temp/sizes-signature.png").Times(1)
 				serviceSignature.EXPECT().SignDocuments("./public/temp/sizes-signature.png", docs).Return(path + "signed_sample_test.pdf").Times(1)
 				serviceSignature.EXPECT().GenerateHashDocument(path + "signed_sample_test.pdf").Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
@@ -457,7 +457,7 @@ func Test_signaturesHandler_SignDocuments(t *testing.T) {
 				serviceUser.EXPECT().GetPublicKey(docs.Email).Return([]common.Address{common.HexToAddress("0xAyysae6513c99443cF32Ca8A449f5287aaD6f91a"), common.HexToAddress("0xBha62e6513c99443cF32Ca8A449f5287aaD6f91a")}, []string{"signed_1", "signed2"}).Times(1)
 				docs.Address = append(docs.Address, common.HexToAddress("0xAyysae6513c99443cF32Ca8A449f5287aaD6f91a"))
 				docs.Address = append(docs.Address, common.HexToAddress("0xBha62e6513c99443cF32Ca8A449f5287aaD6f91a"))
-				docs.Address = append(docs.Address, common.HexToAddress("0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"))
+				docs.Address = append(docs.Address, common.HexToAddress("0xC443cfFc795f21493c68911f8F7Dbe6Ccb8B3682"))
 				docs.IdSignature = append(docs.IdSignature, "signed_1")
 				docs.IdSignature = append(docs.IdSignature, "signed2")
 				docs.IdSignature = append(docs.IdSignature, docs.Creator_id)
@@ -486,7 +486,7 @@ func Test_signaturesHandler_SignDocuments(t *testing.T) {
 				Width:      5.3,
 				Invite_sts: true,
 				Email:      []string{"admin@rizwijaya.com", "smartsign@rizwijaya.com"},
-				Creator:    "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
+				Creator:    "0xC443cfFc795f21493c68911f8F7Dbe6Ccb8B3682",
 				Creator_id: "rizwijaya",
 			},
 			pages: "/download",
@@ -505,9 +505,9 @@ func Test_signaturesHandler_SignDocuments(t *testing.T) {
 				path := "./public/temp/pdfsign/"
 				// serviceSignature.EXPECT().GenerateHashDocument(path + docs.Name).Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
 				// docs.Hash_original = "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b"
-				docs.Creator = "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"
+				docs.Creator = "0xC443cfFc795f21493c68911f8F7Dbe6Ccb8B3682"
 				docs.Creator_id = "rizwijaya"
-				serviceSignature.EXPECT().GetMySignature("rizwijaya", "6380b5cbdc938c5fdf8e6bfe", "Rizqi Wijaya").Return(mysignature).Times(1)
+				serviceSignature.EXPECT().GetMySignature("rizwijaya", "6395e69cebc81f0ea1f6b75d", "Rizqi Wijaya").Return(mysignature).Times(1)
 				serviceSignature.EXPECT().ResizeImages(mysignature, docs).Return("./public/temp/sizes-signature.png").Times(1)
 				serviceSignature.EXPECT().SignDocuments("./public/temp/sizes-signature.png", docs).Return(path + "signed_sample_test.pdf").Times(1)
 				serviceSignature.EXPECT().GenerateHashDocument(path + "signed_sample_test.pdf").Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
@@ -522,7 +522,7 @@ func Test_signaturesHandler_SignDocuments(t *testing.T) {
 				serviceUser.EXPECT().GetPublicKey(docs.Email).Return([]common.Address{common.HexToAddress("0xAyysae6513c99443cF32Ca8A449f5287aaD6f91a"), common.HexToAddress("0xBha62e6513c99443cF32Ca8A449f5287aaD6f91a")}, []string{"signed_1", "signed2"}).Times(1)
 				docs.Address = append(docs.Address, common.HexToAddress("0xAyysae6513c99443cF32Ca8A449f5287aaD6f91a"))
 				docs.Address = append(docs.Address, common.HexToAddress("0xBha62e6513c99443cF32Ca8A449f5287aaD6f91a"))
-				docs.Address = append(docs.Address, common.HexToAddress("0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"))
+				docs.Address = append(docs.Address, common.HexToAddress("0xC443cfFc795f21493c68911f8F7Dbe6Ccb8B3682"))
 				docs.IdSignature = append(docs.IdSignature, "signed_1")
 				docs.IdSignature = append(docs.IdSignature, "signed2")
 				docs.IdSignature = append(docs.IdSignature, docs.Creator_id)
@@ -624,7 +624,7 @@ func Test_signaturesHandler_InviteSignatures(t *testing.T) {
 	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
 	defer f.Undo()
 	f.Do()
-	cookies := "smartsign=MTY2OTQ3NDEyOHxEdi1CQkFFQ180SUFBUkFCRUFBQV9nRXdfNElBQmdaemRISnBibWNNQkFBQ2FXUUdjM1J5YVc1bkRCb0FHRFl6T0RCaU5XTmlaR001TXpoak5XWmtaamhsTm1KbVpRWnpkSEpwYm1jTUJnQUVjMmxuYmdaemRISnBibWNNQ3dBSmNtbDZkMmxxWVhsaEJuTjBjbWx1Wnd3R0FBUnVZVzFsQm5OMGNtbHVad3dPQUF4U2FYcHhhU0JYYVdwaGVXRUdjM1J5YVc1bkRBd0FDbkIxWW14cFkxOXJaWGtHYzNSeWFXNW5EQ3dBS2pCNFJFSkZOREUwTmpVeE0yTTVPVFEwTTJOR016SkRZVGhCTkRRNVpqVXlPRGRoWVVRMlpqa3hZUVp6ZEhKcGJtY01CZ0FFY205c1pRTnBiblFFQWdBRUJuTjBjbWx1Wnd3SUFBWndZWE56Y0dnR2MzUnlhVzVuRERnQU5rWkNTQ3RMYkZwd1dHOHhlVTFSUTNnMU9VVTBNRnAxYlROWVVHa3dSbmxWT1c1TFVsTkRNbWR4UkhVNGJteFNSMHM0TTJkRlp3PT189RnNnJPqyThKonDOKwf4QeHI-7SwOwzto9OciAktNLw="
+	cookies := "smartsign=MTY3MjExNzQ3OHxEdi1CQkFFQ180SUFBUkFCRUFBQV9nRXdfNElBQmdaemRISnBibWNNQ0FBR2NHRnpjM0JvQm5OMGNtbHVad3c0QURZMU9FVmphMUZ4YWk5RVduTjRPVTkwZEVFNWVWRkdMMWs0TlV4UFJscEJiRlp3YUdOUFluTjRMMGhxYTA5U1MyTlRjR1ZTWjFFR2MzUnlhVzVuREFRQUFtbGtCbk4wY21sdVp3d2FBQmcyTXprMVpUWTVZMlZpWXpneFpqQmxZVEZtTm1JM05XUUdjM1J5YVc1bkRBWUFCSE5wWjI0R2MzUnlhVzVuREFzQUNYSnBlbmRwYW1GNVlRWnpkSEpwYm1jTUJnQUVibUZ0WlFaemRISnBibWNNRGdBTVVtbDZjV2tnVjJscVlYbGhCbk4wY21sdVp3d01BQXB3ZFdKc2FXTmZhMlY1Qm5OMGNtbHVad3dzQUNvd2VFTTBORE5qWmtaak56azFaakl4TkRrell6WTRPVEV4WmpoR04wUmlaVFpEWTJJNFFqTTJPRElHYzNSeWFXNW5EQVlBQkhKdmJHVURhVzUwQkFJQUJBPT18REvJoQ2Um3XpCGKLgxqGGWqS1ozjSafhkr2Svy2HHaM="
 
 	tests := []struct {
 		name         string
@@ -709,7 +709,7 @@ func Test_signaturesHandler_InviteSignatures(t *testing.T) {
 				serviceSignature.EXPECT().GenerateHashDocument(path).Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
 				docData.Hash_original = "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b"
 				docData.Hash = docData.Hash_original
-				docData.Creator = "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"
+				docData.Creator = "0xC443cfFc795f21493c68911f8F7Dbe6Ccb8B3682"
 				docData.Creator_id = "rizwijaya"
 				serviceUser.EXPECT().UploadIPFS(path).Return("", errors.New("Error Upload IPFS")).Times(1)
 			},
@@ -733,7 +733,7 @@ func Test_signaturesHandler_InviteSignatures(t *testing.T) {
 				serviceSignature.EXPECT().GenerateHashDocument(path).Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
 				docData.Hash_original = "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b"
 				docData.Hash = docData.Hash_original
-				docData.Creator = "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"
+				docData.Creator = "0xC443cfFc795f21493c68911f8F7Dbe6Ccb8B3682"
 				docData.Creator_id = "rizwijaya"
 				serviceUser.EXPECT().UploadIPFS(path).Return("hdsa734ndbams9032k2l22das", nil).Times(1)
 				docData.IPFS = "hdsa734ndbams9032k2l22das"
@@ -770,7 +770,7 @@ func Test_signaturesHandler_InviteSignatures(t *testing.T) {
 				serviceSignature.EXPECT().GenerateHashDocument(path).Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
 				docData.Hash_original = "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b"
 				docData.Hash = docData.Hash_original
-				docData.Creator = "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"
+				docData.Creator = "0xC443cfFc795f21493c68911f8F7Dbe6Ccb8B3682"
 				docData.Creator_id = "rizwijaya"
 				serviceUser.EXPECT().UploadIPFS(path).Return("hdsa734ndbams9032k2l22das", nil).Times(1)
 				docData.IPFS = "hdsa734ndbams9032k2l22das"
@@ -812,7 +812,7 @@ func Test_signaturesHandler_InviteSignatures(t *testing.T) {
 				serviceSignature.EXPECT().GenerateHashDocument(path).Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
 				docData.Hash_original = "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b"
 				docData.Hash = docData.Hash_original
-				docData.Creator = "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"
+				docData.Creator = "0xC443cfFc795f21493c68911f8F7Dbe6Ccb8B3682"
 				docData.Creator_id = "rizwijaya"
 				serviceUser.EXPECT().UploadIPFS(path).Return("hdsa734ndbams9032k2l22das", nil).Times(1)
 				docData.IPFS = "hdsa734ndbams9032k2l22das"
@@ -908,8 +908,7 @@ func Test_signaturesHandler_Document(t *testing.T) {
 	location, err := time.LoadLocation("Asia/Jakarta")
 	assert.NoError(t, err)
 	times := time.Now().In(location).String()
-	cookies := "smartsign=MTY2OTQ3NDEyOHxEdi1CQkFFQ180SUFBUkFCRUFBQV9nRXdfNElBQmdaemRISnBibWNNQkFBQ2FXUUdjM1J5YVc1bkRCb0FHRFl6T0RCaU5XTmlaR001TXpoak5XWmtaamhsTm1KbVpRWnpkSEpwYm1jTUJnQUVjMmxuYmdaemRISnBibWNNQ3dBSmNtbDZkMmxxWVhsaEJuTjBjbWx1Wnd3R0FBUnVZVzFsQm5OMGNtbHVad3dPQUF4U2FYcHhhU0JYYVdwaGVXRUdjM1J5YVc1bkRBd0FDbkIxWW14cFkxOXJaWGtHYzNSeWFXNW5EQ3dBS2pCNFJFSkZOREUwTmpVeE0yTTVPVFEwTTJOR016SkRZVGhCTkRRNVpqVXlPRGRoWVVRMlpqa3hZUVp6ZEhKcGJtY01CZ0FFY205c1pRTnBiblFFQWdBRUJuTjBjbWx1Wnd3SUFBWndZWE56Y0dnR2MzUnlhVzVuRERnQU5rWkNTQ3RMYkZwd1dHOHhlVTFSUTNnMU9VVTBNRnAxYlROWVVHa3dSbmxWT1c1TFVsTkRNbWR4UkhVNGJteFNSMHM0TTJkRlp3PT189RnNnJPqyThKonDOKwf4QeHI-7SwOwzto9OciAktNLw="
-
+	cookies := "smartsign=MTY3MjExNzQ3OHxEdi1CQkFFQ180SUFBUkFCRUFBQV9nRXdfNElBQmdaemRISnBibWNNQ0FBR2NHRnpjM0JvQm5OMGNtbHVad3c0QURZMU9FVmphMUZ4YWk5RVduTjRPVTkwZEVFNWVWRkdMMWs0TlV4UFJscEJiRlp3YUdOUFluTjRMMGhxYTA5U1MyTlRjR1ZTWjFFR2MzUnlhVzVuREFRQUFtbGtCbk4wY21sdVp3d2FBQmcyTXprMVpUWTVZMlZpWXpneFpqQmxZVEZtTm1JM05XUUdjM1J5YVc1bkRBWUFCSE5wWjI0R2MzUnlhVzVuREFzQUNYSnBlbmRwYW1GNVlRWnpkSEpwYm1jTUJnQUVibUZ0WlFaemRISnBibWNNRGdBTVVtbDZjV2tnVjJscVlYbGhCbk4wY21sdVp3d01BQXB3ZFdKc2FXTmZhMlY1Qm5OMGNtbHVad3dzQUNvd2VFTTBORE5qWmtaak56azFaakl4TkRrell6WTRPVEV4WmpoR04wUmlaVFpEWTJJNFFqTTJPRElHYzNSeWFXNW5EQVlBQkhKdmJHVURhVzUwQkFJQUJBPT18REvJoQ2Um3XpCGKLgxqGGWqS1ozjSafhkr2Svy2HHaM="
 	mysignature := models.MySignatures{
 		Id:                 "1",
 		Name:               "Rizqi Wijaya",
@@ -972,7 +971,7 @@ func Test_signaturesHandler_Document(t *testing.T) {
 					Hash_original: "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
 				}
 				path := "./public/temp/pdfsign/"
-				serviceSignature.EXPECT().GetMySignature("rizwijaya", "6380b5cbdc938c5fdf8e6bfe", "Rizqi Wijaya").Return(mysignature).Times(1)
+				serviceSignature.EXPECT().GetMySignature("rizwijaya", "6395e69cebc81f0ea1f6b75d", "Rizqi Wijaya").Return(mysignature).Times(1)
 				serviceSignature.EXPECT().ResizeImages(mysignature, docs).Return("./public/temp/sizes-signature.png").Times(1)
 				serviceSignature.EXPECT().SignDocuments("./public/temp/sizes-signature.png", docs).Return(path + "signed_84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b.pdf").Times(1)
 				serviceSignature.EXPECT().GenerateHashDocument(path + "signed_84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b.pdf")
@@ -1003,7 +1002,7 @@ func Test_signaturesHandler_Document(t *testing.T) {
 					Hash_original: "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
 				}
 				path := "./public/temp/pdfsign/"
-				serviceSignature.EXPECT().GetMySignature("rizwijaya", "6380b5cbdc938c5fdf8e6bfe", "Rizqi Wijaya").Return(mysignature).Times(1)
+				serviceSignature.EXPECT().GetMySignature("rizwijaya", "6395e69cebc81f0ea1f6b75d", "Rizqi Wijaya").Return(mysignature).Times(1)
 				serviceSignature.EXPECT().ResizeImages(mysignature, docs).Return("./public/temp/sizes-signature.png").Times(1)
 				serviceSignature.EXPECT().SignDocuments("./public/temp/sizes-signature.png", docs).Return(path + "signed_84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b.pdf").Times(1)
 				serviceSignature.EXPECT().GenerateHashDocument(path + "signed_84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b.pdf").Return("js63hd9asn32nasddy783en9djas933").Times(1)
@@ -1014,7 +1013,7 @@ func Test_signaturesHandler_Document(t *testing.T) {
 				docs.IPFS = "2dj3d1d6a34323ds4d4as43asda4sr5456fgfsdsfs"
 				signDocs := models.SignDocs{
 					Hash_original: "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b",
-					Creator:       "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
+					Creator:       "0xC443cfFc795f21493c68911f8F7Dbe6Ccb8B3682",
 					Hash:          docs.Hash,
 					IPFS:          docs.IPFS,
 				}
@@ -1081,7 +1080,7 @@ func Test_signaturesHandler_Verification(t *testing.T) {
 	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
 	defer f.Undo()
 	f.Do()
-	cookies := "smartsign=MTY2OTQ3NDEyOHxEdi1CQkFFQ180SUFBUkFCRUFBQV9nRXdfNElBQmdaemRISnBibWNNQkFBQ2FXUUdjM1J5YVc1bkRCb0FHRFl6T0RCaU5XTmlaR001TXpoak5XWmtaamhsTm1KbVpRWnpkSEpwYm1jTUJnQUVjMmxuYmdaemRISnBibWNNQ3dBSmNtbDZkMmxxWVhsaEJuTjBjbWx1Wnd3R0FBUnVZVzFsQm5OMGNtbHVad3dPQUF4U2FYcHhhU0JYYVdwaGVXRUdjM1J5YVc1bkRBd0FDbkIxWW14cFkxOXJaWGtHYzNSeWFXNW5EQ3dBS2pCNFJFSkZOREUwTmpVeE0yTTVPVFEwTTJOR016SkRZVGhCTkRRNVpqVXlPRGRoWVVRMlpqa3hZUVp6ZEhKcGJtY01CZ0FFY205c1pRTnBiblFFQWdBRUJuTjBjbWx1Wnd3SUFBWndZWE56Y0dnR2MzUnlhVzVuRERnQU5rWkNTQ3RMYkZwd1dHOHhlVTFSUTNnMU9VVTBNRnAxYlROWVVHa3dSbmxWT1c1TFVsTkRNbWR4UkhVNGJteFNSMHM0TTJkRlp3PT189RnNnJPqyThKonDOKwf4QeHI-7SwOwzto9OciAktNLw="
+	cookies := "smartsign=MTY3MjExNzQ3OHxEdi1CQkFFQ180SUFBUkFCRUFBQV9nRXdfNElBQmdaemRISnBibWNNQ0FBR2NHRnpjM0JvQm5OMGNtbHVad3c0QURZMU9FVmphMUZ4YWk5RVduTjRPVTkwZEVFNWVWRkdMMWs0TlV4UFJscEJiRlp3YUdOUFluTjRMMGhxYTA5U1MyTlRjR1ZTWjFFR2MzUnlhVzVuREFRQUFtbGtCbk4wY21sdVp3d2FBQmcyTXprMVpUWTVZMlZpWXpneFpqQmxZVEZtTm1JM05XUUdjM1J5YVc1bkRBWUFCSE5wWjI0R2MzUnlhVzVuREFzQUNYSnBlbmRwYW1GNVlRWnpkSEpwYm1jTUJnQUVibUZ0WlFaemRISnBibWNNRGdBTVVtbDZjV2tnVjJscVlYbGhCbk4wY21sdVp3d01BQXB3ZFdKc2FXTmZhMlY1Qm5OMGNtbHVad3dzQUNvd2VFTTBORE5qWmtaak56azFaakl4TkRrell6WTRPVEV4WmpoR04wUmlaVFpEWTJJNFFqTTJPRElHYzNSeWFXNW5EQVlBQkhKdmJHVURhVzUwQkFJQUJBPT18REvJoQ2Um3XpCGKLgxqGGWqS1ozjSafhkr2Svy2HHaM="
 
 	tests := []struct {
 		name         string
@@ -1190,7 +1189,7 @@ func Test_signaturesHandler_Download(t *testing.T) {
 	f := faketime.NewFaketime(2022, time.November, 27, 11, 30, 01, 0, time.UTC)
 	defer f.Undo()
 	f.Do()
-	cookies := "smartsign=MTY2OTQ3NDEyOHxEdi1CQkFFQ180SUFBUkFCRUFBQV9nRXdfNElBQmdaemRISnBibWNNQkFBQ2FXUUdjM1J5YVc1bkRCb0FHRFl6T0RCaU5XTmlaR001TXpoak5XWmtaamhsTm1KbVpRWnpkSEpwYm1jTUJnQUVjMmxuYmdaemRISnBibWNNQ3dBSmNtbDZkMmxxWVhsaEJuTjBjbWx1Wnd3R0FBUnVZVzFsQm5OMGNtbHVad3dPQUF4U2FYcHhhU0JYYVdwaGVXRUdjM1J5YVc1bkRBd0FDbkIxWW14cFkxOXJaWGtHYzNSeWFXNW5EQ3dBS2pCNFJFSkZOREUwTmpVeE0yTTVPVFEwTTJOR016SkRZVGhCTkRRNVpqVXlPRGRoWVVRMlpqa3hZUVp6ZEhKcGJtY01CZ0FFY205c1pRTnBiblFFQWdBRUJuTjBjbWx1Wnd3SUFBWndZWE56Y0dnR2MzUnlhVzVuRERnQU5rWkNTQ3RMYkZwd1dHOHhlVTFSUTNnMU9VVTBNRnAxYlROWVVHa3dSbmxWT1c1TFVsTkRNbWR4UkhVNGJteFNSMHM0TTJkRlp3PT189RnNnJPqyThKonDOKwf4QeHI-7SwOwzto9OciAktNLw="
+	cookies := "smartsign=MTY3MjExNzQ3OHxEdi1CQkFFQ180SUFBUkFCRUFBQV9nRXdfNElBQmdaemRISnBibWNNQ0FBR2NHRnpjM0JvQm5OMGNtbHVad3c0QURZMU9FVmphMUZ4YWk5RVduTjRPVTkwZEVFNWVWRkdMMWs0TlV4UFJscEJiRlp3YUdOUFluTjRMMGhxYTA5U1MyTlRjR1ZTWjFFR2MzUnlhVzVuREFRQUFtbGtCbk4wY21sdVp3d2FBQmcyTXprMVpUWTVZMlZpWXpneFpqQmxZVEZtTm1JM05XUUdjM1J5YVc1bkRBWUFCSE5wWjI0R2MzUnlhVzVuREFzQUNYSnBlbmRwYW1GNVlRWnpkSEpwYm1jTUJnQUVibUZ0WlFaemRISnBibWNNRGdBTVVtbDZjV2tnVjJscVlYbGhCbk4wY21sdVp3d01BQXB3ZFdKc2FXTmZhMlY1Qm5OMGNtbHVad3dzQUNvd2VFTTBORE5qWmtaak56azFaakl4TkRrell6WTRPVEV4WmpoR04wUmlaVFpEWTJJNFFqTTJPRElHYzNSeWFXNW5EQVlBQkhKdmJHVURhVzUwQkFJQUJBPT18REvJoQ2Um3XpCGKLgxqGGWqS1ozjSafhkr2Svy2HHaM="
 
 	tests := []struct {
 		name         string
@@ -1207,7 +1206,7 @@ func Test_signaturesHandler_Download(t *testing.T) {
 			serviceTest: func(serviceUser *m_serviceUser.MockService, serviceSignature *m_serviceSignature.MockService) {
 				doc := models.DocumentBlockchain{
 					// Document_id: "1",
-					// Creator: common.HexToAddress("0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"),
+					// Creator: common.HexToAddress("0xC443cfFc795f21493c68911f8F7Dbe6Ccb8B3682"),
 					// Creator_string: ""
 					Metadata: "sample_test.pdf",
 					IPFS:     "2c3idnsymuia7n8sb7dl92j63onsfdf",
@@ -1272,7 +1271,7 @@ func Test_signaturesHandler_Integrity(t *testing.T) {
 	location, err := time.LoadLocation("Asia/Jakarta")
 	assert.NoError(t, err)
 	times := time.Now().In(location).String()
-	cookies := "smartsign=MTY2OTQ3NDEyOHxEdi1CQkFFQ180SUFBUkFCRUFBQV9nRXdfNElBQmdaemRISnBibWNNQkFBQ2FXUUdjM1J5YVc1bkRCb0FHRFl6T0RCaU5XTmlaR001TXpoak5XWmtaamhsTm1KbVpRWnpkSEpwYm1jTUJnQUVjMmxuYmdaemRISnBibWNNQ3dBSmNtbDZkMmxxWVhsaEJuTjBjbWx1Wnd3R0FBUnVZVzFsQm5OMGNtbHVad3dPQUF4U2FYcHhhU0JYYVdwaGVXRUdjM1J5YVc1bkRBd0FDbkIxWW14cFkxOXJaWGtHYzNSeWFXNW5EQ3dBS2pCNFJFSkZOREUwTmpVeE0yTTVPVFEwTTJOR016SkRZVGhCTkRRNVpqVXlPRGRoWVVRMlpqa3hZUVp6ZEhKcGJtY01CZ0FFY205c1pRTnBiblFFQWdBRUJuTjBjbWx1Wnd3SUFBWndZWE56Y0dnR2MzUnlhVzVuRERnQU5rWkNTQ3RMYkZwd1dHOHhlVTFSUTNnMU9VVTBNRnAxYlROWVVHa3dSbmxWT1c1TFVsTkRNbWR4UkhVNGJteFNSMHM0TTJkRlp3PT189RnNnJPqyThKonDOKwf4QeHI-7SwOwzto9OciAktNLw="
+	cookies := "smartsign=MTY3MjExNzQ3OHxEdi1CQkFFQ180SUFBUkFCRUFBQV9nRXdfNElBQmdaemRISnBibWNNQ0FBR2NHRnpjM0JvQm5OMGNtbHVad3c0QURZMU9FVmphMUZ4YWk5RVduTjRPVTkwZEVFNWVWRkdMMWs0TlV4UFJscEJiRlp3YUdOUFluTjRMMGhxYTA5U1MyTlRjR1ZTWjFFR2MzUnlhVzVuREFRQUFtbGtCbk4wY21sdVp3d2FBQmcyTXprMVpUWTVZMlZpWXpneFpqQmxZVEZtTm1JM05XUUdjM1J5YVc1bkRBWUFCSE5wWjI0R2MzUnlhVzVuREFzQUNYSnBlbmRwYW1GNVlRWnpkSEpwYm1jTUJnQUVibUZ0WlFaemRISnBibWNNRGdBTVVtbDZjV2tnVjJscVlYbGhCbk4wY21sdVp3d01BQXB3ZFdKc2FXTmZhMlY1Qm5OMGNtbHVad3dzQUNvd2VFTTBORE5qWmtaak56azFaakl4TkRrell6WTRPVEV4WmpoR04wUmlaVFpEWTJJNFFqTTJPRElHYzNSeWFXNW5EQVlBQkhKdmJHVURhVzUwQkFJQUJBPT18REvJoQ2Um3XpCGKLgxqGGWqS1ozjSafhkr2Svy2HHaM="
 
 	mysignature := models.MySignatures{
 		Id:                 "1",
@@ -1353,7 +1352,7 @@ func Test_signaturesHandler_Integrity(t *testing.T) {
 				Width:      5.3,
 				Invite_sts: true,
 				Email:      []string{"admin@smartsign.com"},
-				Creator:    "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
+				Creator:    "0xC443cfFc795f21493c68911f8F7Dbe6Ccb8B3682",
 				Creator_id: "rizwijaya",
 			},
 			message: "Data yang anda masukan salah!",
@@ -1370,9 +1369,9 @@ func Test_signaturesHandler_Integrity(t *testing.T) {
 				}
 
 				path := "./public/temp/pdfsign/"
-				docs.Creator = "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"
+				docs.Creator = "0xC443cfFc795f21493c68911f8F7Dbe6Ccb8B3682"
 				docs.Creator_id = "rizwijaya"
-				serviceSignature.EXPECT().GetMySignature("rizwijaya", "6380b5cbdc938c5fdf8e6bfe", "Rizqi Wijaya").Return(mysignature).Times(1)
+				serviceSignature.EXPECT().GetMySignature("rizwijaya", "6395e69cebc81f0ea1f6b75d", "Rizqi Wijaya").Return(mysignature).Times(1)
 				serviceSignature.EXPECT().ResizeImages(mysignature, docs).Return("./public/temp/sizes-signature.png").Times(1)
 				serviceSignature.EXPECT().SignDocuments("./public/temp/sizes-signature.png", docs).Return(path + "signed_sample_test.pdf").Times(1)
 				docs.Hash_original = "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b"
@@ -1394,7 +1393,7 @@ func Test_signaturesHandler_Integrity(t *testing.T) {
 				Width:      5.3,
 				Invite_sts: false,
 				Email:      []string{""},
-				Creator:    "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
+				Creator:    "0xC443cfFc795f21493c68911f8F7Dbe6Ccb8B3682",
 				Creator_id: "rizwijaya",
 			},
 			message: "Data yang anda masukan salah!",
@@ -1412,8 +1411,8 @@ func Test_signaturesHandler_Integrity(t *testing.T) {
 
 				path := "./public/temp/pdfsign/"
 				docs.Creator_id = "rizwijaya"
-				serviceSignature.EXPECT().GetMySignature("rizwijaya", "6380b5cbdc938c5fdf8e6bfe", "Rizqi Wijaya").Return(mysignature).Times(1)
-				docs.Creator = "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"
+				serviceSignature.EXPECT().GetMySignature("rizwijaya", "6395e69cebc81f0ea1f6b75d", "Rizqi Wijaya").Return(mysignature).Times(1)
+				docs.Creator = "0xC443cfFc795f21493c68911f8F7Dbe6Ccb8B3682"
 				serviceSignature.EXPECT().ResizeImages(mysignature, docs).Return("./public/temp/sizes-signature.png").Times(1)
 				serviceSignature.EXPECT().SignDocuments("./public/temp/sizes-signature.png", docs).Return(path + "signed_sample_test.pdf").Times(1)
 				docs.Hash_original = "84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b"
@@ -1422,7 +1421,7 @@ func Test_signaturesHandler_Integrity(t *testing.T) {
 				serviceUser.EXPECT().UploadIPFS(path+"signed_sample_test.pdf").Return("j8329dnsay80e2asdas", nil).Times(1)
 				serviceUser.EXPECT().Encrypt([]byte("j8329dnsay80e2asdas"), conf.App.Secret_key).Return([]byte("jdadsasdasr546fgfdsfs")).Times(1)
 				docs.IPFS = "jdadsasdasr546fgfdsfs"
-				docs.Address = append(docs.Address, common.HexToAddress("0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"))
+				docs.Address = append(docs.Address, common.HexToAddress("0xC443cfFc795f21493c68911f8F7Dbe6Ccb8B3682"))
 				docs.IdSignature = append(docs.IdSignature, docs.Creator_id)
 				docs.Mode = "3"
 				serviceSignature.EXPECT().AddToBlockhain(docs).Return(errors.New("Failed to Add to Blockchain")).Times(1)
@@ -1441,7 +1440,7 @@ func Test_signaturesHandler_Integrity(t *testing.T) {
 				Width:      5.3,
 				Invite_sts: true,
 				Email:      []string{"admin@rizwijaya.com", "smartsign@rizwijaya.com"},
-				Creator:    "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
+				Creator:    "0xC443cfFc795f21493c68911f8F7Dbe6Ccb8B3682",
 				Creator_id: "rizwijaya",
 			},
 			message: "Data yang anda masukan salah!",
@@ -1458,9 +1457,9 @@ func Test_signaturesHandler_Integrity(t *testing.T) {
 				}
 
 				path := "./public/temp/pdfsign/"
-				docs.Creator = "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"
+				docs.Creator = "0xC443cfFc795f21493c68911f8F7Dbe6Ccb8B3682"
 				docs.Creator_id = "rizwijaya"
-				serviceSignature.EXPECT().GetMySignature("rizwijaya", "6380b5cbdc938c5fdf8e6bfe", "Rizqi Wijaya").Return(mysignature).Times(1)
+				serviceSignature.EXPECT().GetMySignature("rizwijaya", "6395e69cebc81f0ea1f6b75d", "Rizqi Wijaya").Return(mysignature).Times(1)
 				serviceSignature.EXPECT().ResizeImages(mysignature, docs).Return("./public/temp/sizes-signature.png").Times(1)
 				serviceSignature.EXPECT().SignDocuments("./public/temp/sizes-signature.png", docs).Return(path + "signed_sample_test.pdf").Times(1)
 				serviceSignature.EXPECT().GenerateHashDocument(path + "signed_sample_test.pdf").Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
@@ -1475,7 +1474,7 @@ func Test_signaturesHandler_Integrity(t *testing.T) {
 				serviceUser.EXPECT().GetPublicKey(docs.Email).Return([]common.Address{common.HexToAddress("0xAyysae6513c99443cF32Ca8A449f5287aaD6f91a"), common.HexToAddress("0xBha62e6513c99443cF32Ca8A449f5287aaD6f91a")}, []string{"signed_1", "signed2"}).Times(1)
 				docs.Address = append(docs.Address, common.HexToAddress("0xAyysae6513c99443cF32Ca8A449f5287aaD6f91a"))
 				docs.Address = append(docs.Address, common.HexToAddress("0xBha62e6513c99443cF32Ca8A449f5287aaD6f91a"))
-				docs.Address = append(docs.Address, common.HexToAddress("0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"))
+				docs.Address = append(docs.Address, common.HexToAddress("0xC443cfFc795f21493c68911f8F7Dbe6Ccb8B3682"))
 				docs.IdSignature = append(docs.IdSignature, "signed_1")
 				docs.IdSignature = append(docs.IdSignature, "signed2")
 				docs.IdSignature = append(docs.IdSignature, docs.Creator_id)
@@ -1504,7 +1503,7 @@ func Test_signaturesHandler_Integrity(t *testing.T) {
 				Width:      5.3,
 				Invite_sts: true,
 				Email:      []string{"admin@rizwijaya.com", "smartsign@rizwijaya.com"},
-				Creator:    "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a",
+				Creator:    "0xC443cfFc795f21493c68911f8F7Dbe6Ccb8B3682",
 				Creator_id: "rizwijaya",
 			},
 			message: "Berhasil melakukan tanda tangan dokumen!",
@@ -1521,9 +1520,9 @@ func Test_signaturesHandler_Integrity(t *testing.T) {
 				}
 
 				path := "./public/temp/pdfsign/"
-				docs.Creator = "0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"
+				docs.Creator = "0xC443cfFc795f21493c68911f8F7Dbe6Ccb8B3682"
 				docs.Creator_id = "rizwijaya"
-				serviceSignature.EXPECT().GetMySignature("rizwijaya", "6380b5cbdc938c5fdf8e6bfe", "Rizqi Wijaya").Return(mysignature).Times(1)
+				serviceSignature.EXPECT().GetMySignature("rizwijaya", "6395e69cebc81f0ea1f6b75d", "Rizqi Wijaya").Return(mysignature).Times(1)
 				serviceSignature.EXPECT().ResizeImages(mysignature, docs).Return("./public/temp/sizes-signature.png").Times(1)
 				serviceSignature.EXPECT().SignDocuments("./public/temp/sizes-signature.png", docs).Return(path + "signed_sample_test.pdf").Times(1)
 				serviceSignature.EXPECT().GenerateHashDocument(path + "signed_sample_test.pdf").Return("84637c537106cb54272b66cda69f1bf51bd36a4c244e82419f9d725e15d9cc4b").Times(1)
@@ -1538,7 +1537,7 @@ func Test_signaturesHandler_Integrity(t *testing.T) {
 				serviceUser.EXPECT().GetPublicKey(docs.Email).Return([]common.Address{common.HexToAddress("0xAyysae6513c99443cF32Ca8A449f5287aaD6f91a"), common.HexToAddress("0xBha62e6513c99443cF32Ca8A449f5287aaD6f91a")}, []string{"signed_1", "signed2"}).Times(1)
 				docs.Address = append(docs.Address, common.HexToAddress("0xAyysae6513c99443cF32Ca8A449f5287aaD6f91a"))
 				docs.Address = append(docs.Address, common.HexToAddress("0xBha62e6513c99443cF32Ca8A449f5287aaD6f91a"))
-				docs.Address = append(docs.Address, common.HexToAddress("0xDBE4146513c99443cF32Ca8A449f5287aaD6f91a"))
+				docs.Address = append(docs.Address, common.HexToAddress("0xC443cfFc795f21493c68911f8F7Dbe6Ccb8B3682"))
 				docs.IdSignature = append(docs.IdSignature, "signed_1")
 				docs.IdSignature = append(docs.IdSignature, "signed2")
 				docs.IdSignature = append(docs.IdSignature, docs.Creator_id)

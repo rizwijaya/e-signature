@@ -11,8 +11,8 @@ document.querySelectorAll(".drop-zone-pdf__input").forEach((inputElement) => {
 
     inputElement.addEventListener("change", (e) => {
         if (inputElement.files.length) {
-            if (inputElement.files[0].size > 5242880) {
-                console.log("Sorry, the file size is too big. Try something smaller than 5MB.");
+            if (inputElement.files[0].size > 52428880) {
+                console.log("Sorry, the file size is too big. Try something smaller than 50MB.");
                 return;
             } else {
                 if (inputElement.files[0].type != "application/pdf") {
@@ -42,7 +42,19 @@ document.querySelectorAll(".drop-zone-pdf__input").forEach((inputElement) => {
 
         if (e.dataTransfer.files.length) {
             inputElement.files = e.dataTransfer.files;
-            updateThumbnail(dropZoneElement, e.dataTransfer.files[0]);
+            if (inputElement.files[0].size > 52428880) {
+                console.log("Sorry, the file size is too big. Try something smaller than 50MB.");
+                return;
+            } else {
+                if (inputElement.files[0].type != "application/pdf") {
+                    console.log("Sorry, the file type is not supported. Try something else.");
+                    return;
+                } else {
+                    //Update Thumbnail Step 1
+                    updateThumbnail(dropZoneElement, inputElement.files[0]);
+                }
+            }
+            //updateThumbnail(dropZoneElement, e.dataTransfer.files[0]);
         }
 
         dropZoneElement.classList.remove("drop-zone-pdf--over");
