@@ -100,3 +100,17 @@ func (mr *MockImagesMockRecorder) ResizeImages(mysign, input interface{}) *gomoc
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ResizeImages", reflect.TypeOf((*MockImages)(nil).ResizeImages), mysign, input)
 }
+
+// SignWithData mocks base method.
+func (m *MockImages) SignWithData(path, sign string) string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SignWithData", path, sign)
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// SignWithData indicates an expected call of SignWithData.
+func (mr *MockImagesMockRecorder) SignWithData(path, sign interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SignWithData", reflect.TypeOf((*MockImages)(nil).SignWithData), path, sign)
+}

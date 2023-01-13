@@ -154,7 +154,7 @@ func Test_service_CreateImgSignatureData(t *testing.T) {
 				input := models.AddSignature{
 					Id: "6380b5cbdc938c5fdf8e6bfe",
 				}
-				images.EXPECT().CreateImgSignatureData(input, "Rizqi Wijaya", "detail_data.ttf").Return("public/images/signatures/signatures_data/signaturesdata-6380b5cbdc938c5fdf8e6bfe.png").Times(1)
+				images.EXPECT().CreateImgSignatureData(input, "Rizqi Wijaya", "data.ttf").Return("public/images/signatures/signatures_data/signaturesdata-6380b5cbdc938c5fdf8e6bfe.png").Times(1)
 			},
 		},
 		{
@@ -168,7 +168,7 @@ func Test_service_CreateImgSignatureData(t *testing.T) {
 				input := models.AddSignature{
 					Id: "6380b5cbdc938c5fdf8e6bfe",
 				}
-				images.EXPECT().CreateImgSignatureData(input, "Rizqi Wijaya", "detail_data.ttf").Return("").Times(1)
+				images.EXPECT().CreateImgSignatureData(input, "Rizqi Wijaya", "data.ttf").Return("").Times(1)
 			},
 		},
 		{
@@ -182,7 +182,7 @@ func Test_service_CreateImgSignatureData(t *testing.T) {
 				input := models.AddSignature{
 					Id: "6380b5cbdc938cs",
 				}
-				images.EXPECT().CreateImgSignatureData(input, "Rizqi Wijaya", "detail_data.ttf").Return("").Times(1)
+				images.EXPECT().CreateImgSignatureData(input, "Rizqi Wijaya", "data.ttf").Return("").Times(1)
 			},
 		},
 	}
@@ -287,7 +287,7 @@ func Test_service_CreateLatinSignaturesData(t *testing.T) {
 					Name: "Rizqi Wijaya",
 				}
 				latin := "public/images/signatures/latin/latin-6380b5cbdc938c5fdf8e6bfe.png"
-				images.EXPECT().CreateLatinSignaturesData(input, latin, "6380b5cbdc938c5fdf8e6bfe", "detail_data.ttf").Return("public/images/signatures/latin_data/latindata-6380b5cbdc938c5fdf8e6bfe.png").Times(1)
+				images.EXPECT().CreateLatinSignaturesData(input, latin, "6380b5cbdc938c5fdf8e6bfe", "data.ttf").Return("public/images/signatures/latin_data/latindata-6380b5cbdc938c5fdf8e6bfe.png").Times(1)
 			},
 		},
 		{
@@ -303,7 +303,7 @@ func Test_service_CreateLatinSignaturesData(t *testing.T) {
 					Name: "Rizqi Wijaya",
 				}
 				latin := "public/images/signatures/latin/latin-e.png"
-				images.EXPECT().CreateLatinSignaturesData(input, latin, "6380b5cbdc938c5fdf8e6bfe", "detail_data.ttf").Return("").Times(1)
+				images.EXPECT().CreateLatinSignaturesData(input, latin, "6380b5cbdc938c5fdf8e6bfe", "data.ttf").Return("").Times(1)
 			},
 		},
 		{
@@ -319,7 +319,7 @@ func Test_service_CreateLatinSignaturesData(t *testing.T) {
 					Name: "Rizqi Wijaya",
 				}
 				latin := "public/images/signatures/latin/latin-6380b5cbdc938c5fdf8e6bfe.png"
-				images.EXPECT().CreateLatinSignaturesData(input, latin, "6380b5cbdc938c5fdf8e6bfe", "detail_data.ttf").Return("").Times(1)
+				images.EXPECT().CreateLatinSignaturesData(input, latin, "6380b5cbdc938c5fdf8e6bfe", "data.ttf").Return("").Times(1)
 			},
 		},
 	}
