@@ -51,7 +51,7 @@ func (d *documents) SignDocuments(imgpath string, input models.SignDocuments) st
 	result := fmt.Sprintf("./public/temp/pdfsign/signed_%s", input.Name)
 	mode := "sign"
 	//Run Python Script document.py with Arguments
-	out, err := exec.Command("cmd", "/c", "python3", "./document.py", "-m", mode, "-s", "\""+inputPath+"\"", "-d", "\""+result+"\"", "-i", "\""+imgpath+"\"", "-x", fmt.Sprintf("%v", x), "-y", fmt.Sprintf("%v", y), "-w", fmt.Sprintf("%v", w), "-t", fmt.Sprintf("%v", h), "-p", fmt.Sprintf("%v", input.SignPage)).Output()
+	out, err := exec.Command("cmd", "/c", "python3", "./document.py", "-m", mode, "-s", inputPath, "-d", result, "-i", imgpath, "-x", fmt.Sprintf("%v", x), "-y", fmt.Sprintf("%v", y), "-w", fmt.Sprintf("%v", w), "-t", fmt.Sprintf("%v", h), "-p", fmt.Sprintf("%v", input.SignPage)).Output()
 	if err != nil {
 		log.Println(err)
 		return ""
@@ -73,12 +73,12 @@ func (d *documents) WaterMarking(path string) string {
 	mode := "watermark"
 	//Run Python Script document.py with Arguments
 	//In Linux running without cmd /c
-	out, err := exec.Command("cmd", "/c", "python3", "./document.py", "-m", mode, "-s", "\""+path+"\"", "-d", "\""+path+"\"", "-x", fmt.Sprintf("%v", x), "-y", fmt.Sprintf("%v", y), "-w", fmt.Sprintf("%v", w), "-t", fmt.Sprintf("%v", h), "-p", "1").Output()
+	out, err := exec.Command("cmd", "/c", "python3", "./document.py", "-m", mode, "-s", path, "-d", path, "-x", fmt.Sprintf("%v", x), "-y", fmt.Sprintf("%v", y), "-w", fmt.Sprintf("%v", w), "-t", fmt.Sprintf("%v", h), "-p", "1").Output()
 	if err != nil {
 		log.Println(err)
 		return path
 	}
 	fmt.Println(string(out))
-
+	//fmt.Println(out)
 	return path
 }
