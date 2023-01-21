@@ -43,7 +43,4 @@ type Conf struct {
 		User string `env:"EMAIL_USER"`
 		Pass string `env:"EMAIL_PASSWORD"`
 	}
-	Signature struct {
-		Key string `env:"SIGNATURE_KEY"`
-	}
 }
